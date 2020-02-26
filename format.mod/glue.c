@@ -21,59 +21,60 @@
 */ 
 
 #include <brl.mod/blitz.mod/blitz.h>
+#include "brl.mod/stringbuilder.mod/glue.h"
 
-BBString * bmx_sprintf_string(const char * format, BBString * value) {
+void bmx_sprintf_string(const char * format, BBString * value, struct MaxStringBuilder * buf) {
+	char vbuffer[2048];
+	bmx_stringbuilder_toutf8_buffer(value, vbuffer, sizeof(vbuffer));
 	char buffer[2048];
-	char *p = bbStringToUTF8String( value );
-	snprintf(buffer, sizeof(buffer), format, p);
-	bbMemFree( p );
-	return bbStringFromUTF8String(buffer);
+	snprintf(buffer, sizeof(buffer), format, vbuffer);
+	bmx_stringbuilder_append_utf8string(buf, buffer);
 }
 
-BBString * bmx_sprintf_float(const char * format, float value) {
+void bmx_sprintf_float(const char * format, float value, struct MaxStringBuilder * buf) {
 	char buffer[2048];
 	snprintf(buffer, sizeof(buffer), format, value);
-	return bbStringFromCString(buffer);
+	bmx_stringbuilder_append_utf8string(buf, buffer);
 }
 
-BBString * bmx_sprintf_int(const char * format, int value) {
+void bmx_sprintf_int(const char * format, int value, struct MaxStringBuilder * buf) {
 	char buffer[2048];
 	snprintf(buffer, sizeof(buffer), format, value);
-	return bbStringFromCString(buffer);
+	bmx_stringbuilder_append_utf8string(buf, buffer);
 }
 
-BBString * bmx_sprintf_uint(const char * format, unsigned int value) {
+void bmx_sprintf_uint(const char * format, unsigned int value, struct MaxStringBuilder * buf) {
 	char buffer[2048];
 	snprintf(buffer, sizeof(buffer), format, value);
-	return bbStringFromCString(buffer);
+	bmx_stringbuilder_append_utf8string(buf, buffer);
 }
 
-BBString * bmx_sprintf_double(const char * format, double value) {
+void bmx_sprintf_double(const char * format, double value, struct MaxStringBuilder * buf) {
 	char buffer[2048];
 	snprintf(buffer, sizeof(buffer), format, value);
-	return bbStringFromCString(buffer);
+	bmx_stringbuilder_append_utf8string(buf, buffer);
 }
 
-BBString * bmx_sprintf_long(const char * format, BBInt64 value) {
+void bmx_sprintf_long(const char * format, BBInt64 value, struct MaxStringBuilder * buf) {
 	char buffer[2048];
 	snprintf(buffer, sizeof(buffer), format, value);
-	return bbStringFromCString(buffer);
+	bmx_stringbuilder_append_utf8string(buf, buffer);
 }
 
-BBString * bmx_sprintf_ulong(const char * format, BBUInt64 value) {
+void bmx_sprintf_ulong(const char * format, BBUInt64 value, struct MaxStringBuilder * buf) {
 	char buffer[2048];
 	snprintf(buffer, sizeof(buffer), format, value);
-	return bbStringFromCString(buffer);
+	bmx_stringbuilder_append_utf8string(buf, buffer);
 }
 
-BBString * bmx_sprintf_sizet(const char * format, BBSIZET value) {
+void bmx_sprintf_sizet(const char * format, BBSIZET value, struct MaxStringBuilder * buf) {
 	char buffer[2048];
 	snprintf(buffer, sizeof(buffer), format, value);
-	return bbStringFromCString(buffer);
+	bmx_stringbuilder_append_utf8string(buf, buffer);
 }
 
-BBString * bmx_sprintf_ptr(const char * format, void * value) {
+void bmx_sprintf_ptr(const char * format, void * value, struct MaxStringBuilder * buf) {
 	char buffer[2048];
 	snprintf(buffer, sizeof(buffer), format, value);
-	return bbStringFromCString(buffer);
+	bmx_stringbuilder_append_utf8string(buf, buffer);
 }

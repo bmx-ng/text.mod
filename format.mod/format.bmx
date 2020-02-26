@@ -25,11 +25,13 @@ bbdoc: String Formatter
 End Rem
 Module Text.Format
 
-ModuleInfo "Version: 1.03"
+ModuleInfo "Version: 1.04"
 ModuleInfo "License: MIT"
 ModuleInfo "Copyright: 2007-2020 Bruce A Henderson"
 ModuleInfo "Modserver: BRL"
 
+ModuleInfo "History: 1.04"
+ModuleInfo "History: TStringBuilder usage improvements."
 ModuleInfo "History: 1.03"
 ModuleInfo "History: Updated for inclusion into NG/BRL."
 ModuleInfo "History: 1.02"
@@ -50,15 +52,15 @@ Import "glue.c"
 
 Private
 Extern
-	Function bmx_sprintf_string:String(format:Byte Ptr, value:String)
-	Function bmx_sprintf_float:String(format:Byte Ptr, value:Float)
-	Function bmx_sprintf_int:String(format:Byte Ptr, value:Int)
-	Function bmx_sprintf_uint:String(format:Byte Ptr, value:UInt)
-	Function bmx_sprintf_double:String(format:Byte Ptr, value:Double)
-	Function bmx_sprintf_long:String(format:Byte Ptr, value:Long)
-	Function bmx_sprintf_ulong:String(format:Byte Ptr, value:ULong)
-	Function bmx_sprintf_sizet:String(format:Byte Ptr, value:Size_T)
-	Function bmx_sprintf_ptr:String(format:Byte Ptr, value:Byte Ptr)
+	Function bmx_sprintf_string(format:Byte Ptr, value:String, sb:Byte Ptr)
+	Function bmx_sprintf_float(format:Byte Ptr, value:Float, sb:Byte Ptr)
+	Function bmx_sprintf_int(format:Byte Ptr, value:Int, sb:Byte Ptr)
+	Function bmx_sprintf_uint(format:Byte Ptr, value:UInt, sb:Byte Ptr)
+	Function bmx_sprintf_double(format:Byte Ptr, value:Double, sb:Byte Ptr)
+	Function bmx_sprintf_long(format:Byte Ptr, value:Long, sb:Byte Ptr)
+	Function bmx_sprintf_ulong(format:Byte Ptr, value:ULong, sb:Byte Ptr)
+	Function bmx_sprintf_sizet(format:Byte Ptr, value:Size_T, sb:Byte Ptr)
+	Function bmx_sprintf_ptr(format:Byte Ptr, value:Byte Ptr, sb:Byte Ptr)
 End Extern
 Public
 
@@ -290,8 +292,10 @@ Public
 	bbdoc: Processes and returns the formatted string.
 	returns: The formatted String.
 	End Rem
-	Method Format:String()
-		Local sb:TStringBuilder = New TStringBuilder
+	Method Format:String(sb:TStringBuilder = Null)
+		If Not sb Then
+			sb = New TStringBuilder
+		End If
 
 		Local arg:Int = 0
 		
@@ -306,14 +310,14 @@ Public
 						sb.Append("%")
 					Else
 						If (Not fpart.invalid) And (args And arg < argCount) Then
-							sb.Append(fpart.processArg(args[arg]))
+							fpart.processArg(args[arg], sb)
 							' next arg only if this was a "real" arg format
 							If fpart.formatType <> TFormattingText.FTYPE_LINEBREAK Then
 								arg:+ 1
 							End If
 						Else	
 							If Not fpart.invalid Then
-								sb.Append(fpart.processArg(New TNullArg))
+								fpart.processArg(New TNullArg, sb)
 							Else
 								sb.Append(part.ToString())
 							End If
@@ -397,35 +401,33 @@ Type TFormattingText Extends TStringFormatPart
 		formatPtr = formatText.ToCString()
 	End Method
 	
-	Method ProcessArg:String(arg:TArg)
-		Local s:String
+	Method ProcessArg(arg:TArg, sb:TStringBuilder)
 
 		Select arg.ArgType()
 			Case TArg.ARG_STRING
-				s = bmx_sprintf_string(formatText, TStringArg(arg).value)
+				bmx_sprintf_string(formatText, TStringArg(arg).value, sb.buffer)
 			Case TArg.ARG_INT
-				s = bmx_sprintf_int(formatText, TIntArg(arg).value)
+				bmx_sprintf_int(formatText, TIntArg(arg).value, sb.buffer)
 			Case TArg.ARG_UINT
-				s = bmx_sprintf_uint(formatText, TUIntArg(arg).value)
+				bmx_sprintf_uint(formatText, TUIntArg(arg).value, sb.buffer)
 			Case TArg.ARG_FLOAT
-					s = bmx_sprintf_float(formatText, TFloatArg(arg).value)
+				bmx_sprintf_float(formatText, TFloatArg(arg).value, sb.buffer)
 			Case TArg.ARG_DOUBLE
-				s = bmx_sprintf_double(formatText, TDoubleArg(arg).value)
+				bmx_sprintf_double(formatText, TDoubleArg(arg).value, sb.buffer)
 			Case TArg.ARG_LONG
-				s = bmx_sprintf_long(formatText, TLongArg(arg).value)
+				bmx_sprintf_long(formatText, TLongArg(arg).value, sb.buffer)
 			Case TArg.ARG_ULONG
-				s = bmx_sprintf_ulong(formatText, TULongArg(arg).value)
+				bmx_sprintf_ulong(formatText, TULongArg(arg).value, sb.buffer)
 			Case TArg.ARG_SIZET
-				s = bmx_sprintf_sizet(formatText, TSizeTArg(arg).value)
+				bmx_sprintf_sizet(formatText, TSizeTArg(arg).value, sb.buffer)
 			Case TArg.ARG_SHORT
-				s = bmx_sprintf_int(formatText, Int(TShortArg(arg).value))
+				bmx_sprintf_int(formatText, Int(TShortArg(arg).value), sb.buffer)
 			Case TArg.ARG_BYTE
-				s = bmx_sprintf_int(formatText, Int(TByteArg(arg).value))
+				bmx_sprintf_int(formatText, Int(TByteArg(arg).value), sb.buffer)
 			Case TArg.ARG_PTR
-				s = bmx_sprintf_ptr(formatText, TPtrArg(arg).value)
+				bmx_sprintf_ptr(formatText, TPtrArg(arg).value, sb.buffer)
 		End Select
 
-		Return s
 	End Method
 
 	Method ToString:String()
