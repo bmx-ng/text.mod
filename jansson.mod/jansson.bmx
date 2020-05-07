@@ -22,11 +22,13 @@ SuperStrict
 
 Module Text.Jansson
 
-ModuleInfo "Version: 1.05"
+ModuleInfo "Version: 1.06"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
 ModuleInfo "Copyright: 2014-2020 Bruce A Henderson"
 
+ModuleInfo "History: 1.06"
+ModuleInfo "History: Updated to Jansson 2.13.1."
 ModuleInfo "History: 1.05"
 ModuleInfo "History: Updated to Jansson with fractional precision support."
 ModuleInfo "History: 1.04"
