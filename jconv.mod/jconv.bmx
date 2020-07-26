@@ -184,6 +184,16 @@ Type TJConv
 		Return FromJson(json, typeId, obj)
 	End Method
 
+	Rem
+	bbdoc: Deserializes the specified JSON instance into an object of the specified type.
+	returns: The deserialized object.
+	End Rem
+	Method FromJsonInstance:Object(json:TJSON, typeName:String)
+		Local typeId:TTypeId = TTypeId.ForName(typeName)
+		
+		Return FromJson(json, typeId, Null)
+	End Method
+
 	Method FromJson:Object(txt:String, typeId:TTypeId, obj:Object)
 		Local error:TJSONError
 		Local json:TJSON = TJSON.Load(txt, 0, error)
