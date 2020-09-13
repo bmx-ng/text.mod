@@ -53,6 +53,8 @@ Import "include/macos/*.h"
 Import "include/win32/*.h"
 ?nx
 Import "include/nx/*.h"
+?haiku
+Import "include/haiku/*.h"
 ?
 
 ?android
