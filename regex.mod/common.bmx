@@ -1,4 +1,4 @@
-' Copyright (c) 2007-2020 Bruce A Henderson
+' Copyright (c) 2007-2021 Bruce A Henderson
 ' All rights reserved.
 '
 ' Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,7 @@ Import "pcre/src/pcre2_match_data.c"
 Import "pcre/src/pcre2_newline.c"
 Import "pcre/src/pcre2_ord2utf.c"
 Import "pcre/src/pcre2_pattern_info.c"
+Import "pcre/src/pcre2_script_run.c"
 Import "pcre/src/pcre2_string_utils.c"
 Import "pcre/src/pcre2_study.c"
 Import "pcre/src/pcre2_substitute.c"

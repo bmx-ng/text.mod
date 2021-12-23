@@ -324,16 +324,7 @@
 \= Expect no match
     fooabar
 
-# This one is here because Perl behaves differently; see also the following.
-
-/^(a\1?){4}$/I
-\= Expect no match
-    aaaa
-    aaaaaa
-
-# Perl does not fail these two for the final subjects. Neither did PCRE until
-# release 8.01. The problem is in backtracking into a subpattern that contains
-# a recursive reference to itself. PCRE has now made these into atomic patterns.
+# Perl does not fail these two for the final subjects.
 
 /^(xa|=?\1a){2}$/
     xa=xaa
@@ -909,6 +900,8 @@
 /[=x=]/I
 
 /[:x:]/I
+
+/\F/I
 
 /\l/I
 
@@ -1623,6 +1616,7 @@
 /^a*A\d/IBi
     aaaA5
     aaaa5
+    a5 
 
 /(a*|b*)[cd]/I
 
@@ -2195,8 +2189,6 @@
 
 /a(*MARK)b/
 
-/(?i:A{1,}\6666666666)/
-
 /\g6666666666/
 
 /[\g6666666666]/B
@@ -2406,13 +2398,13 @@
 \= Expect no match
     cat
 
-/(\3)(\1)(a)/alt_bsux,allow_empty_class,match_unset_backref,dupnames
+/(\3)(\1)(a)/allow_empty_class,match_unset_backref,dupnames
     cat
 
 /TA]/
     The ACTA] comes
 
-/TA]/alt_bsux,allow_empty_class,match_unset_backref,dupnames
+/TA]/allow_empty_class,match_unset_backref,dupnames
     The ACTA] comes
 
 /(?2)[]a()b](abc)/
@@ -2444,25 +2436,25 @@
 
 /a[^]b/
 
-/a[]b/alt_bsux,allow_empty_class,match_unset_backref,dupnames
+/a[]b/allow_empty_class,match_unset_backref,dupnames
 \= Expect no match
     ab
 
-/a[]+b/alt_bsux,allow_empty_class,match_unset_backref,dupnames
+/a[]+b/allow_empty_class,match_unset_backref,dupnames
 \= Expect no match
     ab
 
-/a[]*+b/alt_bsux,allow_empty_class,match_unset_backref,dupnames
+/a[]*+b/allow_empty_class,match_unset_backref,dupnames
 \= Expect no match
     ab
 
-/a[^]b/alt_bsux,allow_empty_class,match_unset_backref,dupnames
+/a[^]b/allow_empty_class,match_unset_backref,dupnames
     aXb
     a\nb
 \= Expect no match
     ab
 
-/a[^]+b/alt_bsux,allow_empty_class,match_unset_backref,dupnames
+/a[^]+b/allow_empty_class,match_unset_backref,dupnames
     aXb
     a\nX\nXb
 \= Expect no match
@@ -2901,10 +2893,10 @@
     xxxxabcde\=ps
     xxxxabcde\=ph
 
-/(\3)(\1)(a)/alt_bsux,allow_empty_class,match_unset_backref,dupnames
+/(\3)(\1)(a)/allow_empty_class,match_unset_backref,dupnames
     cat
 
-/(\3)(\1)(a)/I,alt_bsux,allow_empty_class,match_unset_backref,dupnames
+/(\3)(\1)(a)/I,allow_empty_class,match_unset_backref,dupnames
     cat
 
 /(\3)(\1)(a)/I
@@ -2949,10 +2941,11 @@
 
 /abc(*:)pqr/
 
-/abc(*FAIL:123)xyz/
+/(*COMMIT:X)/B
 
 # This should, and does, fail. In Perl, it does not, which I think is a
 # bug because replacing the B in the pattern by (B|D) does make it fail.
+# Turning off Perl's optimization by inserting (??{""}) also makes it fail.
 
 /A(*COMMIT)B/aftertext,mark
 \= Expect no match
@@ -3415,6 +3408,14 @@
     aU0041z
 \= Expect no match
     aAz
+    
+/^\u{7a}/alt_bsux
+    u{7a}
+\= Expect no match
+    zoo 
+
+/^\u{7a}/extra_alt_bsux
+    zoo 
 
 /(?(?=c)c|d)++Y/B
 
@@ -3931,7 +3932,7 @@
 
 /[a[:<:]] should give error/
 
-/(?=ab\K)/aftertext
+/(?=ab\K)/aftertext,allow_lookaround_bsk
     abcd\=startchar
 
 /abcd/newline=lf,firstline
@@ -4005,6 +4006,9 @@
     cdab
 
 /(?(VERSION>=10.0)yes|no)/I
+    yesno
+
+/(?(VERSION>=10.04)yes|no)/
     yesno
 
 /(?(VERSION=8)yes){3}/BI,aftertext
@@ -4181,7 +4185,7 @@
 /(a)(b)|(c)/
     XcX\=ovector=2,get=1,get=2,get=3,get=4,getall
 
-/x(?=ab\K)/
+/x(?=ab\K)/allow_lookaround_bsk
     xab\=get=0
     xab\=copy=0
     xab\=getall
@@ -4341,10 +4345,10 @@
 
 # Perl loops on this (PCRE2 used to!)
 
-/(?<=\Ka)/g,aftertext
+/(?<=\Ka)/g,aftertext,allow_lookaround_bsk
     aaaaa
 
-/(?<=\Ka)/altglobal,aftertext
+/(?<=\Ka)/altglobal,aftertext,allow_lookaround_bsk
     aaaaa
 
 /((?2){73}(?2))((?1))/info
@@ -4570,12 +4574,18 @@ B)x/alt_verbnames,mark
 
 /abcd/null_context
     abcd\=null_context
-\= Expect error
+\= Expect error - not allowed together
     abcd\=null_context,find_limits
     abcd\=allusedtext,startchar
 
 /abcd/replace=w\rx\x82y\o{333}z(\Q12\$34$$\x34\E5$$),substitute_extended
     abcd
+
+/abcd/replace=w\rx\x82y\o{333}z(\Q12\$34$$\x34\E5$$),substitute_extended,substitute_literal
+    >>abcd<<
+    
+/abcd/g,replace=\$1$2\,substitute_literal
+    XabcdYabcdZ
 
 /a(bc)(DE)/replace=a\u$1\U$1\E$1\l$2\L$2\Eab\Uab\LYZ\EDone,substitute_extended
     abcDE
@@ -4588,6 +4598,7 @@ B)x/alt_verbnames,mark
     ac
     ab\=replace=${1:+$1\:$1:$2}
     ac\=replace=${1:+$1\:$1:$2}
+    >>ac<<\=replace=${1:+$1\:$1:$2},substitute_literal
 
 /a(?:(b)|(c))/substitute_extended,replace=X${1:-1:-1}X${2:-2:-2}
     ab
@@ -4627,6 +4638,13 @@ B)x/alt_verbnames,mark
 
 /(aa)(BB)/substitute_extended,replace=\U$1\L$2\E$1..\U$1\l$2$1
     aaBB
+    
+/abcd/replace=wxyz,substitute_matched
+    abcd
+    pqrs 
+
+/abcd/g
+    >abcd1234abcd5678<\=replace=wxyz,substitute_matched
 
 /^(o(\1{72}{\"{\\{00000059079}\d*){74}}){19}/I
 
@@ -4641,8 +4659,11 @@ B)x/alt_verbnames,mark
 
 /(?<!a{65535})x/I
 
-/(?=a\K)/replace=z
+/(?=a\K)/replace=z,allow_lookaround_bsk
     BaCaD
+    
+/(?<=\K.)/g,replace=-,allow_lookaround_bsk
+    ab
 
 /(?'abcdefghijklmnopqrstuvwxyzABCDEFG'toolong)/
 
@@ -4934,6 +4955,9 @@ a)"xI
 
 //replace=0
     \=offset=7
+
+/(?<=\G.)/g,replace=+
+    abc
 
 ".+\QX\E+"B,no_auto_possess
 
@@ -5292,9 +5316,21 @@ a)"xI
 
 /\N{\c/IB,bad_escape_is_literal
 
-/[\j\x{z}\o\gA-\Nb-\g]/B,bad_escape_is_literal
+/[\j\x{z}\o\gAb\g]/B,bad_escape_is_literal
 
 /[Q-\N]/B,bad_escape_is_literal
+
+/[\s-_]/bad_escape_is_literal
+
+/[_-\s]/bad_escape_is_literal
+
+/[\B\R\X]/B
+
+/[\B\R\X]/B,bad_escape_is_literal
+
+/[A-\BP-\RV-\X]/B
+
+/[A-\BP-\RV-\X]/B,bad_escape_is_literal
 
 # ----------------------------------------------------------------------
 
@@ -5428,5 +5464,442 @@ a)"xI
 /^(a?)+b/B
 
 /(?=a+)a(a+)++b/B
+
+/(?<=(?=.){4,5}x)/B
+
+# Perl behaves differently with these when optimization is turned off
+
+/a(*PRUNE:X)bc|qq/mark,no_start_optimize
+\= Expect no match
+    axy
+
+/a(*THEN:X)bc|qq/mark,no_start_optimize
+\= Expect no match
+    axy
+
+/(?^x-i)AB/ 
+
+/(?^-i)AB/ 
+
+/(?x-i-i)/
+
+/(?(?=^))b/I
+    abc
+
+/(?(?=^)|)b/I
+    abc
+
+/(?(?=^)|^)b/I
+    bbc
+\= Expect no match
+    abc     
+
+/(?(1)^|^())/I
+
+/(?(1)^())b/I
+
+/(?(1)^())+b/I,aftertext
+    abc
+
+/(?(1)^()|^)+b/I,aftertext
+    bbc 
+\= Expect no match     
+    abc
+
+/(?(1)^()|^)*b/I,aftertext
+    bbc 
+    abc
+    xbc 
+
+/(?(1)^())+b/I,aftertext
+    abc
+
+/(?(1)^a()|^a)+b/I,aftertext
+    abc 
+\= Expect no match     
+    bbc
+
+/(?(1)^|^(a))+b/I,aftertext
+    abc 
+\= Expect no match     
+    bbc
+
+/(?(1)^a()|^a)*b/I,aftertext
+    abc 
+    bbc
+    xbc 
+
+/a(b)c|xyz/g,allvector,replace=<$0>
+    abcdefabcpqr\=ovector=4
+    abxyz\=ovector=4
+    abcdefxyz\=ovector=4
+    
+/a(b)c|xyz/allvector
+    abcdef\=ovector=4
+    abxyz\=ovector=4
+
+/a(b)c|xyz/g,replace=<$0>,substitute_callout
+    abcdefabcpqr
+    abxyzpqrabcxyz
+    12abc34xyz99abc55\=substitute_stop=2
+    12abc34xyz99abc55\=substitute_skip=1
+    12abc34xyz99abc55\=substitute_skip=2
+
+/a(b)c|xyz/g,replace=<$0>
+    abcdefabcpqr
+    abxyzpqrabcxyz
+    12abc34xyz\=substitute_stop=2
+    12abc34xyz\=substitute_skip=1
+
+/a(b)c|xyz/replace=<$0>
+    abcdefabcpqr
+    12abc34xyz\=substitute_skip=1
+    12abc34xyz\=substitute_stop=1
+
+/abc\rdef/
+    abc\ndef
+
+/abc\rdef\x{0d}xyz/escaped_cr_is_lf
+    abc\ndef\rxyz
+\= Expect no match     
+    abc\ndef\nxyz
+
+/(?(*ACCEPT)xxx)/
+
+/(?(*atomic:xx)xxx)/
+
+/(?(*script_run:xxx)zzz)/
+
+/foobar/
+    the foobar thing\=copy_matched_subject
+    the foobar thing\=copy_matched_subject,zero_terminate
+
+/foobar/g
+    the foobar thing foobar again\=copy_matched_subject
+
+/(*:XX)^abc/I
+
+/(*COMMIT:XX)^abc/I
+
+/(*ACCEPT:XX)^abc/I
+
+/abc/replace=xyz
+    abc\=null_context
+
+/abc/replace=xyz,substitute_callout
+    abc 
+\= Expect error message
+    abc\=null_context
+
+/\[()]{65535}()/expand
+
+/\[()]{65535}(?<A>)/expand
+
+/a(?:(*ACCEPT))??bc/
+    abc
+    axy
+
+/a(*ACCEPT)??bc/
+    abc
+    axy
+
+/a(*ACCEPT:XX)??bc/mark
+    abc
+    axy
+
+/(*:\)?/
+
+/(*:\Q \E){5}/alt_verbnames
+
+/(?=abc)/I
+
+/(?|(X)|(XY))\1abc/I
+
+/(?|(a)|(bcde))(c)\2/I
+
+/(?|(a)|(bcde))(c)\1/I
+
+/(?|(?'A'a)|(?'A'bcde))(?'B'c)\k'B'(?'A')/I,dupnames
+
+/(?|(?'A'a)|(?'A'bcde))(?'B'c)\k'A'(?'A')/I,dupnames
+
+/((a|)+)+Z/I
+
+/((?=a))[abcd]/I
+
+/A(?:(*ACCEPT))?B/info
+
+/(A(*ACCEPT)??B)C/
+    ABC
+    AXY 
+
+/(?<=(?<=a)b)c.*/I
+    abc\=ph
+\= Expect no match
+    xbc\=ph
+
+/(?<=ab)c.*/I
+    abc\=ph
+\= Expect no match
+    xbc\=ph
+
+/(?<=a(?<=a|a)c)/I
+
+/(?<=a(?<=a|ba)c)/I
+
+/(?<=(?<=a)b)(?<!abcd)/I
+
+/(?<=(?<=a)b)(?<!abcd)(?<=(?<=a)bcde)/I
+
+# Addition overflow
+/( {32742} {42})(?<!\1{65481})/
+
+# Multiplication overflow
+/(X{65535})(?<=\1{32770})/
+
+# ---- Non-atomic assertion tests ----
+
+# Expect error: not allowed as a condition
+/(?(*napla:xx)bc)/
+
+/\A(*pla:.*\b(\w++))(?>.*?\b\1\b){3}/
+    word1 word3 word1 word2 word3 word2 word2 word1 word3 word4
+
+/\A(*napla:.*\b(\w++))(?>.*?\b\1\b){3}/
+    word1 word3 word1 word2 word3 word2 word2 word1 word3 word4
+
+/\A(?*.*\b(\w++))(?>.*?\b\1\b){3}/
+    word1 word3 word1 word2 word3 word2 word2 word1 word3 word4
+
+/(*plb:(.)..|(.)...)(\1|\2)/
+    abcdb\=offset=4 
+    abcda\=offset=4 
+
+/(*naplb:(.)..|(.)...)(\1|\2)/
+    abcdb\=offset=4 
+    abcda\=offset=4 
+    
+/(?<*(.)..|(.)...)(\1|\2)/
+    abcdb\=offset=4 
+    abcda\=offset=4 
+    
+/(*non_atomic_positive_lookahead:ab)/B
+ 
+/(*non_atomic_positive_lookbehind:ab)/B 
+
+/(*pla:ab+)/B
+
+/(*napla:ab+)/B
+
+/(*napla:)+/
+
+/(*naplb:)+/
+
+/(*napla:^x|^y)/I
+
+/(*napla:abc|abd)/I
+
+/(*napla:a|(.)(*ACCEPT)zz)\1../
+    abcd
+    
+/(*napla:a(*ACCEPT)zz|(.))\1../
+    abcd
+    
+/(*napla:a|(*COMMIT)(.))\1\1/
+    aabc
+\= Expect no match     
+    abbc   
+
+/(*napla:a|(.))\1\1/
+    aabc
+    abbc   
+
+# ----
+
+# Expect error (recursion => not fixed length)
+/(\2)((?=(?<=\1)))/
+
+/c*+(?<=[bc])/
+    abc\=ph
+    ab\=ph
+    abc\=ps
+    ab\=ps
+
+/c++(?<=[bc])/
+    abc\=ph
+    ab\=ph
+
+/(?<=(?=.(?<=x)))/
+    abx
+    ab\=ph
+    bxyz 
+    xyz
+    
+/\z/
+   abc\=ph
+   abc\=ps 
+   
+/\Z/
+   abc\=ph
+   abc\=ps 
+   abc\n\=ph
+   abc\n\=ps
+
+/(?![ab]).*/
+    ab\=ph
+
+/c*+/
+    ab\=ph,offset=2
+
+/\A\s*(a|(?:[^`]{28500}){4})/I
+    a
+
+/\A\s*((?:[^`]{28500}){4})/I
+
+/\A\s*((?:[^`]{28500}){4}|a)/I
+    a
+
+/(?<A>a)(?(<A>)b)((?<=b).*)/B
+
+/(?(1)b)((?<=b).*)/B
+
+/(?(R1)b)((?<=b).*)/B
+
+/(?(DEFINE)b)((?<=b).*)/B
+
+/(?(VERSION=10.4)b)((?<=b).*)/B
+
+/[aA]b[cC]/IB
+
+/[cc]abcd/I
+
+/[Cc]abcd/I
+
+/[c]abcd/I
+
+/(?:c|C)abcd/I
+
+/(a)?a/I
+    manm
+
+/^(?|(\*)(*napla:\S*_(\2?+.+))|(\w)(?=\S*_(\2?+\1)))+_\2$/
+    *abc_12345abc
+
+/^(?|(\*)(*napla:\S*_(\3?+.+))|(\w)(?=\S*_((\2?+\1))))+_\2$/
+    *abc_12345abc
+
+/^((\1+)(?C)|\d)+133X$/
+    111133X\=callout_capture
+
+/abc/replace=xyz,substitute_replacement_only
+    123abc456
+
+/a(?<ONE>b)c(?<TWO>d)e/g,replace=X$ONE+${TWO}Z,substitute_replacement_only
+    "abcde-abcde-"
+     
+/a(b)c|xyz/g,replace=<$0>,substitute_callout,substitute_replacement_only
+    abcdefabcpqr                
+    abxyzpqrabcxyz              
+    12abc34xyz99abc55\=substitute_stop=2                          
+    12abc34xyz99abc55\=substitute_skip=1
+    12abc34xyz99abc55\=substitute_skip=2
+
+/a(..)d/replace=>$1<,substitute_matched
+    xyzabcdxyzabcdxyz
+    xyzabcdxyzabcdxyz\=ovector=2
+\= Expect error     
+    xyzabcdxyzabcdxyz\=ovector=1
+
+/a(..)d/g,replace=>$1<,substitute_matched
+    xyzabcdxyzabcdxyz
+    xyzabcdxyzabcdxyz\=ovector=2
+\= Expect error     
+    xyzabcdxyzabcdxyz\=ovector=1
+    xyzabcdxyzabcdxyz\=ovector=1,substitute_unset_empty
+
+/55|a(..)d/g,replace=>$1<,substitute_matched
+    xyz55abcdxyzabcdxyz\=ovector=2,substitute_unset_empty
+\= Expect error     
+    xyz55abcdxyzabcdxyz\=ovector=2
+
+/55|a(..)d/replace=>$1<,substitute_matched
+    xyz55abcdxyzabcdxyz\=ovector=2,substitute_unset_empty
+
+/55|a(..)d/replace=>$1<
+    xyz55abcdxyzabcdxyz\=ovector=2,substitute_unset_empty
+
+/55|a(..)d/g,replace=>$1<
+    xyz55abcdxyzabcdxyz\=ovector=2,substitute_unset_empty
+    
+/abc/replace=,caseless
+    XabcY
+    XABCY 
+
+/abc/replace=[4],caseless
+    XabcY
+    XABCY 
+
+/abc/replace=*,caseless
+    XabcY
+    XABCY
+    XabcY\=replace=  
+
+# Expect non-fixed-length error
+
+"(?<=X(?(DEFINE)(.*))(?1))."
+
+/\sxxx\s/tables=1
+\= Expect no match
+    AB\x{85}xxx\x{a0}XYZ
+
+/\sxxx\s/tables=2
+    AB\x{85}xxx\x{a0}XYZ
+
+/^\w+/tables=2
+    École
+
+/^\w+/tables=3
+    École
+
+#loadtables ./testbtables
+
+/^\w+/tables=3
+    École
+
+/"(*MARK:>" 00 "<).."/hex,mark,no_start_optimize
+    AB
+    A\=ph 
+\= Expect no match
+    A
+
+/"(*MARK:>" 00 "<).(?C1)."/hex,mark,no_start_optimize
+    AB
+
+/(?(VERSION=0.0/
+
+# Perl has made \K in lookarounds an error. PCRE2 now rejects as well, unless
+# explicitly authorized.
+
+/(?=a\Kb)ab/
+
+/(?=a\Kb)ab/allow_lookaround_bsk
+    ab 
+
+/(?!a\Kb)ac/
+
+/(?!a\Kb)ac/allow_lookaround_bsk
+    ac 
+    
+/^abc(?<=b\Kc)d/
+
+/^abc(?<=b\Kc)d/allow_lookaround_bsk
+    abcd
+
+/^abc(?<!b\Kq)d/
+
+/^abc(?<!b\Kq)d/,allow_lookaround_bsk
+    abcd
+    
+# --------- 
 
 # End of testinput2

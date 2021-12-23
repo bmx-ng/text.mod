@@ -1,4 +1,4 @@
-' Copyright (c) 2007-2020 Bruce A Henderson
+' Copyright (c) 2007-2021 Bruce A Henderson
 ' All rights reserved.
 '
 ' Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,14 @@ bbdoc: Regular Expressions
 End Rem
 Module Text.RegEx
 
-ModuleInfo "Version: 1.10"
+ModuleInfo "Version: 1.11"
 ModuleInfo "Author: PCRE - Philip Hazel"
 ModuleInfo "License: BSD"
-ModuleInfo "Copyright: PCRE - 1997-2018 University of Cambridge"
-ModuleInfo "Copyright: Wrapper - 2007-2020 Bruce A Henderson"
+ModuleInfo "Copyright: PCRE - 1997-2021 University of Cambridge"
+ModuleInfo "Copyright: Wrapper - 2007-2021 Bruce A Henderson"
 
+ModuleInfo "History: 1.11"
+ModuleInfo "History: Updated to PCRE 10.39"
 ModuleInfo "History: 1.10"
 ModuleInfo "History: Updated to PCRE 10.31"
 ModuleInfo "History: 1.09"

@@ -46,6 +46,7 @@ dist_html_DATA = \
   doc/html/pcre2_general_context_free.html \
   doc/html/pcre2_get_error_message.html \
   doc/html/pcre2_get_mark.html \
+  doc/html/pcre2_get_match_data_size.html \
   doc/html/pcre2_get_ovector_count.html \
   doc/html/pcre2_get_ovector_pointer.html \
   doc/html/pcre2_get_startchar.html \
@@ -56,6 +57,7 @@ dist_html_DATA = \
   doc/html/pcre2_jit_stack_create.html \
   doc/html/pcre2_jit_stack_free.html \
   doc/html/pcre2_maketables.html \
+  doc/html/pcre2_maketables_free.html \
   doc/html/pcre2_match.html \
   doc/html/pcre2_match_context_copy.html \
   doc/html/pcre2_match_context_create.html \
@@ -85,6 +87,7 @@ dist_html_DATA = \
   doc/html/pcre2_set_parens_nest_limit.html \
   doc/html/pcre2_set_recursion_limit.html \
   doc/html/pcre2_set_recursion_memory_management.html \
+  doc/html/pcre2_set_substitute_callout.html \
   doc/html/pcre2_substitute.html \
   doc/html/pcre2_substring_copy_byname.html \
   doc/html/pcre2_substring_copy_bynumber.html \
@@ -139,6 +142,7 @@ dist_man_MANS = \
   doc/pcre2_general_context_free.3 \
   doc/pcre2_get_error_message.3 \
   doc/pcre2_get_mark.3 \
+  doc/pcre2_get_match_data_size.3 \
   doc/pcre2_get_ovector_count.3 \
   doc/pcre2_get_ovector_pointer.3 \
   doc/pcre2_get_startchar.3 \
@@ -149,6 +153,7 @@ dist_man_MANS = \
   doc/pcre2_jit_stack_create.3 \
   doc/pcre2_jit_stack_free.3 \
   doc/pcre2_maketables.3 \
+  doc/pcre2_maketables_free.3 \
   doc/pcre2_match.3 \
   doc/pcre2_match_context_copy.3 \
   doc/pcre2_match_context_create.3 \
@@ -178,6 +183,7 @@ dist_man_MANS = \
   doc/pcre2_set_parens_nest_limit.3 \
   doc/pcre2_set_recursion_limit.3 \
   doc/pcre2_set_recursion_memory_management.3 \
+  doc/pcre2_set_substitute_callout.3 \
   doc/pcre2_substitute.3 \
   doc/pcre2_substring_copy_byname.3 \
   doc/pcre2_substring_copy_bynumber.3 \
@@ -231,7 +237,7 @@ noinst_PROGRAMS =
 # and 'make maintainer-clean'.
 
 CLEANFILES =
-DISTCLEANFILES = src/config.h.in~ config.h
+DISTCLEANFILES = src/config.h.in~
 MAINTAINERCLEANFILES =
 
 # Additional files to bundle with the distribution, over and above what
@@ -319,18 +325,18 @@ include_HEADERS = src/pcre2posix.h
 bin_SCRIPTS = pcre2-config
 
 ## ---------------------------------------------------------------
-## The dftables program is used to rebuild character tables before compiling
-## PCRE2, if --enable-rebuild-chartables is specified. It is not a user-visible
-## program. The default (when --enable-rebuild-chartables is not specified) is
-## to copy a distributed set of tables that are defined for ASCII code. In this
-## case, dftables is not needed.
+## The pcre2_dftables program is used to rebuild character tables before
+## compiling PCRE2, if --enable-rebuild-chartables is specified. It is not an
+## installed program. The default (when --enable-rebuild-chartables is not
+## specified) is to copy a distributed set of tables that are defined for ASCII
+## code. In this case, pcre2_dftables is not needed.
 
 if WITH_REBUILD_CHARTABLES
-noinst_PROGRAMS += dftables
-dftables_SOURCES = src/dftables.c
-src/pcre2_chartables.c: dftables$(EXEEXT)
+noinst_PROGRAMS += pcre2_dftables
+pcre2_dftables_SOURCES = src/pcre2_dftables.c
+src/pcre2_chartables.c: pcre2_dftables$(EXEEXT)
 	rm -f $@
-	./dftables$(EXEEXT) $@
+	./pcre2_dftables$(EXEEXT) $@
 else
 src/pcre2_chartables.c: $(srcdir)/src/pcre2_chartables.c.dist
 	rm -f $@
@@ -356,12 +362,15 @@ COMMON_SOURCES = \
   src/pcre2_internal.h \
   src/pcre2_intmodedep.h \
   src/pcre2_jit_compile.c \
+  src/pcre2_jit_neon_inc.h \
+  src/pcre2_jit_simd_inc.h \
   src/pcre2_maketables.c \
   src/pcre2_match.c \
   src/pcre2_match_data.c \
   src/pcre2_newline.c \
   src/pcre2_ord2utf.c \
   src/pcre2_pattern_info.c \
+  src/pcre2_script_run.c \
   src/pcre2_serialize.c \
   src/pcre2_string_utils.c \
   src/pcre2_study.c \
@@ -382,6 +391,7 @@ nodist_libpcre2_8_la_SOURCES = \
 libpcre2_8_la_CFLAGS = \
   -DPCRE2_CODE_UNIT_WIDTH=8 \
   $(VISIBILITY_CFLAGS) \
+  $(CET_CFLAGS) \
   $(AM_CFLAGS)
 libpcre2_8_la_LIBADD =
 endif # WITH_PCRE2_8
@@ -395,6 +405,7 @@ nodist_libpcre2_16_la_SOURCES = \
 libpcre2_16_la_CFLAGS = \
   -DPCRE2_CODE_UNIT_WIDTH=16 \
   $(VISIBILITY_CFLAGS) \
+  $(CET_CFLAGS) \
   $(AM_CFLAGS)
 libpcre2_16_la_LIBADD =
 endif # WITH_PCRE2_16
@@ -408,6 +419,7 @@ nodist_libpcre2_32_la_SOURCES = \
 libpcre2_32_la_CFLAGS = \
   -DPCRE2_CODE_UNIT_WIDTH=32 \
   $(VISIBILITY_CFLAGS) \
+  $(CET_CFLAGS) \
   $(AM_CFLAGS)
 libpcre2_32_la_LIBADD =
 endif # WITH_PCRE2_32
@@ -436,15 +448,15 @@ EXTRA_DIST += \
   src/sljit/sljitNativePPC_32.c \
   src/sljit/sljitNativePPC_64.c \
   src/sljit/sljitNativePPC_common.c \
+  src/sljit/sljitNativeS390X.c \
   src/sljit/sljitNativeSPARC_32.c \
   src/sljit/sljitNativeSPARC_common.c \
-  src/sljit/sljitNativeTILEGX-encoder.c \
-  src/sljit/sljitNativeTILEGX_64.c \
   src/sljit/sljitNativeX86_32.c \
   src/sljit/sljitNativeX86_64.c \
   src/sljit/sljitNativeX86_common.c \
   src/sljit/sljitProtExecAllocator.c \
-  src/sljit/sljitUtils.c
+  src/sljit/sljitUtils.c \
+  src/sljit/sljitWXExecAllocator.c
 
 # Some of the JIT sources are also in separate files that are #included.
 
@@ -528,6 +540,10 @@ noinst_PROGRAMS += pcre2fuzzcheck
 pcre2fuzzcheck_SOURCES = src/pcre2_fuzzsupport.c
 pcre2fuzzcheck_CFLAGS = -DSTANDALONE $(AM_CFLAGS)
 pcre2fuzzcheck_LDADD = libpcre2-8.la
+if WITH_GCOV
+pcre2fuzzcheck_CFLAGS += $(GCOV_CFLAGS)
+pcre2fuzzcheck_LDADD += $(GCOV_LIBS)
+endif # WITH_GCOV
 endif # WITH FUZZ_SUPPORT
 endif # WITH_PCRE2_8
 
@@ -618,8 +634,10 @@ EXTRA_DIST += \
   testdata/grepoutput \
   testdata/grepoutput8 \
   testdata/grepoutputC \
+  testdata/grepoutputCN \
   testdata/grepoutputN \
   testdata/greppatN4 \
+  testdata/testbtables \
   testdata/testinput1 \
   testdata/testinput2 \
   testdata/testinput3 \
@@ -657,7 +675,7 @@ EXTRA_DIST += \
   testdata/testoutput7 \
   testdata/testoutput8-16-2 \
   testdata/testoutput8-16-3 \
-  testdata/testoutput8-16-3 \
+  testdata/testoutput8-16-4 \
   testdata/testoutput8-32-2 \
   testdata/testoutput8-32-3 \
   testdata/testoutput8-32-4 \
@@ -841,9 +859,11 @@ endif # WITH_GCOV
 
 EXTRA_DIST += \
   cmake/COPYING-CMAKE-SCRIPTS \
+  cmake/FindEditline.cmake \
   cmake/FindPackageHandleStandardArgs.cmake \
   cmake/FindReadline.cmake \
-  cmake/FindEditline.cmake \
+  cmake/pcre2-config-version.cmake.in \
+  cmake/pcre2-config.cmake.in \
   CMakeLists.txt \
   config-cmake.h.in
 

@@ -19,7 +19,8 @@ SYNOPSIS
 <b>#include &#60;pcre2.h&#62;</b>
 </P>
 <P>
-<b>int pcre2_pattern_info(const pcre2 *<i>code</i>, uint32_t <i>what</i>, void *<i>where</i>);</b>
+<b>int pcre2_pattern_info(const pcre2_code *<i>code</i>, uint32_t <i>what</i>,</b>
+<b>   void *<i>where</i>);</b>
 </P>
 <br><b>
 DESCRIPTION
@@ -36,7 +37,7 @@ request are as follows:
 <pre>
   PCRE2_INFO_ALLOPTIONS      Final options after compiling
   PCRE2_INFO_ARGOPTIONS      Options passed to <b>pcre2_compile()</b>
-  PCRE2_INFO_BACKREFMAX      Number of highest back reference
+  PCRE2_INFO_BACKREFMAX      Number of highest backreference
   PCRE2_INFO_BSR             What \R matches:
                                PCRE2_BSR_UNICODE: Unicode line endings
                                PCRE2_BSR_ANYCRLF: CR, LF, or CRLF only

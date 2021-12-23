@@ -1,6 +1,10 @@
 # This set of tests is for features that are compatible with all versions of
 # Perl >= 5.10, in non-UTF mode. It should run clean for the 8-bit, 16-bit, and
-# 32-bit PCRE libraries, and also using the perltest.pl script.
+# 32-bit PCRE libraries, and also using the perltest.sh script.
+
+# WARNING: Use only / as the pattern delimiter. Although pcre2test supports
+# a number of delimiters, all those other than / give problems with the
+# perltest.sh script.
     
 #forbid_utf
 #newline_default lf any anycrlf
@@ -2949,7 +2953,7 @@ No match
     qqq\nabc\nzzz
 No match
 
-"(?>.*/)foo"
+/(?>.*\/)foo/
     /this/is/a/very/long/line/in/deed/with/very/many/slashes/in/and/foo
  0: /this/is/a/very/long/line/in/deed/with/very/many/slashes/in/and/foo
 \= Expect no match     
@@ -3345,6 +3349,14 @@ No match
     blaH blah 
  0: blaH blah
  1: blaH
+
+/((?i)blah)\s+(?m)A(?i:\1)/
+    blah ABLAH
+ 0: blah ABLAH
+ 1: blah
+\= Expect no match
+    blah aBLAH
+No match
 
 /(?>a*)*/
     a
@@ -6073,14 +6085,16 @@ No match
     A\x20B
  0:  
     
-"(?x)(?-x: \s*#\s*)"
+/(?x)(?-x: \s*#\s*)/
     A # B
  0:  # 
 \= Expect no match
     #  
 No match
+    A s#s B
+No match
 
-"(?x-is)(?:(?-ixs) \s*#\s*) include"
+/(?x-is)(?:(?-ixs) \s*#\s*) include/
     A #include
  0:  #include
 \= Expect no match
@@ -8282,16 +8296,6 @@ No match, mark = m
     AAAC
  0: AAC
 
-/a(*PRUNE:X)bc|qq/mark,no_start_optimize
-\= Expect no match
-    axy
-No match, mark = X
-
-/a(*THEN:X)bc|qq/mark,no_start_optimize
-\= Expect no match
-    axy
-No match, mark = X
-
 /(?=a(*MARK:A)b)..x/mark
     abxy
  0: abx
@@ -8404,12 +8408,12 @@ No match
  1: <unset>
  2: wxyz
 
-"(?>.*)foo"
+/(?>.*)foo/
 \= Expect no match
     abcdfooxyz
 No match
     
-"(?>.*?)foo"
+/(?>.*?)foo/
     abcdfooxyz
  0: foo
 
@@ -8649,22 +8653,6 @@ No match
 \= Expect no match
     a
 No match
-
-/(?=a\Kb)ab/
-    ab 
- 0: b
-
-/(?!a\Kb)ac/
-    ac 
- 0: ac
-    
-/^abc(?<=b\Kc)d/
-    abcd
- 0: cd
-
-/^abc(?<!b\Kq)d/
-    abcd
- 0: abcd
 
 /A(*PRUNE:A)A+(*SKIP:A)(B|Z) | AC/x,mark
 \= Expect no match
@@ -8990,19 +8978,19 @@ No match
     acb
 No match
 
-'\A(?:[^\"]++|\"(?:[^\"]*+|\"\")*+\")++'
+/\A(?:[^\"]++|\"(?:[^\"]*+|\"\")*+\")++/
     NON QUOTED \"QUOT\"\"ED\" AFTER \"NOT MATCHED
  0: NON QUOTED "QUOT""ED" AFTER 
 
-'\A(?:[^\"]++|\"(?:[^\"]++|\"\")*+\")++'
+/\A(?:[^\"]++|\"(?:[^\"]++|\"\")*+\")++/
     NON QUOTED \"QUOT\"\"ED\" AFTER \"NOT MATCHED
  0: NON QUOTED "QUOT""ED" AFTER 
 
-'\A(?:[^\"]++|\"(?:[^\"]++|\"\")++\")++'
+/\A(?:[^\"]++|\"(?:[^\"]++|\"\")++\")++/
     NON QUOTED \"QUOT\"\"ED\" AFTER \"NOT MATCHED
  0: NON QUOTED "QUOT""ED" AFTER 
 
-'\A([^\"1]++|[\"2]([^\"3]*+|[\"4][\"5])*+[\"6])++'
+/\A([^\"1]++|[\"2]([^\"3]*+|[\"4][\"5])*+[\"6])++/
     NON QUOTED \"QUOT\"\"ED\" AFTER \"NOT MATCHED
  0: NON QUOTED "QUOT""ED" AFTER 
  1:  AFTER 
@@ -9130,9 +9118,9 @@ No match
 
 /(\2)(\1)/
 
-"Z*(|d*){216}"
+/Z*(|d*){216}/
 
-"(?1)(?#?'){8}(a)"
+/(?1)(?#?'){8}(a)/
     baaaaaaaaac
  0: aaaaaaaaa
  1: a
@@ -9168,7 +9156,7 @@ No match
  6: 
  7: 
 
-"(?|(\k'Pm')|(?'Pm'))"
+/(?|(\k'Pm')|(?'Pm'))/
     abcd
  0: 
  1: 
@@ -9324,27 +9312,27 @@ No match
     aab
 No match
     
-'(?>ab|abab){1,5}?M'
+/(?>ab|abab){1,5}?M/
     abababababababababababM
  0: abababababM
 
-'(?>ab|abab){2}?M'
+/(?>ab|abab){2}?M/
     abababM
  0: ababM
 
-'((?(?=(a))a)+k)'
+/((?(?=(a))a)+k)/
     bbak
  0: ak
  1: ak
  2: a
 
-'((?(?=(a))a|)+k)'
+/((?(?=(a))a|)+k)/
     bbak
  0: ak
  1: ak
  2: a
 
-'(?(?!(b))a|b)+k'
+/(?(?!(b))a|b)+k/
     ababbalbbadabak
  0: abak
  1: b
@@ -9821,5 +9809,392 @@ No match
     aab
  0: aab
  1: a
+
+/(?<=\G.)/g,aftertext
+    abc
+ 0: 
+ 0+ bc
+ 0: 
+ 0+ c
+ 0: 
+ 0+ 
+
+/(?<=(?=.)?)/
+
+/(?<=(?=.)?+)/
+
+/(?<=(?=.)*)/
+
+/(?<=(?=.){4,5})/
+
+/(?<=(?=.){4,5}x)/
+
+/a(?=.(*:X))(*SKIP:X)(*F)|(.)/
+    abc
+ 0: a
+ 1: a
+
+/a(?>(*:X))(*SKIP:X)(*F)|(.)/
+    abc
+ 0: a
+ 1: a
+
+/a(?:(*:X))(*SKIP:X)(*F)|(.)/
+    abc
+ 0: b
+ 1: b
+
+#pattern no_start_optimize
+
+/(?>a(*:1))(?>b(*:1))(*SKIP:1)x|.*/
+    abc
+ 0: abc
+
+/(?>a(*:1))(?>b)(*SKIP:1)x|.*/
+    abc
+ 0: abc
+
+#subject mark
+
+/a(*ACCEPT:X)b/
+    abc
+ 0: a
+MK: X
+    
+/(?=a(*ACCEPT:QQ)bc)axyz/
+    axyz
+ 0: axyz
+MK: QQ
+
+/(?(DEFINE)(a(*ACCEPT:X)))(?1)b/
+    abc
+ 0: ab
+MK: X
+    
+/a(*F:X)b/
+    abc
+No match, mark = X
+    
+/(?(DEFINE)(a(*F:X)))(?1)b/
+    abc
+No match, mark = X
+
+/a(*COMMIT:X)b/
+    abc
+ 0: ab
+MK: X
+    
+/(?(DEFINE)(a(*COMMIT:X)))(?1)b/
+    abc
+ 0: ab
+MK: X
+    
+/a+(*:Z)b(*COMMIT:X)(*SKIP:Z)c|.*/
+    aaaabd
+ 0: bd
+
+/a+(*:Z)b(*COMMIT:X)(*SKIP:X)c|.*/
+    aaaabd
+No match, mark = X
+
+/a(*COMMIT:X)b/
+    axabc
+No match, mark = X
+
+#pattern -no_start_optimize
+#subject -mark 
+
+/(.COMMIT)(*COMMIT::::::::::interal error:::)/
+
+/(*COMMIT:ÿÿ)/
+
+/(*COMMIT:]w)/
+
+/(?i)A(?^)B(?^x:C D)(?^i)e f/
+    aBCDE F
+ 0: aBCDE F
+\= Expect no match
+    aBCDEF
+No match
+    AbCDe f
+No match
+
+/(*pla:foo).{6}/
+    abcfoobarxyz
+ 0: foobar
+\= Expect no match
+    abcfooba
+No match
+
+/(*positive_lookahead:foo).{6}/
+    abcfoobarxyz
+ 0: foobar
+    
+/(?(*pla:foo).{6}|a..)/
+    foobarbaz
+ 0: foobar
+    abcfoobar       
+ 0: abc
+
+/(?(*positive_lookahead:foo).{6}|a..)/
+    foobarbaz
+ 0: foobar
+    abcfoobar       
+ 0: abc
+    
+/(*plb:foo)bar/
+    abcfoobar
+ 0: bar
+\= Expect no match
+    abcbarfoo     
+No match
+
+/(*positive_lookbehind:foo)bar/
+    abcfoobar
+ 0: bar
+\= Expect no match
+    abcbarfoo
+No match
+    
+/(?(*plb:foo)bar|baz)/
+    abcfoobar
+ 0: bar
+    bazfoobar
+ 0: baz
+    abcbazfoobar
+ 0: baz
+    foobazfoobar    
+ 0: bar
+ 
+/(?(*positive_lookbehind:foo)bar|baz)/
+    abcfoobar
+ 0: bar
+    bazfoobar
+ 0: baz
+    abcbazfoobar
+ 0: baz
+    foobazfoobar    
+ 0: bar
+ 
+/(*nlb:foo)bar/
+    abcbarfoo     
+ 0: bar
+\= Expect no match
+    abcfoobar
+No match
+
+/(*negative_lookbehind:foo)bar/
+    abcbarfoo     
+ 0: bar
+\= Expect no match
+    abcfoobar
+No match
+    
+/(?(*nlb:foo)bar|baz)/
+    abcfoobaz 
+ 0: baz
+    abcbarbaz 
+ 0: bar
+\= Expect no match
+    abcfoobar
+No match
+ 
+/(?(*negative_lookbehind:foo)bar|baz)/
+    abcfoobaz 
+ 0: baz
+    abcbarbaz 
+ 0: bar
+\= Expect no match
+    abcfoobar
+No match
+ 
+/(*atomic:a+)\w/
+    aaab
+ 0: aaab
+\= Expect no match
+    aaaa      
+No match
+
+/   (?<word> \w+ )*    \.   /xi
+    pokus.
+ 0: pokus.
+ 1: pokus
+    
+/(?(DEFINE) (?<word> \w+ ) ) (?&word)*   \./xi
+    pokus.
+ 0: pokus.
+
+/(?(DEFINE) (?<word> \w+ ) ) ( (?&word)* )   \./xi 
+    pokus.
+ 0: pokus.
+ 1: <unset>
+ 2: pokus
+
+/(?&word)*  (?(DEFINE) (?<word> \w+ ) )  \./xi
+    pokus.
+ 0: pokus.
+
+/(?&word)*  \. (?<word> \w+ )/xi
+    pokus.hokus
+ 0: pokus.hokus
+ 1: hokus
+
+/a(?(?=(*:2)b).)/mark
+    abc
+ 0: ab
+MK: 2
+    acb     
+ 0: a
+
+/a(?(?!(*:2)b).)/mark
+    acb
+ 0: ac
+    abc     
+ 0: a
+MK: 2
+
+/(?:a|ab){1}+c/
+\= Expect no match
+    abc
+No match
+
+/(a|ab){1}+c/
+    abc
+No match
+    
+/(a+){1}+a/
+\= Expect no match
+    aaaa
+No match
+
+/(?(DEFINE)(a|ab))(?1){1}+c/
+    abc    
+No match
+
+/(?:a|(?=b)|.)*\z/
+    abc
+ 0: abc
+    
+/(?:a|(?=b)|.)*/
+    abc 
+ 0: a
+    
+/(?<=a(*SKIP)x)|c/
+    abcd
+No match
+    
+/(?<=a(*SKIP)x)|d/
+    abcd
+ 0: d
+ 
+/(?<=(?=.(?<=x)))/aftertext
+    abx
+ 0: 
+ 0+ x
+
+/(?<=(?=(?<=a)))b/
+    ab
+ 0: b
+
+/^(?<A>a)(?(<A>)b)((?<=b).*)$/
+    abc
+ 0: abc
+ 1: a
+ 2: c
+
+/^(a\1?){4}$/
+    aaaa
+ 0: aaaa
+ 1: a
+    aaaaaa
+ 0: aaaaaa
+ 1: aa
+
+/^((\1+)|\d)+133X$/
+    111133X
+ 0: 111133X
+ 1: 11
+ 2: 11
+
+/^(?=.*(?=(([A-Z]).*(?(1)\1)))(?!.+\2)){26}/i
+    The quick brown fox jumps over the lazy dog.
+ 0: 
+ 1: quick brown fox jumps over the lazy dog.
+ 2: q
+    Jackdaws love my big sphinx of quartz.
+ 0: 
+ 1: Jackdaws love my big sphinx of quartz.
+ 2: J
+    Pack my box with five dozen liquor jugs.
+ 0: 
+ 1: Pack my box with five dozen liquor jugs.
+ 2: P
+\= Expect no match
+    The quick brown fox jumps over the lazy cat.
+No match
+    Hackdaws love my big sphinx of quartz.
+No match
+    Pack my fox with five dozen liquor jugs.
+No match
+
+/^(?>.*?([A-Z])(?!.*\1)){26}/i
+    The quick brown fox jumps over the lazy dog.
+ 0: The quick brown fox jumps over the lazy dog
+ 1: g
+    Jackdaws love my big sphinx of quartz.
+ 0: Jackdaws love my big sphinx of quartz
+ 1: z
+    Pack my box with five dozen liquor jugs.
+ 0: Pack my box with five dozen liquor jugs
+ 1: s
+\= Expect no match
+    The quick brown fox jumps over the lazy cat.
+No match
+    Hackdaws love my big sphinx of quartz.
+No match
+    Pack my fox with five dozen liquor jugs.
+No match
+
+/(?<=X(?(DEFINE)(A)))X(*F)/
+\= Expect no match
+    AXYZ
+No match
+
+/(?<=X(?(DEFINE)(A)))./
+    AXYZ
+ 0: Y
+
+/(?<=X(?(DEFINE)(.*))Y)./
+    AXYZ
+ 0: Z
+
+/(?<=X(?(DEFINE)(Y))(?1))./
+    AXYZ
+ 0: Z
+
+/(?(DEFINE)(?<foo>bar))(?<![-a-z0-9])word/
+    word
+ 0: word
+
+/a{1,2,3}b/
+    a{1,2,3}b
+ 0: a{1,2,3}b
+
+/\214748364/
+    >\x{8c}748364<
+ 0: \x8c748364
+    
+/a{65536/
+    >a{65536<
+ 0: a{65536
+
+/a\K.(?0)*/
+    abac
+ 0: c
+
+/(a\K.(?1)*)/
+    abac
+ 0: c
+ 1: abac
 
 # End of testinput1 
