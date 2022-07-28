@@ -405,3 +405,7 @@ mxml_node_t * bmx_mxmlFindElement(mxml_node_t * node, BBString * element, BBStri
 	
 	return result;
 }
+
+void bmx_mxmlSetErrorCallback(mxml_error_cb_t cb){
+	mxmlSetErrorCallback(cb);
+}

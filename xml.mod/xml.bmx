@@ -31,6 +31,24 @@ Import "common.bmx"
 ' disable wrapping
 bmx_mxmlSetWrapMargin(0)
 
+' error handling
+Private
+Global xmlErrorCallback(message:String)
+
+Function xmlError(message:Byte Ptr)
+	Local msg:String = String.FromUTF8String(message)
+	xmlErrorCallback(msg)
+EndFunction
+
+Public
+Rem
+bbdoc: Sets the callback for handing errors, errors will print if not set.
+End Rem
+Function XMLSetErrorCallback(callback(message:String))
+	xmlErrorCallback = callback
+	bmx_mxmlSetErrorCallback(xmlError)
+EndFunction
+
 Rem
 bbdoc: 
 End Rem
