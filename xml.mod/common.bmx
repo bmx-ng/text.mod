@@ -49,7 +49,7 @@ Extern
 	Function bmx_mxmlGetLastChild:Byte Ptr(handle:Byte Ptr)
 	Function bmx_mxmlGetNextSibling:Byte Ptr(handle:Byte Ptr)
 	Function bmx_mxmlGetPrevSibling:Byte Ptr(handle:Byte Ptr)
-	Function bmx_mxmlFindElement:Byte Ptr(handle:Byte Ptr, element:String, attr:String, value:String)
+	Function bmx_mxmlFindElement:Byte Ptr(handle:Byte Ptr, element:String, attr:String, value:String, descend:Int)
 
 	Function bmx_mxmlSaveStdout:Int(handle:Byte Ptr, format:Int)
 	Function bmx_mxmlSaveString:String(handle:Byte Ptr, format:Int)
@@ -57,6 +57,9 @@ Extern
 	
 	Function bmx_mxmlSetWrapMargin(column:Int)
 	Function bmx_mxmlGetContent:String(handle:Byte Ptr)
+	Function bmx_mxmlGetCDATA:String(handle:Byte Ptr)
+	
+	Function bmx_mxmlSetErrorCallback(callback(message:Byte Ptr))
 End Extern
 
 Rem
