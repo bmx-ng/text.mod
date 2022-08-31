@@ -76,8 +76,7 @@ int jsonp_strtod(strbuffer_t *strbuffer, double *out) {
     return 0;
 }
 
-int jsonp_dtostr(char *buffer, size_t size, double value, int precision, int fractional_digits)
-{
+int jsonp_dtostr(char *buffer, size_t size, double value, int precision) {
     int ret;
     char *start, *end;
     size_t length;
@@ -85,7 +84,7 @@ int jsonp_dtostr(char *buffer, size_t size, double value, int precision, int fra
     if (precision == 0)
         precision = 17;
 
-    ret = snprintf(buffer, size, fractional_digits ? "%.*f" : "%.*g", precision, value);
+    ret = snprintf(buffer, size, "%.*g", precision, value);
     if (ret < 0)
         return -1;
 

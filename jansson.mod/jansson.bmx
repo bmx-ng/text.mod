@@ -1,4 +1,4 @@
-' Copyright (c) 2014-2020 Bruce A Henderson
+' Copyright (c) 2014-2022 Bruce A Henderson
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +22,13 @@ SuperStrict
 
 Module Text.Jansson
 
-ModuleInfo "Version: 1.06"
+ModuleInfo "Version: 1.07"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
-ModuleInfo "Copyright: 2014-2020 Bruce A Henderson"
+ModuleInfo "Copyright: 2014-2022 Bruce A Henderson"
 
+ModuleInfo "History: 1.07"
+ModuleInfo "History: Updated to Jansson 2.14.e23f558"
 ModuleInfo "History: 1.06"
 ModuleInfo "History: Updated to Jansson 2.13.1."
 ModuleInfo "History: 1.05"

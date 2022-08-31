@@ -5,3 +5,5 @@
 *.bak
 *.exe
 commands.html
+
+.DS_Store
