@@ -71,8 +71,8 @@ Type TCsvParser
 
 	Method ReadHeader()
 		If NextRow() = ECsvStatus.row Then
-			Local header:TCsvHeader = New TCsvHeader()
 			Local count:Int = row.ColumnCount()
+			Local header:TCsvHeader = New TCsvHeader(count)
 			For Local i:Int = 0 Until count
 				Local col:SCsvColumn = row.GetColumn(i)
 				Local v:String = col.GetValue()
