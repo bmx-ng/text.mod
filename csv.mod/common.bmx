@@ -36,7 +36,7 @@ Extern
 	Function bmx_csv_opts_set_options(opts:Byte Ptr, maxColumns:UInt, delimiter:Int, noQuotes:Int, insertHeaderRow:Byte Ptr, headerSpan:UInt, rowsToIgnore:UInt, keepEmptyHeaderRows:UInt)
 
 	Function zsv_new:Byte Ptr(opts:Byte Ptr)
-	Function zsv_get_cell:SCsvColumn(handle:Byte Ptr, index:Int)
+	Function zsv_get_cell:SCsvColumn(handle:Byte Ptr, index:Size_T)
 	Function zsv_cell_count:Size_T(handle:Byte Ptr)
 	Function zsv_abort(handle:Byte Ptr)
 	Function zsv_delete:ECsvStatus(handle:Byte Ptr)

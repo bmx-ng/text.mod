@@ -71,7 +71,7 @@ Type TCsvParser
 
 	Method ReadHeader()
 		If NextRow() = ECsvStatus.row Then
-			Local count:Int = row.ColumnCount()
+			Local count:Size_T = row.ColumnCount()
 			Local header:TCsvHeader = New TCsvHeader(count)
 			For Local i:Int = 0 Until count
 				Local col:SCsvColumn = row.GetColumn(i)
@@ -229,31 +229,52 @@ Type TCsvRow
 	Public
 
 	Rem
-	bbdoc: Returns the number of cells in the row.
+	bbdoc: Returns the number of columns in the row.
 	End Rem
-	Method ColumnCount:Int()
+	Method ColumnCount:Size_T()
 		Return zsv_cell_count(zsvPtr)
 	End Method
 
 	Rem
-	bbdoc: Returns the cell at the given index.
+	bbdoc: Returns the column at the given index.
 	End Rem
-	Method GetColumn:SCsvColumn(index:Int)
+	Method GetColumn:SCsvColumn(index:Size_T)
 		Return zsv_get_cell(zsvPtr, index)
 	End Method
 
 	Rem
-	bbdoc: Returns the cell with the given column @name.
+	bbdoc: Returns the column at the given index.
+	End Rem
+	Method GetColumn:SCsvColumn(index:Int)
+		Return zsv_get_cell(zsvPtr, Size_T(index))
+	End Method
+
+	Rem
+	bbdoc: Returns the column with the given column @name.
 	End Rem
 	Method GetColumn:SCsvColumn(name:String)
 		If header Then
 			Local index:Int = header.IndexForName(name)
 			If index >= 0 Then
-				Return zsv_get_cell(zsvPtr, index)
+				Return zsv_get_cell(zsvPtr, Size_T(index))
 			End If
 		End If
 		Return Null
 	End Method
+
+	Rem
+	bbdoc: Returns the value of the column at the given @index.
+	End Rem
+	Method GetValue:String(index:Size_T)
+		Return zsv_get_cell(zsvPtr, index).GetValue()
+	End Method
+
+	Rem
+	bbdoc: Returns the value of the given column @name.
+	End Rem
+	Method GetValue:String(name:String)
+		Return GetColumn(name).GetValue()
+	ENd Method
 
 	Rem
 	bbdoc: Returns the header.
@@ -276,7 +297,7 @@ Type TCsvHeader
 	Field map:TStringMap = New TStringMap
 
 	Private
-	Method New(count:Int)
+	Method New(count:Size_T)
 		cols = New String[count]
 	End Method
 
@@ -302,15 +323,15 @@ Type TCsvHeader
 	Rem
 	bbdoc: Returns the number of header columns.
 	End Rem
-	Method ColumnCount:Int()
+	Method ColumnCount:Size_T()
 		Return cols.Length
 	End Method
 
 	Rem
 	bbdoc: Returns the header for the given @index.
 	End Rem
-	Method GetHeader:String(index:Int)
-		If index >= 0 And index < cols.Length Then
+	Method GetHeader:String(index:Size_T)
+		If index < cols.Length Then
 			Return cols[index]
 		End If
 	End Method
