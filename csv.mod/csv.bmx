@@ -25,12 +25,14 @@ bbdoc: A CSV parser.
 End Rem
 Module Text.CSV
 
-ModuleInfo "Version: 1.00"
+ModuleInfo "Version: 1.01"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
 ModuleInfo "zsv - Copyright (c) 2021 Guarnerix Inc dba Liquidaty"
 ModuleInfo "Copyright: 2022 Bruce A Henderson"
 
+ModuleInfo "History: 1.01"
+ModuleInfo "History: Updated to latest zsv."
 ModuleInfo "History: 1.00"
 ModuleInfo "History: Initial Release"
 
