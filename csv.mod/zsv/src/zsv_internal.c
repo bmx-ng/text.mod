@@ -247,10 +247,7 @@ __attribute__((always_inline)) static inline void zsv_clear_cell(struct zsv_scan
 }
 
 // always_inline has a noticeable impact. do not remove without benchmarking!
-#ifdef NDEBUG
-__attribute__((always_inline)) static inline
-#endif
-void cell_dl(struct zsv_scanner * scanner, unsigned char * s, size_t n) {
+__attribute__((always_inline)) static inline void cell_dl(struct zsv_scanner * scanner, unsigned char * s, size_t n) {
   // handle quoting
   if(UNLIKELY(scanner->quoted > 0)) {
     if(LIKELY(scanner->quote_close_position + 1 == n)) {
@@ -375,7 +372,7 @@ static inline enum zsv_status cell_and_row_dl(struct zsv_scanner *scanner, unsig
   only for each corresponding non-zero highest-bit value in the vector)
 */
 
-# ifdef __EMSCRIPTEN__
+# if defined(__EMSCRIPTEN__) && defined(__SIMD128__)
 
 #include <wasm_simd128.h>
 #define movemask_pseudo(x) wasm_i8x16_bitmask(x)
@@ -406,6 +403,10 @@ typedef char zsv_c_vector __attribute__ ((vector_size (VECTOR_BYTES)));
 # else
 
 // slow path
+# if defined(__EMSCRIPTEN__)
+# warning "Compiling with emscripten, without using SIMD. To use SIMD, compile with -msse2 -msimd128 -experimental-wasm-simd and -I/path/to/emsdk/upstream/lib/clang/16.0.0/include"
+# endif
+
 
 static inline zsv_mask_t movemask_pseudo(zsv_uc_vector v) {
   zsv_mask_t mask = 0, tmp = 1;
