@@ -595,7 +595,7 @@ Type TPtrArg Extends TArg
 	Field value:Byte Ptr
 
 	Method ToString:String()
-		Return String.fromSizeT(Size_T(Size_T Ptr(value)))
+		Return String.fromSizeT((Size_T Ptr(value))[0])
 	End Method
 
 	Method ArgType:Int()
