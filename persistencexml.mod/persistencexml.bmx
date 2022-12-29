@@ -134,7 +134,7 @@ Type TPersist
 		SerializeObject(obj)
 		
 		If doc Then
-			doc.saveFile(filename, format)
+			doc.saveFile(filename, True, format)
 		End If
 		Free()
 	End Method
@@ -164,7 +164,7 @@ Type TPersist
 		SerializeObject(obj)
 		
 		If doc Then
-			doc.saveFile(stream, format)
+			doc.saveFile(stream, False, format)
 		End If
 		Free()
 	End Method
@@ -417,13 +417,7 @@ Type TPersist
 
 				' special case for String object
 				If tid = StringTypeId Then
-					If String(obj)
-						'Local s:String = doc.encodeEntities(String(obj))
-						'node.setContent(s)
-						node.setContent(String(obj))
-					Else
-						node.setContent("")
-					End If
+					node.setContent(String(obj))
 				Else
 					SerializeByType(tid, obj, node)
 				End If
@@ -570,109 +564,81 @@ Type TPersist
 								Local arrayType:TTypeId = fieldObj.TypeId()
 								Local arrayElementType:TTypeId = arrayType.ElementType()
 
-								If fileVersion Then
+								' for file version 3+
+								Local scalesi:Int[]
+								Local scales:String[] = fieldNode.getAttribute("scales").split(",")
+								If scales.length > 1 Then
+									scalesi = New Int[scales.length]
+									For Local i:Int = 0 Until scales.length
+										scalesi[i] = Int(scales[i])
+									Next
+								End If
+								
+								' for file Version 1+
+								Select arrayElementType
+									Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, UIntTypeId, ULongTypeId, LongIntTypeId, ULongIntTypeId
 									
-									' for file version 3+
-									Local scalesi:Int[]
-									Local scales:String[] = fieldNode.getAttribute("scales").split(",")
-									If scales.length > 1 Then
-										scalesi = New Int[scales.length]
-										For Local i:Int = 0 Until scales.length
-											scalesi[i] = Int(scales[i])
-										Next
-									End If
-									
-									' for file Version 1+
-									Select arrayElementType
-										Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, UIntTypeId, ULongTypeId, LongIntTypeId, ULongIntTypeId
-										
-											Local arrayList:String[]
-											Local content:String = fieldNode.GetContent().Trim()
+										Local arrayList:String[]
+										Local content:String = fieldNode.GetContent().Trim()
 
-											If content Then
-												arrayList = content.Split(" ")
-											Else
-												arrayList = New String[0]
-											End If
-											
-											Local arrayObj:Object = arrayType.NewArray(arrayList.length, scalesi)
+										If content Then
+											arrayList = content.Split(" ")
+										Else
+											arrayList = New String[0]
+										End If
+										
+										Local arrayObj:Object = arrayType.NewArray(arrayList.length, scalesi)
+										fieldObj.Set(obj, arrayObj)
+										
+										For Local i:Int = 0 Until arrayList.length
+											arrayType.SetArrayElement(arrayObj, i, arrayList[i])
+										Next
+										
+									Default
+										Local arrayList:TList = fieldNode.getChildren()
+										
+										If arrayList ' Birdie
+											Local arrayObj:Object = arrayType.NewArray(arrayList.Count(), scalesi)
 											fieldObj.Set(obj, arrayObj)
 											
-											For Local i:Int = 0 Until arrayList.length
-												arrayType.SetArrayElement(arrayObj, i, arrayList[i])
-											Next
-											
-										Default
-											Local arrayList:TList = fieldNode.getChildren()
-											
-											If arrayList ' Birdie
-												Local arrayObj:Object = arrayType.NewArray(arrayList.Count(), scalesi)
-												fieldObj.Set(obj, arrayObj)
-												
-												Local i:Int
-												For Local arrayNode:TxmlNode = EachIn arrayList
-				
-													Select arrayElementType
-														Case StringTypeId
-															arrayType.SetArrayElement(arrayObj, i, arrayNode.GetContent())
-														Default
-															' file version 5 ... array cells can contain references
-															' is this a reference?
-															Local ref:String = arrayNode.getAttribute("ref")
-															If ref Then
-																Local objRef:Object = objectMap.ValueForKey(ref)
-																If objRef Then
-																	arrayType.SetArrayElement(arrayObj, i, objRef)
-																Else
-																	Throw "Reference not mapped yet : " + ref
-																End If
+											Local i:Int
+											For Local arrayNode:TxmlNode = EachIn arrayList
+			
+												Select arrayElementType
+													Case StringTypeId
+														arrayType.SetArrayElement(arrayObj, i, arrayNode.GetContent())
+													Default
+														' file version 5 ... array cells can contain references
+														' is this a reference?
+														Local ref:String = arrayNode.getAttribute("ref")
+														If ref Then
+															Local objRef:Object = objectMap.ValueForKey(ref)
+															If objRef Then
+																arrayType.SetArrayElement(arrayObj, i, objRef)
 															Else
-																arrayType.SetArrayElement(arrayObj, i, DeSerializeObject("", arrayNode))
-															End If	
-													End Select
-				
-													i:+ 1
-												Next
-											EndIf
-									End Select
-								Else
-									' For file version 0 (zero)
-									
-									Local arrayList:TList = fieldNode.getChildren()
-									If arrayList 'Birdie
-										Local arrayObj:Object = arrayType.NewArray(arrayList.Count())
-										fieldObj.Set(obj, arrayObj)
-									
-										Local i:Int
-										For Local arrayNode:TxmlNode = EachIn arrayList
-		
-											Select arrayElementType
-												Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, StringTypeId, UIntTypeId, ULongTypeId, LongIntTypeId, ULongIntTypeId
-													arrayType.SetArrayElement(arrayObj, i, arrayNode.GetContent())
-												Default
-													arrayType.SetArrayElement(arrayObj, i, DeSerializeObject("", arrayNode))
-											End Select
-		
-											i:+ 1
-										Next
-									EndIf
-								End If
+																Throw "Reference not mapped yet : " + ref
+															End If
+														Else
+															arrayType.SetArrayElement(arrayObj, i, DeSerializeObject("", arrayNode))
+														End If	
+												End Select
+			
+												i:+ 1
+											Next
+										EndIf
+								End Select
 							Else
-								If fieldType = "string" And fileVersion < 8 Then
-									fieldObj.SetString(obj, fieldNode.GetContent())
-								Else
-									' is this a reference?
-									Local ref:String = fieldNode.getAttribute("ref")
-									If ref Then
-										Local objRef:Object = objectMap.ValueForKey(ref)
-										If objRef Then
-											fieldObj.Set(obj, objRef)
-										Else
-											Throw "Reference not mapped yet : " + ref
-										End If
+								' is this a reference?
+								Local ref:String = fieldNode.getAttribute("ref")
+								If ref Then
+									Local objRef:Object = objectMap.ValueForKey(ref)
+									If objRef Then
+										fieldObj.Set(obj, objRef)
 									Else
-										fieldObj.Set(obj, DeSerializeObject("", fieldNode))
+										Throw "Reference not mapped yet : " + ref
 									End If
+								Else
+									fieldObj.Set(obj, DeSerializeObject("", fieldNode))
 								End If
 							End If
 					End Select
@@ -1079,32 +1045,13 @@ Type TMapXMLSerializer Extends TXMLSerializer
 	Method Deserialize:Object(objType:TTypeId, node:TxmlNode)
 		Local map:TMap = TMap(CreateObjectInstance(objType, node))
 	
-		Local ver:Int = GetFileVersion()
-	
-		If ver <= 5
-			Local attr:String = node.getAttribute("nil")
-			If attr Then
-				AddObjectRef(attr, nil)
-			End If
-		
-			DeserializeFields(objType, map, node)
-		Else
-			If node.getChildren() Then
-				For Local mapNode:TxmlNode = EachIn node.getChildren()
-					If ver < 8 Then
-						Local key:Object = DeserializeObject(TxmlNode(mapNode.getFirstChild()))
-						Local value:Object = DeserializeObject(TxmlNode(mapNode.getLastChild()))
-
-						map.Insert(key, value)
-					Else
-
-						Local key:Object = DeserializeReferencedObject(TxmlNode(mapNode.getFirstChild()))
-						Local value:Object = DeserializeReferencedObject(TxmlNode(mapNode.getLastChild()))
-				
-						map.Insert(key, value)
-					End If
-				Next
-			End If
+		If node.getChildren() Then
+			For Local mapNode:TxmlNode = EachIn node.getChildren()
+				Local key:Object = DeserializeReferencedObject(TxmlNode(mapNode.getFirstChild()))
+				Local value:Object = DeserializeReferencedObject(TxmlNode(mapNode.getLastChild()))
+			
+				map.Insert(key, value)
+			Next
 		End If
 		
 		Return map
@@ -1135,20 +1082,10 @@ Type TListXMLSerializer Extends TXMLSerializer
 	Method Deserialize:Object(objType:TTypeId, node:TxmlNode)
 		Local list:TList = TList(CreateObjectInstance(objType, node))
 		
-		Local ver:Int = GetFileVersion()
-
-		If ver <= 5
-			DeserializeFields(objType, list, node)
-		Else
-			If node.getChildren() Then
-				For Local listNode:TxmlNode = EachIn node.getChildren()
-					If ver < 8 Then
-						list.AddLast(DeserializeObject(listNode, True))
-					Else
-						list.AddLast(DeserializeReferencedObject(listNode))
-					End If
-				Next
-			End If
+		If node.getChildren() Then
+			For Local listNode:TxmlNode = EachIn node.getChildren()
+				list.AddLast(DeserializeReferencedObject(listNode))
+			Next
 		End If
 		
 		Return list
@@ -1183,16 +1120,10 @@ Type TIntMapXMLSerializer Extends TXMLSerializer
 	Method Deserialize:Object(objType:TTypeId, node:TxmlNode)
 		Local map:TIntMap = TIntMap(CreateObjectInstance(objType, node))
 		If node.getChildren() Then
-			Local ver:Int = GetFileVersion()
 			
 			For Local mapNode:TxmlNode = EachIn node.getChildren()
 				Local index:Int = Int(mapNode.getAttribute("index"))
-				Local obj:Object
-				If ver < 8 Then
-					obj = DeserializeObject(mapNode, True)
-				Else
-					obj = DeserializeReferencedObject(mapNode)
-				End If
+				Local obj:Object = DeserializeReferencedObject(mapNode)
 				map.Insert(index, obj)
 			Next
 		End If
@@ -1227,22 +1158,13 @@ Type TStringMapXMLSerializer Extends TXMLSerializer
 		Local map:TStringMap = TStringMap(CreateObjectInstance(objType, node))
 
 		If node.getChildren() Then
-			Local ver:Int = GetFileVersion()
-
 			For Local mapNode:TxmlNode = EachIn node.getChildren()
 				Local keyNode:TxmlNode = TxmlNode(mapNode.getFirstChild())
 				Local valueNode:TxmlNode = TxmlNode(mapNode.getLastChild())
 				
-				Local k:String
-				Local v:Object
-				
-				If ver < 8 Then
-					k = String(DeserializeObject(keyNode))
-					v = DeserializeObject(valueNode)
-				Else
-					k = String(DeserializeReferencedObject(keyNode))
-					v = DeserializeReferencedObject(valueNode)
-				End If
+				Local k:String = String(DeserializeReferencedObject(keyNode))
+				Local v:Object = DeserializeReferencedObject(valueNode)
+
 				map.Insert(k, v)
 			Next
 		End If
