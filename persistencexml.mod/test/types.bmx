@@ -9,14 +9,22 @@ Type TNumbers
 	Field d:Double
 	Field e:Byte
 	Field f:Short
+	Field g:UInt
+	Field h:ULong
+	Field i:LongInt
+	Field j:ULongInt
 	
-	Method Create:TNumbers(a:Int, b:Long, c:Float, d:Double, e:Byte, f:Short)
+	Method Create:TNumbers(a:Int, b:Long, c:Float, d:Double, e:Byte, f:Short, g:UInt, h:ULong, i:LongInt, j:ULongInt)
 		Self.a = a
 		Self.b = b
 		Self.c = c
 		Self.d = d
 		Self.e = e
 		Self.f = f
+		Self.g = g
+		Self.h = h
+		Self.i = i
+		Self.j = j
 		Return Self
 	End Method
 

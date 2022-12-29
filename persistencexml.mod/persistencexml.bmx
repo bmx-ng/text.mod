@@ -183,7 +183,7 @@ Type TPersist
 		Local elementType:TTypeId = typeId.ElementType()
 		
 		Select elementType
-			Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId
+			Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, UIntTypeId, ULongTypeId, LongIntTypeId, ULongIntTypeId
 
 				Local sb:TStringBuilder = new TStringBuilder()
 				
@@ -283,6 +283,12 @@ Type TPersist
 			Case ULongTypeId
 				t = "ulong"
 				fieldNode.setContent(f.GetULong(obj))
+			Case LongIntTypeId
+				t = "longint"
+				fieldNode.setContent(f.GetLongInt(obj))
+			Case ULongIntTypeId
+				t = "ulongint"
+				fieldNode.setContent(f.GetULongInt(obj))
 			Default
 				t = fieldType.Name()
 
@@ -550,6 +556,14 @@ Type TPersist
 							fieldObj.SetFloat(obj, fieldNode.GetContent().toFloat())
 						Case "double"
 							fieldObj.SetDouble(obj, fieldNode.GetContent().toDouble())
+						Case "uint"
+							fieldObj.SetUInt(obj, fieldNode.GetContent().toUInt())
+						Case "ulong"
+							fieldObj.SetULong(obj, fieldNode.GetContent().toULong())
+						Case "longint"
+							fieldObj.SetLongInt(obj, LongInt(fieldNode.GetContent().toLongInt())) ' FIXME : why do we need to cast here?
+						Case "ulongint"
+							fieldObj.SetULongInt(obj, fieldNode.GetContent().toULongInt())
 						Default
 							If fieldType.StartsWith("array:") Then
 
@@ -570,7 +584,7 @@ Type TPersist
 									
 									' for file Version 1+
 									Select arrayElementType
-										Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId
+										Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, UIntTypeId, ULongTypeId, LongIntTypeId, ULongIntTypeId
 										
 											Local arrayList:String[]
 											Local content:String = fieldNode.GetContent().Trim()
@@ -633,7 +647,7 @@ Type TPersist
 										For Local arrayNode:TxmlNode = EachIn arrayList
 		
 											Select arrayElementType
-												Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, StringTypeId
+												Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, StringTypeId, UIntTypeId, ULongTypeId, LongIntTypeId, ULongIntTypeId
 													arrayType.SetArrayElement(arrayObj, i, arrayNode.GetContent())
 												Default
 													arrayType.SetArrayElement(arrayObj, i, DeSerializeObject("", arrayNode))
@@ -723,7 +737,7 @@ Type TPersist
 					Local arrayElementType:TTypeId = objType.ElementType()
 	
 					Select arrayElementType
-						Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId
+						Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, UIntTypeId, ULongTypeId, LongIntTypeId, ULongIntTypeId
 						
 							Local arrayList:String[] = node.GetContent().Split(" ")
 							

@@ -13,6 +13,10 @@ Type FieldsTest Extends TTest
 	Const NUM_DOUBLE:Double = 9420.0394:Double
 	Const NUM_BYTE:Byte = 129
 	Const NUM_SHORT:Short = 40000
+	Const NUM_UINT:UInt = 123456
+	Const NUM_ULONG:ULong = 4473709551615:ULong
+	Const NUM_LONGINT:LongInt = 998800
+	Const NUM_ULONGINT:ULongInt = 560000
 	
 	Const STR_ONE:String = "ABCDEFG"
 	Const STR_TWO:String = "HIJKLMNOP"
@@ -41,8 +45,7 @@ Type FieldsTest Extends TTest
 	End Method
 
 	Method testNumbers() { test }
-
-		Local numbers:TNumbers = New TNumbers.Create(NUM_INT, NUM_LONG, NUM_FLOAT, NUM_DOUBLE, NUM_BYTE, NUM_SHORT)
+		Local numbers:TNumbers = New TNumbers.Create(NUM_INT, NUM_LONG, NUM_FLOAT, NUM_DOUBLE, NUM_BYTE, NUM_SHORT, NUM_UINT, NUM_ULONG, NUM_LONGINT, NUM_ULONGINT)
 		
 		Local s:String = persist.SerializeToString(numbers)
 
@@ -56,7 +59,10 @@ Type FieldsTest Extends TTest
 		assertEquals(NUM_DOUBLE, result.d)
 		assertEquals(NUM_BYTE, result.e)
 		assertEquals(NUM_SHORT, result.f)
-	
+		assertEquals(NUM_UINT, result.g)
+		assertEquals(NUM_ULONG, result.h)
+		assertEquals(NUM_LONGINT, result.i)
+		assertEquals(NUM_ULONGINT, result.j)
 	End Method
 	
 	Method testStrings() { test }
