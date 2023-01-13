@@ -273,6 +273,14 @@ Type TxmlNode Extends TxmlBase
 	End Method
 
 	Rem
+	bbdoc: Finds an element fitting to the given path. Wildcards ("*") allowed.
+	returns: A node or Null if no match was found.
+	End Rem
+	Method findPath:TxmlNode(path:String)
+		Return TxmlNode._create(bmx_mxmlFindPath(nodePtr, path))
+	End Method
+
+	Rem
 	bbdoc: Frees a node and all of its children.
 	End Rem
 	Method Free()
