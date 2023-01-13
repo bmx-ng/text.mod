@@ -50,6 +50,7 @@ Extern
 	Function bmx_mxmlGetNextSibling:Byte Ptr(handle:Byte Ptr)
 	Function bmx_mxmlGetPrevSibling:Byte Ptr(handle:Byte Ptr)
 	Function bmx_mxmlFindElement:Byte Ptr(handle:Byte Ptr, element:String, attr:String, value:String)
+	Function bmx_mxmlFindPath:Byte Ptr(handle:Byte Ptr, path:String)
 
 	Function bmx_mxmlSaveStdout:Int(handle:Byte Ptr, format:Int)
 	Function bmx_mxmlSaveString:String(handle:Byte Ptr, format:Int)

@@ -405,3 +405,17 @@ mxml_node_t * bmx_mxmlFindElement(mxml_node_t * node, BBString * element, BBStri
 	
 	return result;
 }
+
+mxml_node_t * bmx_mxmlFindPath( mxml_node_t * node, BBString * path) {
+	char * p = 0;
+
+	if (path != &bbEmptyString) {
+		p = bbStringToUTF8String(path);
+	}
+
+	mxml_node_t * result = mxmlFindPath(node, p);
+
+	bbMemFree(p);
+
+	return result;
+}
