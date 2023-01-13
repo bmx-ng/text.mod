@@ -32,6 +32,13 @@ Import "common.bmx"
 bmx_mxmlSetWrapMargin(0)
 
 Rem
+bbdoc: Sets the callback for handing errors, errors will print if not set.
+End Rem
+Function XMLSetErrorCallback(callback(message:Byte Ptr))
+	bmx_mxmlSetErrorCallback(callback)
+EndFunction
+
+Rem
 bbdoc: 
 End Rem
 Type TxmlBase Abstract
@@ -254,10 +261,17 @@ Type TxmlNode Extends TxmlBase
 		Local sb:TStringBuilder = New TStringBuilder()
 		
 		Local n:Byte Ptr = bmx_mxmlWalkNext(nodePtr, nodePtr, MXML_DESCEND)
+		
 		While n
-			If bmx_mxmlGetType(n) = MXML_OPAQUE Then
-				sb.Append(bmx_mxmlGetContent(n))
-			End If
+			Select bmx_mxmlGetType(n)
+				Case MXML_ELEMENT
+					sb.Append(bmx_mxmlGetCDATA(n))
+					
+				Case MXML_OPAQUE
+					sb.Append(bmx_mxmlGetContent(n))
+					
+			EndSelect
+			
 			n = bmx_mxmlWalkNext(n, nodePtr, MXML_DESCEND)
 		Wend
 		
@@ -268,8 +282,8 @@ Type TxmlNode Extends TxmlBase
 	bbdoc: Finds an element of the given @element name, attribute or attribute/value.
 	returns: A node or Null if no match was found.
 	End Rem
-	Method findElement:TxmlNode(element:String = "", attr:String = "", value:String = "")
-		Return TxmlNode._create(bmx_mxmlFindElement(nodePtr, element, attr, value))
+	Method findElement:TxmlNode(element:String = "", attr:String = "", value:String = "", descend:Int=MXML_DESCEND)
+		Return TxmlNode._create(bmx_mxmlFindElement(nodePtr, element, attr, value, descend))
 	End Method
 
 	Rem
