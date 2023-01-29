@@ -1,0 +1,60 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# IDE
+.vscode
+
+# Generated Files and Directories
+*.log
+*.mk
+*.mk.log
+*.c.in
+*.h.in
+*.zip
+*.tar.gz
+*.deb
+*.rpm
+*.nupkg
+build
+app/external
+install.sh
+.artifacts
+.rpmbuild
+amd64-linux-gcc
+amd64-linux-clang
+amd64-windows-mingw
+amd64-macosx-clang
+amd64-freebsd-gcc
+jq
+nuget-feed
+homebrew-zsv

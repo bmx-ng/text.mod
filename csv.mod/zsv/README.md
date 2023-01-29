@@ -70,16 +70,23 @@ that implements the expected
   "dirty"
 * Runs on macOS (tested on clang/gcc), Linux (gcc), Windows (mingw),
   BSD (gcc-only) and in-browser (emscripten/wasm)
-* Fast (maybe the fastest ever, at least on all platforms we've benchmarked where
-  256 SIMD operations are available). See
+* Fastest (at least, vs all alternatives and on all platforms we've benchmarked where
+  256-bit SIMD operations are available). See
   [app/benchmark/README.md](app/benchmark/README.md)
 * Low memory usage (regardless of how big your data is) and size footprint for
   both lib (~20k) and CLI executable (< 1MB)
+* Handles general delimited data (e.g. pipe-delimited) and fixed-with input
+  (with specified widths or auto-detected widths)
+* Handles multi-row headers
+* Handles input from any stream, including caller-defined streams accessed via
+  a single caller-defined `fread`-like function
 * Easy to use as a library in a few lines of code, via either pull or push parsing
 * Includes the `zsv` CLI with the following built-in commands:
   * `select`, `count`, `sql` query, `desc`ribe, `flatten`, `serialize`, `2json`,
-    `2db`, `stack`, `pretty`, `2tsv`, `jq`, `prop`, `rm`
+    `2db`, `stack`, `pretty`, `2tsv`, `compare`, `jq`, `prop`, `rm`
   * easily [convert between CSV/JSON/sqlite3](docs/csv_json_sqlite.md)
+  * [compare multiple files](docs/compare.md)
+
 * CLI is easy to extend/customize with a few lines of code via modular plug-in framework.
   Just write a few custom functions and compile into a distributable DLL that any existing zsv
   installation can use
@@ -151,7 +158,7 @@ For Windows (`*.nupkg`), install with `choco.exe`:
 
 ```shell
 # Install
-choco.exe install zsv -source .\zsv-amd64-windows-mingw.nupkg
+choco.exe install zsv --pre -source .\zsv-amd64-windows-mingw.nupkg
 
 # Uninstall
 choco.exe uninstall zsv
@@ -227,6 +234,7 @@ for speed and ease of development for extending and/or customizing to your needs
   format
 * `2json`: convert CSV to JSON. Optionally, output in [database schema](docs/db.schema.json)
 * `2tsv`: convert CSV to TSV
+* `compare`: compare two or more tables of data and output the differences
 * `serialize` (inverse of flatten): convert an NxM table to a single 3x (Nx(M-1))
   table with columns: Row, Column Name, Column Value
 * `flatten` (inverse of serialize): flatten a table by combining rows that share
