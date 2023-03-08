@@ -480,9 +480,20 @@ Type TJSONObject Extends TJSON
 	returns: Null if key is not found, the value is not a Real, or on error.
 	End Rem
 	Method GetReal:Double(key:String)
-		Local r:TJSONInteger = TJSONInteger(bmx_json_object_get(jsonPtr, key))
+		Local r:TJSONReal = TJSONReal(bmx_json_object_get(jsonPtr, key))
 		If r Then
 			Return r.Value()
+		End If
+	End Method
+	
+	Rem
+	bbdoc: Gets a Boolean value corresponding to key from the object.
+	returns: Null if key is not found, the value is not a Boolean, or on error.
+	End Rem
+	Method GetBool:Int(key:String)
+		Local b:TJSONBool = TJSONBool(bmx_json_object_get(jsonPtr, key))
+		If b Then
+			Return b.isTrue
 		End If
 	End Method
 
