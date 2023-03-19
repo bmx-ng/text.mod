@@ -1,0 +1,109 @@
+' Copyright (c) 2023 Bruce A Henderson
+' 
+' Permission is hereby granted, free of charge, to any person obtaining a copy
+' of this software and associated documentation files (the "Software"), to deal
+' in the Software without restriction, including without limitation the rights
+' to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+' copies of the Software, and to permit persons to whom the Software is
+' furnished to do so, subject to the following conditions:
+' 
+' The above copyright notice and this permission notice shall be included in
+' all copies or substantial portions of the Software.
+' 
+' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+' IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+' FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+' AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+' LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+' THE SOFTWARE.
+' 
+SuperStrict
+
+Import BRL.StringBuilder
+Import "source.bmx"
+
+Extern
+
+End Extern
+
+Enum EMDBlockType
+	BLOCK_DOC
+    BLOCK_QUOTE
+    BLOCK_UL
+    BLOCK_OL
+    BLOCK_LI
+    BLOCK_HR
+    BLOCK_H
+    BLOCK_CODE
+    BLOCK_HTML
+    BLOCK_P
+    BLOCK_TABLE
+    BLOCK_THEAD
+    BLOCK_TBODY
+    BLOCK_TR
+    BLOCK_TH
+    BLOCK_TD
+End Enum
+
+Enum EMDSpanType
+	SPAN_EM
+    SPAN_STRONG
+    SPAN_A
+    SPAN_IMG
+    SPAN_CODE
+    SPAN_DEL
+    SPAN_LATEXMATH
+    SPAN_LATEXMATH_DISPLAY
+    SPAN_WIKILINK
+    SPAN_U
+End Enum
+
+Enum EMDTextType
+    TEXT_NORMAL
+    TEXT_NULLCHAR
+	TEXT_BR
+    TEXT_SOFTBR
+    TEXT_ENTITY
+    TEXT_CODE
+    TEXT_HTML
+    TEXT_LATEXMATH
+End Enum
+
+Enum EMDAlign
+	ALIGN_DEFAULT
+    ALIGN_LEFT
+    ALIGN_CENTER
+    ALIGN_RIGHT
+End Enum
+
+Enum EMDFlags Flags
+	COLLAPSEWHITESPACE = $0001
+	PERMISSIVEATXHEADERS = $0002
+	PERMISSIVEURLAUTOLINKS = $0004
+	PERMISSIVEEMAILAUTOLINKS = $0008
+	NOINDENTEDCODEBLOCKS = $0010
+	NOHTMLBLOCKS = $0020
+	NOHTMLSPANS = $0040
+	TABLES = $0100
+	STRIKETHROUGH = $0200
+	PERMISSIVEWWWAUTOLINKS = $0400
+	TASKLISTS = $0800
+	LATEXMATHSPANS = $1000
+	WIKILINKS = $2000
+	UNDERLINE = $4000
+	
+	PERMISSIVEAUTOLINKS = (PERMISSIVEEMAILAUTOLINKS | PERMISSIVEURLAUTOLINKS | PERMISSIVEWWWAUTOLINKS)
+	NOHTML = (NOHTMLBLOCKS | NOHTMLSPANS)
+	
+	DIALECT_COMMONMARK = 0
+	DIALECT_GITHUB = (PERMISSIVEAUTOLINKS | TABLES | STRIKETHROUGH | TASKLISTS)
+End Enum
+
+Enum EMDHtmlFlags Flags
+    NONE
+    DEBUG = $0001
+    VERBATIM_ENTITIES = $0002
+    SKIP_UTF8_BOM = $0004
+    XHTML = $0008
+End Enum
