@@ -15,7 +15,7 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <errno.h>
-#include <yajl_helper.h>
+#include <unistd.h> // unlink, access
 
 #define ZSV_COMMAND_NO_OPTIONS
 #define ZSV_COMMAND prop
@@ -24,6 +24,8 @@
 #include <zsv/utils/os.h>
 #include <zsv/utils/file.h>
 #include <zsv/utils/json.h>
+#include <zsv/utils/jq.h>
+#include <zsv/utils/dirs.h>
 #include <zsv/utils/cache.h>
 #include <zsv/utils/string.h>
 
@@ -32,16 +34,26 @@ const char *zsv_property_usage_msg[] = {
   "          saved options will be applied by default when processing that file",
   "",
   "Usage: " APPNAME " <filepath> [options]",
-  "  where filepath is the path to the input CSV file (or when using --auto, - for stdin)",
+  "  where filepath is the path to the input CSV file, or",
+  "    when using --auto: input CSV file or - for stdin",
+  "    when using --clean: directory to clean from (use '.' for current directory)",
   "  and options may be one or more of:",
   "    -d,--header-row-span <value>: set/unset/auto-detect header depth (see below)",
   "    -R,--skip-head <value>      : set/unset/auto-detect initial rows to skip (see below)",
-  "    --clear                     : delete all properties",
+  "    --list-files                : list all property sets associted with the given file", // output a list of all cache files
+  "    --clear                     : delete all properties of the specified file",
+  // TO DO: --clear-file relative-path
+  "    --clean                     : delete all files / dirs in the property cache of the given directory",
+  "                                  that do not have a corresponding file in that directory",
+  "      --dry                     : dry run, outputs files/dirs to remove. only for use with --clean",
   "    --auto                      : guess the best property values. This is equivalent to:",
   "                                    -d auto -R auto",
   "                                  when using this option, a dash (-) can be used instead",
   "                                  of a filepath to read from stdin",
   "    --save [-f,--overwrite]     : (only applicable with --auto) save the detected result",
+  "    --copy <dest filepath>      : copy properties to another file", // to do: opt to check valid JSON
+  "    --export <output path>      : export all properties to a single JSON file (- for stdout)", // to do: opt to check valid JSON
+  "    --import <input path>       : import properties from a single JSON file (- for stdin)", // to do: opt to check valid JSON
   "    -f,--overwrite              : overwrite any previously-saved properties",
   "",
   "For --header-row-span or --skip-head options, <value> can be:",
@@ -68,6 +80,8 @@ static int zsv_property_usage(FILE *target) {
 
 static int show_all_properties(const unsigned char *filepath) {
   int err = 0;
+  // to do: show all files, not just prop file
+
   if(!zsv_file_readable((const char *)filepath, &err, NULL)) {
     perror((const char *)filepath);
     return err;
@@ -494,20 +508,370 @@ static int merge_and_save_properties(const unsigned char *filepath,
   return err;
 }
 
+enum zsv_prop_mode {
+  zsv_prop_mode_default = 0,
+  zsv_prop_mode_list_files = 'l',
+  zsv_prop_mode_clean = 'K',
+  zsv_prop_mode_export = 'e',
+  zsv_prop_mode_import = 'i',
+  zsv_prop_mode_copy = 'c',
+  zsv_prop_mode_clear = 'r'
+};
+
+static enum zsv_prop_mode zsv_prop_get_mode(const char *opt) {
+  if(!strcmp(opt, "--clean")) return zsv_prop_mode_clean;
+  if(!strcmp(opt, "--list-files")) return zsv_prop_mode_list_files;
+  if(!strcmp(opt, "--copy")) return zsv_prop_mode_copy;
+  if(!strcmp(opt, "--export")) return zsv_prop_mode_export;
+  if(!strcmp(opt, "--import")) return zsv_prop_mode_import;
+  if(!strcmp(opt, "--clear")) return zsv_prop_mode_clear;
+  return zsv_prop_mode_default;
+}
+
+struct prop_opts {
+  int64_t d; // ZSV_PROP_ARG_AUTO, ZSV_PROP_ARG_REMOVE or > 0
+  int64_t R; // ZSV_PROP_ARG_AUTO, ZSV_PROP_ARG_REMOVE or > 0
+  unsigned char clear:1;
+  unsigned char save:1;
+  unsigned char overwrite:1;
+  unsigned char _:3;
+};
+
+static int zsv_prop_execute_default(const unsigned char *filepath, struct zsv_opts zsv_opts, struct prop_opts opts) {
+  int err = 0;
+  struct zsv_file_properties fp = { 0 };
+  if(opts.d >= 0 || opts.R >= 0 || opts.d == ZSV_PROP_ARG_REMOVE || opts.R == ZSV_PROP_ARG_REMOVE)
+    opts.overwrite = 1;
+  if(opts.d == ZSV_PROP_ARG_AUTO || opts.R == ZSV_PROP_ARG_AUTO) {
+    err = detect_properties(filepath, &fp,
+                            opts.d == ZSV_PROP_ARG_AUTO,
+                            opts.R == ZSV_PROP_ARG_AUTO,
+                            &zsv_opts);
+  }
+
+  if(!err) {
+    if(opts.d == ZSV_PROP_ARG_AUTO)
+      opts.d = fp.header_span;
+
+    if(opts.R == ZSV_PROP_ARG_AUTO)
+      opts.R = fp.skip;
+    err = merge_and_save_properties(filepath, opts.save, opts.overwrite, opts.d, opts.R);
+  }
+  return err;
+}
+
+int zsv_is_prop_file(struct zsv_foreach_dirent_handle *h, size_t depth) {
+  return depth == 1 && !strcmp(h->entry, "props.json");
+}
+
+#ifdef ZSV_IS_PROP_FILE_HANDLER
+int ZSV_IS_PROP_FILE_HANDLER(struct zsv_foreach_dirent_handle *, size_t);
+#endif
+
+struct zsv_dir_filter *
+zsv_prop_get_or_set_is_prop_file(
+                                 int (*custom_is_prop_file)(struct zsv_foreach_dirent_handle *, size_t),
+                                 int max_depth,
+                                 char set
+                                 ) {
+  static struct zsv_dir_filter ctx = {
+#ifndef ZSV_IS_PROP_FILE_HANDLER
+    .filter = zsv_is_prop_file,
+#else
+    .filter = ZSV_IS_PROP_FILE_HANDLER,
+#endif
+#ifndef ZSV_IS_PROP_FILE_DEPTH
+    .max_depth = 1
+#else
+    .max_depth = ZSV_IS_PROP_FILE_DEPTH
+#endif
+  };
+
+  if(set) {
+    if(!(ctx.filter = custom_is_prop_file)) {
+      ctx.filter = zsv_is_prop_file;
+      max_depth = 1;
+    } else
+      ctx.max_depth = max_depth;
+  }
+  return &ctx;
+}
+
+static int zsv_prop_foreach_list(struct zsv_foreach_dirent_handle *h, size_t depth) {
+  if(!h->is_dir) {
+    struct zsv_dir_filter *ctx = (struct zsv_dir_filter *)h->ctx;
+    h->ctx = ctx->ctx;
+    if(ctx->filter(h, depth))
+      printf("%s\n", h->entry);
+    h->ctx = ctx;
+  }
+  return 0;
+}
+
+zsv_foreach_dirent_handler
+zsv_prop_get_or_set_is_prop_dir(
+                                int (*custom_is_prop_dir)(struct zsv_foreach_dirent_handle *, size_t),
+                                char set
+                                ) {
+  static int (*func)(struct zsv_foreach_dirent_handle *, size_t) = NULL;
+  if(set)
+    func = custom_is_prop_dir;
+  return func;
+}
+
+static int zsv_prop_execute_list_files(const unsigned char *filepath, char verbose) {
+  int err = 0;
+  unsigned char *cache_path = zsv_cache_path(filepath, NULL, 0);
+  struct zsv_dir_filter ctx = *zsv_prop_get_or_set_is_prop_file(NULL, 0, 0);
+  if(cache_path) {
+    zsv_foreach_dirent((const char *)cache_path, ctx.max_depth, zsv_prop_foreach_list,
+                       &ctx, verbose);
+    free(cache_path);
+  }
+  return err;
+}
+
+struct zsv_prop_foreach_clean_ctx {
+  const char *dirpath;
+  unsigned char dry;
+};
+
+static int zsv_prop_foreach_clean(struct zsv_foreach_dirent_handle *h, size_t depth) {
+  int err = 0;
+  if(depth == 1) {
+    struct zsv_prop_foreach_clean_ctx *ctx = h->ctx;
+    if(h->is_dir) {
+      // h->entry is the name of the top-level file that this folder relates to
+      // make sure that the top-level file exists
+      h->no_recurse = 1;
+
+      char *cache_owner_path;
+      asprintf(&cache_owner_path, "%s%c%s", ctx->dirpath, FILESLASH, h->entry);
+      if(!cache_owner_path) {
+        fprintf(stderr, "Out of memory!\n");
+        return 1;
+      }
+      if(!zsv_file_exists(cache_owner_path)) {
+        if(ctx->dry)
+          printf("Orphaned: %s\n", h->parent_and_entry);
+        else
+          err = zsv_remove_dir_recursive((const unsigned char *)h->parent_and_entry);
+      }
+      free(cache_owner_path);
+    } else {
+      // there should be no files at depth 1, so just delete
+      if(ctx->dry)
+        printf("Unrecognized: %s\n", h->parent_and_entry);
+      else if(unlink(h->parent_and_entry)) {
+        perror(h->parent_and_entry);
+        err = 1;
+      }
+    }
+  }
+  return err;
+}
+
+enum zsv_prop_foreach_copy_mode {
+  zsv_prop_foreach_copy_mode_check = 1,
+  zsv_prop_foreach_copy_mode_copy
+};
+
+struct zsv_prop_foreach_copy_ctx {
+  struct zsv_dir_filter zsv_dir_filter;
+  const unsigned char *src_cache_dir;
+  const unsigned char *dest_cache_dir;
+  enum zsv_prop_foreach_copy_mode mode;
+  int err;
+  unsigned char output_started:1;
+  unsigned char force:1;
+  unsigned char dry:1;
+  unsigned char _:5;
+};
+
+static int zsv_prop_foreach_copy(struct zsv_foreach_dirent_handle *h, size_t depth) {
+  if(!h->is_dir) {
+    struct zsv_prop_foreach_copy_ctx *ctx = h->ctx;
+    h->ctx = ctx->zsv_dir_filter.ctx;
+    if(ctx->zsv_dir_filter.filter(h, depth)) {
+      char *dest_prop_filepath;
+      asprintf(&dest_prop_filepath, "%s%s", ctx->dest_cache_dir, h->parent_and_entry + strlen((const char *)ctx->src_cache_dir));
+      if(!dest_prop_filepath) {
+        ctx->err = errno = ENOMEM;
+        perror(NULL);
+      } else {
+        switch(ctx->mode) {
+        case zsv_prop_foreach_copy_mode_check:
+          {
+            if(!zsv_file_readable(h->parent_and_entry, &ctx->err, NULL)) { // check if source is not readable
+              perror(h->parent_and_entry);
+            } else if(!ctx->force && access(dest_prop_filepath, F_OK) != -1) { // check if dest already exists
+              ctx->err = EEXIST;
+              if(!ctx->output_started) {
+                ctx->output_started = 1;
+                const char *msg = strerror(EEXIST);
+                fprintf(stderr, "%s:\n", msg ? msg : "File already exists");
+              }
+              fprintf(stderr, "  %s\n", dest_prop_filepath);
+            } else if(ctx->dry)
+              printf("%s => %s\n", h->parent_and_entry, dest_prop_filepath);
+          }
+          break;
+        case zsv_prop_foreach_copy_mode_copy:
+          if(!ctx->dry) {
+            char *dest_prop_filepath_tmp;
+            asprintf(&dest_prop_filepath_tmp, "%s.temp", dest_prop_filepath);
+            if(!dest_prop_filepath_tmp) {
+              ctx->err = errno = ENOMEM;
+              perror(NULL);
+            } else {
+              if(h->verbose)
+                fprintf(stderr, "Copying temp: %s => %s\n", h->parent_and_entry, dest_prop_filepath_tmp);
+              int err = zsv_copy_file(h->parent_and_entry, dest_prop_filepath_tmp);
+              if(err)
+                ctx->err = err;
+              else {
+                if(h->verbose)
+                  fprintf(stderr, "Renaming: %s => %s\n", dest_prop_filepath_tmp, dest_prop_filepath);
+                if(rename(dest_prop_filepath_tmp, dest_prop_filepath)) {
+                  const char *msg = strerror(errno);
+                  fprintf(stderr, "Unable to rename %s -> %s: %s\n", dest_prop_filepath_tmp, dest_prop_filepath, msg ? msg : "Unknown error");
+                  ctx->err = errno;
+                }
+              }
+              free(dest_prop_filepath_tmp);
+            }
+          }
+          break;
+        }
+        free(dest_prop_filepath);
+      }
+    }
+    h->ctx = ctx;
+  }
+  return 0;
+}
+
+static int zsv_prop_execute_copy(const char *src, const char *dest, unsigned char force, unsigned char dry, unsigned char verbose) {
+  int err = 0;
+  unsigned char *src_cache_dir = zsv_cache_path((const unsigned char *)src, NULL, 0);
+  unsigned char *dest_cache_dir = zsv_cache_path((const unsigned char *)dest, NULL, 0);
+
+  if(!(src_cache_dir && dest_cache_dir))
+    err = errno = ENOMEM, perror(NULL);
+  else {
+    // if !force, only proceed if:
+    // - src exists (file)
+    // - dest exists (file)
+    // - dest file property cache d.n. have conflicts
+    struct zsv_prop_foreach_copy_ctx ctx = { 0 };
+    ctx.zsv_dir_filter = *zsv_prop_get_or_set_is_prop_file(NULL, 0, 0);
+    ctx.dest_cache_dir = dest_cache_dir;
+    ctx.src_cache_dir = src_cache_dir;
+    ctx.force = force;
+    ctx.dry = dry;
+
+    if(!force) {
+      if(!zsv_file_exists(src))
+        err = errno = ENOENT, perror(src);
+      if(!zsv_file_exists(dest))
+        err = errno = ENOENT, perror(dest);
+    }
+
+    if(!err) {
+      // for each property file, check if dest has same-named property file
+      ctx.mode = zsv_prop_foreach_copy_mode_check;
+      zsv_foreach_dirent((const char *)src_cache_dir, ctx.zsv_dir_filter.max_depth, zsv_prop_foreach_copy,
+                         &ctx, verbose);
+    }
+
+    if(!err && !(ctx.err && !force)) {
+      // copy the files
+      ctx.mode = zsv_prop_foreach_copy_mode_copy;
+      zsv_foreach_dirent((const char *)src_cache_dir, ctx.zsv_dir_filter.max_depth, zsv_prop_foreach_copy,
+                         &ctx, verbose);
+    }
+  }
+  free(src_cache_dir);
+  free(dest_cache_dir);
+  return err;
+}
+
+static int zsv_prop_execute_clean(const char *dirpath, unsigned char dry, unsigned char verbose) {
+  // TO DO: if ZSV_CACHE_DIR-tmp exists, delete it (file or dir)
+  int err = 0;
+  size_t dirpath_len = strlen(dirpath);
+  while(dirpath_len && memchr("/\\", dirpath[dirpath_len-1], 2) != NULL)
+    dirpath_len--;
+  if(!dirpath_len)
+    return 0;
+
+  // TO DO: if NO_STDIN, require --force, else prompt user
+
+  char *cache_parent;
+  if(!strcmp(dirpath, "."))
+    cache_parent = strdup(ZSV_CACHE_DIR);
+  else
+    asprintf(&cache_parent, "%.*s%c%s", (int)dirpath_len, dirpath, FILESLASH, ZSV_CACHE_DIR);
+  if(!cache_parent) {
+    fprintf(stderr, "Out of memory!\n");
+    return 1;
+  }
+
+  struct zsv_prop_foreach_clean_ctx ctx = { 0 };
+  ctx.dirpath = dirpath;
+  ctx.dry = dry;
+
+  zsv_foreach_dirent(cache_parent, 0, zsv_prop_foreach_clean, &ctx, verbose);
+  free(cache_parent);
+  return err;
+}
+
+static int zsv_prop_execute_export(const char *src, const char *dest, unsigned char verbose) {
+  int err = 0;
+  unsigned char *parent_dir = zsv_cache_path((const unsigned char *)src, NULL, 0);
+  if(!(parent_dir))
+    err = errno = ENOMEM, perror(NULL);
+  else {
+    struct zsv_dir_filter zsv_dir_filter = *zsv_prop_get_or_set_is_prop_file(NULL, 0, 0);
+    err = zsv_dir_to_json(parent_dir, (const unsigned char *)dest, &zsv_dir_filter, verbose);
+  }
+  free(parent_dir);
+  return err;
+}
+
+static int zsv_prop_execute_import(const char *dest, const char *src, unsigned char force,
+                                   unsigned char dry, unsigned char verbose) {
+  int err = 0;
+  unsigned char *target_dir = NULL;
+  FILE *fsrc = NULL;
+  if(!force && !zsv_file_exists(dest)) {
+    err = errno = ENOENT;
+    perror(dest);
+  } else if(!(target_dir = zsv_cache_path((const unsigned char *)dest, NULL, 0))) {
+    err = errno = ENOMEM;
+    perror(NULL);
+  } else if(!(fsrc = src ? fopen(src, "rb") : stdin)) {
+    err = errno;
+    perror(src);
+  } else {
+    int flags = (force ? ZSV_DIR_FLAG_FORCE : 0) | (dry ? ZSV_DIR_FLAG_DRY : 0);
+    err = zsv_dir_from_json(target_dir, fsrc, flags, verbose);
+  }
+  if(fsrc && fsrc != stdin)
+    fclose(fsrc);
+  free(target_dir);
+  return err;
+}
+
+
+
 int ZSV_MAIN_NO_OPTIONS_FUNC(ZSV_COMMAND)(int m_argc, const char *m_argv[]) {
   int err = 0;
+  char verbose = 0;
   if(m_argc < 2 ||
      (m_argc > 1 && (!strcmp(m_argv[1], "-h") || !strcmp(m_argv[1], "--help"))))
     err = zsv_property_usage(stdout);
   else {
-    struct prop_opts {
-      int64_t d; // ZSV_PROP_ARG_AUTO, ZSV_PROP_ARG_REMOVE or > 0
-      int64_t R; // ZSV_PROP_ARG_AUTO, ZSV_PROP_ARG_REMOVE or > 0
-      unsigned char clear:1;
-      unsigned char save:1;
-      unsigned char overwrite:1;
-      unsigned char _:3;
-    };
     struct prop_opts opts = { 0 };
     opts.d = ZSV_PROP_ARG_NONE;
     opts.R = ZSV_PROP_ARG_NONE;
@@ -516,18 +880,32 @@ int ZSV_MAIN_NO_OPTIONS_FUNC(ZSV_COMMAND)(int m_argc, const char *m_argv[]) {
     if(m_argc == 2)
       return show_all_properties(filepath);
 
-    if(m_argc == 3 && !strcmp("--clear", m_argv[2]))
-      return zsv_cache_remove(filepath, zsv_cache_type_property);
-
+    enum zsv_prop_mode mode = zsv_prop_mode_default;
+    unsigned char dry = 0;
+    const char *mode_arg = NULL;   // e.g. "--export"
+    const char *mode_value = NULL; // e.g. "saved_export.json"
     for(int i = 2; !err && i < m_argc; i++) {
       const char *opt = m_argv[i];
-      if(!strcmp(opt, "-d") || !strcmp(opt, "--header-row-span"))
+      if(!strcmp(opt, "-v") || !strcmp(opt, "--verbose"))
+        verbose = 1;
+      else if(!strcmp(opt, "-d") || !strcmp(opt, "--header-row-span"))
         err = prop_arg_value(++i, m_argc, m_argv, &opts.d);
       else if(!strcmp(opt, "-R") || !strcmp(opt, "--skip-head"))
         err = prop_arg_value(++i, m_argc, m_argv, &opts.R);
-      else if(!strcmp(opt, "--clear"))
-        err = fprintf(stderr, "--clear cannot be used in conjunction with any other options\n");
-      else if(!strcmp(opt, "--auto")) {
+      else if(zsv_prop_get_mode(opt)) {
+        if(mode_arg)
+          err = fprintf(stderr, "Option %s cannot be used together with %s\n", opt, mode_arg);
+        else {
+          mode = zsv_prop_get_mode(opt);
+          mode_arg = opt;
+          if(mode == zsv_prop_mode_export || mode == zsv_prop_mode_import || mode == zsv_prop_mode_copy) {
+            if(++i < m_argc)
+              mode_value = m_argv[i];
+            else
+              err = fprintf(stderr, "Option %s requires a value\n", opt);
+          }
+        }
+      } else if(!strcmp(opt, "--auto")) {
         if(opts.d != ZSV_PROP_ARG_NONE && opts.R != ZSV_PROP_ARG_NONE)
           err = fprintf(stderr, "--auto specified, but all other properties also specified");
         else {
@@ -540,6 +918,8 @@ int ZSV_MAIN_NO_OPTIONS_FUNC(ZSV_COMMAND)(int m_argc, const char *m_argv[]) {
         opts.save = 1;
       else if(!strcmp(opt, "-f") || !strcmp(opt, "--overwrite"))
         opts.overwrite = 1;
+      else if(!strcmp(opt, "--dry"))
+        dry = 1;
       else {
         fprintf(stderr, "Unrecognized option: %s\n", opt);
         err = 1;
@@ -547,6 +927,7 @@ int ZSV_MAIN_NO_OPTIONS_FUNC(ZSV_COMMAND)(int m_argc, const char *m_argv[]) {
     }
 
     // check if option combination is invalid
+    // to do: check with zsv_prop_mode_clear
     if(!err) {
       char have_auto = opts.d == ZSV_PROP_ARG_AUTO || opts.R == ZSV_PROP_ARG_AUTO;
       char have_specified = opts.d >= 0 || opts.R >= 0;
@@ -555,7 +936,9 @@ int ZSV_MAIN_NO_OPTIONS_FUNC(ZSV_COMMAND)(int m_argc, const char *m_argv[]) {
       if(have_auto && (have_specified || have_remove)) {
         fprintf(stderr, "Non-auto options may not be mixed with auto options\n");
         err = 1;
-      }
+      } else if((have_auto || have_specified || have_remove || opts.save)
+                && mode != zsv_prop_mode_default)
+        err = fprintf(stderr, "Invalid options in combination with %s\n", mode_arg);
 
       if(have_specified || have_remove) {
         opts.save = 1;
@@ -564,25 +947,48 @@ int ZSV_MAIN_NO_OPTIONS_FUNC(ZSV_COMMAND)(int m_argc, const char *m_argv[]) {
     }
 
     if(!err) {
-      struct zsv_file_properties fp = { 0 };
-      if(opts.d >= 0 || opts.R >= 0 || opts.d == ZSV_PROP_ARG_REMOVE || opts.R == ZSV_PROP_ARG_REMOVE)
-        opts.overwrite = 1;
-      if(opts.d == ZSV_PROP_ARG_AUTO || opts.R == ZSV_PROP_ARG_AUTO) {
-        struct zsv_opts zsv_opts;
-        zsv_args_to_opts(m_argc, m_argv, &m_argc, m_argv, &zsv_opts, NULL);
-        err = detect_properties(filepath, &fp,
-                                opts.d == ZSV_PROP_ARG_AUTO,
-                                opts.R == ZSV_PROP_ARG_AUTO,
-                                &zsv_opts);
-      }
-
-      if(!err) {
-        if(opts.d == ZSV_PROP_ARG_AUTO)
-          opts.d = fp.header_span;
-
-        if(opts.R == ZSV_PROP_ARG_AUTO)
-          opts.R = fp.skip;
-        err = merge_and_save_properties(filepath, opts.save, opts.overwrite, opts.d, opts.R);
+      switch(mode) {
+      case zsv_prop_mode_clear:
+        if(!(filepath && *filepath))
+          err = fprintf(stderr, "--clear: please specify an input file\n");
+        else {
+          struct prop_opts opts2 = { 0 };
+          opts2.d = ZSV_PROP_ARG_NONE;
+          opts2.R = ZSV_PROP_ARG_NONE;
+          if(memcmp(&opts, &opts2, sizeof(opts)))
+            err = fprintf(stderr, "--clear cannot be used in conjunction with any other options\n");
+          else {
+            unsigned char *cache_path = zsv_cache_path(filepath, NULL, 0);
+            if(!cache_path)
+              err = ENOMEM;
+            else if(zsv_dir_exists((const char *)cache_path))
+              err = zsv_remove_dir_recursive(cache_path);
+            free(cache_path);
+          }
+        }
+        break;
+      case zsv_prop_mode_list_files:
+        err = zsv_prop_execute_list_files(filepath, verbose);
+        break;
+      case zsv_prop_mode_clean:
+        err = zsv_prop_execute_clean((const char *)filepath, dry, verbose);
+        break;
+      case zsv_prop_mode_copy:
+        err = zsv_prop_execute_copy((const char *)filepath, mode_value, opts.overwrite, dry, verbose);
+        break;
+      case zsv_prop_mode_export:
+        err = zsv_prop_execute_export((const char *)filepath, mode_value && strcmp(mode_value, "-") ? mode_value : NULL, verbose);
+        break;
+      case zsv_prop_mode_import:
+        err = zsv_prop_execute_import((const char *)filepath, mode_value && strcmp(mode_value, "-") ? mode_value : NULL, opts.overwrite, dry, verbose);
+        break;
+      case zsv_prop_mode_default:
+        {
+          struct zsv_opts zsv_opts;
+          zsv_args_to_opts(m_argc, m_argv, &m_argc, m_argv, &zsv_opts, NULL);
+          err = zsv_prop_execute_default(filepath, zsv_opts, opts);
+        }
+        break;
       }
     }
   }

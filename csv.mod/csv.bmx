@@ -31,6 +31,8 @@ ModuleInfo "License: MIT"
 ModuleInfo "zsv - Copyright (c) 2021 Guarnerix Inc dba Liquidaty"
 ModuleInfo "Copyright: 2022-2023 Bruce A Henderson"
 
+ModuleInfo "History: 1.03"
+ModuleInfo "History: Updated to zsv 0.3.6.fdcd18e"
 ModuleInfo "History: 1.02"
 ModuleInfo "History: Updated to zsv 0.3.5.fd7b11a"
 ModuleInfo "History: 1.01"
