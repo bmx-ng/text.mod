@@ -3,7 +3,7 @@
  *
  * https://www.msweet.org/mxml
  *
- * Copyright © 2003-2019 by Michael R Sweet.
+ * Copyright © 2003-2021 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -32,7 +32,7 @@
  */
 
 #  define MXML_MAJOR_VERSION	3	/* Major version number */
-#  define MXML_MINOR_VERSION	0	/* Minor version number */
+#  define MXML_MINOR_VERSION	2	/* Minor version number */
 
 #  define MXML_TAB		8	/* Tabs every N columns */
 
@@ -85,8 +85,7 @@ typedef enum mxml_type_e		/**** The XML node type. ****/
   MXML_OPAQUE,				/* Opaque string */
   MXML_REAL,				/* Real value */
   MXML_TEXT,				/* Text fragment */
-  MXML_CUSTOM,				/* Custom data @since Mini-XML 2.1@ */
-  MXML_COMMENT				/* XML comment */
+  MXML_CUSTOM				/* Custom data @since Mini-XML 2.1@ */
 } mxml_type_t;
 
 typedef void (*mxml_custom_destroy_cb_t)(void *);
@@ -188,8 +187,6 @@ extern mxml_node_t	*mxmlLoadFile(mxml_node_t *top, FILE *fp,
 			              mxml_type_t (*cb)(mxml_node_t *));
 extern mxml_node_t	*mxmlLoadString(mxml_node_t *top, const char *s,
 			                mxml_type_t (*cb)(mxml_node_t *));
-extern mxml_node_t	*mxmlLoadStream(mxml_node_t *top, mxml_read_stream_cb_t read_stream_cb,
-			            void *read_stream_context, mxml_type_t (*cb)(mxml_node_t *));
 extern mxml_node_t	*mxmlNewCDATA(mxml_node_t *parent, const char *string);
 extern mxml_node_t	*mxmlNewCustom(mxml_node_t *parent, void *data,
 			               mxml_custom_destroy_cb_t destroy);
@@ -208,7 +205,6 @@ extern mxml_node_t	*mxmlNewTextf(mxml_node_t *parent, int whitespace, const char
 __attribute__ ((__format__ (__printf__, 3, 4)))
 #    endif /* __GNUC__ */
 ;
-extern mxml_node_t	*mxmlNewComment(mxml_node_t *parent, const char *name);
 extern mxml_node_t	*mxmlNewXML(const char *version);
 extern int		mxmlRelease(mxml_node_t *node);
 extern void		mxmlRemove(mxml_node_t *node);
@@ -267,7 +263,11 @@ extern mxml_node_t	*mxmlWalkPrev(mxml_node_t *node, mxml_node_t *top,
  * Semi-private functions...
  */
 
-extern void		mxml_error(const char *format, ...);
+extern void		mxml_error(const char *format, ...)
+#    ifdef __GNUC__
+__attribute__ ((__format__ (__printf__, 1, 2)))
+#    endif /* __GNUC__ */
+;
 extern mxml_type_t	mxml_ignore_cb(mxml_node_t *node);
 extern mxml_type_t	mxml_integer_cb(mxml_node_t *node);
 extern mxml_type_t	mxml_opaque_cb(mxml_node_t *node);
