@@ -3,7 +3,7 @@
  *
  * https://www.msweet.org/mxml
  *
- * Copyright © 2003-2021 by Michael R Sweet.
+ * Copyright © 2003-2019 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -217,13 +217,7 @@ mxmlElementSetAttr(mxml_node_t *node,	/* I - Element node */
     return;
 
   if (value)
-  {
-    if ((valuec = strdup(value)) == NULL)
-    {
-      mxml_error("Unable to allocate memory for attribute '%s' in element %s.", name, node->value.element.name);
-      return;
-    }
-  }
+    valuec = strdup(value);
   else
     valuec = NULL;
 
@@ -275,7 +269,7 @@ mxmlElementSetAttrf(mxml_node_t *node,	/* I - Element node */
   va_end(ap);
 
   if (!value)
-    mxml_error("Unable to allocate memory for attribute '%s' in element %s.",
+    mxml_error("Unable to allocate memory for attribute '%s' in element %s!",
                name, node->value.element.name);
   else if (mxml_set_attr(node, name, value))
     free(value);
@@ -308,7 +302,9 @@ mxml_set_attr(mxml_node_t *node,	/* I - Element node */
       * Free the old value as needed...
       */
 
-      free(attr->value);
+      if (attr->value)
+        free(attr->value);
+
       attr->value = value;
 
       return (0);
@@ -326,7 +322,7 @@ mxml_set_attr(mxml_node_t *node,	/* I - Element node */
 
   if (!attr)
   {
-    mxml_error("Unable to allocate memory for attribute '%s' in element %s.",
+    mxml_error("Unable to allocate memory for attribute '%s' in element %s!",
                name, node->value.element.name);
     return (-1);
   }
@@ -336,7 +332,7 @@ mxml_set_attr(mxml_node_t *node,	/* I - Element node */
 
   if ((attr->name = strdup(name)) == NULL)
   {
-    mxml_error("Unable to allocate memory for attribute '%s' in element %s.",
+    mxml_error("Unable to allocate memory for attribute '%s' in element %s!",
                name, node->value.element.name);
     return (-1);
   }

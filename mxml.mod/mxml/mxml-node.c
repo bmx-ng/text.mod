@@ -3,7 +3,7 @@
  *
  * https://www.msweet.org/mxml
  *
- * Copyright © 2003-2021 by Michael R Sweet.
+ * Copyright © 2003-2019 by Michael R Sweet.
  *
  * Licensed under Apache License v2.0.  See the file "LICENSE" for more
  * information.
@@ -624,6 +624,42 @@ mxmlNewTextf(mxml_node_t *parent,	/* I - Parent node or @code MXML_NO_PARENT@ */
   return (node);
 }
 
+/*
+ * 'mxmlNewComment()' - Create a new element node.
+ *
+ * The new element node is added to the end of the specified parent's child
+ * list. The constant @code MXML_NO_PARENT@ can be used to specify that the new
+ * element node has no parent.
+ */
+
+mxml_node_t *				/* O - New node */
+mxmlNewComment(mxml_node_t *parent,	/* I - Parent node or @code MXML_NO_PARENT@ */
+               const char  *name)	/* I - Name of element */
+{
+    mxml_node_t	*node;			/* New node */
+
+
+#ifdef DEBUG
+    fprintf(stderr, "mxmlNewElement(parent=%p, name=\"%s\")\n", parent,
+          name ? name : "(null)");
+#endif /* DEBUG */
+
+    /*
+     * Range check input...
+     */
+
+    if (!name)
+        return (NULL);
+
+    /*
+     * Create the node and set the element name...
+     */
+
+    if ((node = mxml_new(parent, MXML_COMMENT)) != NULL)
+        node->value.element.name = strdup(name);
+
+    return (node);
+}
 
 /*
  * 'mxmlRemove()' - Remove a node from its parent.
@@ -772,14 +808,17 @@ mxml_free(mxml_node_t *node)		/* I - Node */
   switch (node->type)
   {
     case MXML_ELEMENT :
-	free(node->value.element.name);
+        if (node->value.element.name)
+	  free(node->value.element.name);
 
 	if (node->value.element.num_attrs)
 	{
 	  for (i = 0; i < node->value.element.num_attrs; i ++)
 	  {
-	    free(node->value.element.attrs[i].name);
-	    free(node->value.element.attrs[i].value);
+	    if (node->value.element.attrs[i].name)
+	      free(node->value.element.attrs[i].name);
+	    if (node->value.element.attrs[i].value)
+	      free(node->value.element.attrs[i].value);
 	  }
 
           free(node->value.element.attrs);
@@ -789,13 +828,15 @@ mxml_free(mxml_node_t *node)		/* I - Node */
        /* Nothing to do */
         break;
     case MXML_OPAQUE :
-	free(node->value.opaque);
+        if (node->value.opaque)
+	  free(node->value.opaque);
         break;
     case MXML_REAL :
        /* Nothing to do */
         break;
     case MXML_TEXT :
-	free(node->value.text.string);
+        if (node->value.text.string)
+	  free(node->value.text.string);
         break;
     case MXML_CUSTOM :
         if (node->value.custom.data &&
