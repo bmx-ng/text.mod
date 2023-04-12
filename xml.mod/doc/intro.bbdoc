@@ -20,7 +20,7 @@ define and structure data, JSON uses key-value pairs and objects (denoted by cur
 (denoted by square brackets) to represent data. In general, JSON is considered to be more compact and less
 verbose than XML, which can result in faster parsing and reduced data size for transmission.
 
-Here's a comparison of XML and JSON representations for the same data:
+Here is a comparison of XML and JSON representations for the same data:
 
 XML:
 ```xml
@@ -160,18 +160,18 @@ XML data effectively. For instance, knowing the number of books in the bookstore
 authors for a particular book can be useful for various operations and analyses.
 
 ### Reading XML Files
-To read data from an existing XML file, you first need to create an #XmlDoc instance and parse
+To read data from an existing XML file, you first need to create an #TXmlDoc instance and parse
 the `books.xml` file.
 
 ```blitzmax
-Local xmlDoc:XmlDoc = new XmlDoc.parseFile("books.xml")
+Local xmlDoc:TXmlDoc = TXmlDoc.parseFile("books.xml")
 ```
 
 However, we also want to store the book data as objects in BlitzMax,
-so we'll create a custom Type for it first. As you observed in the XML file, the book titles
-can be in different languages, so we need to ensure that we can identify them using the lang
+so we'll create a custom #Type for it first. As you observed in the XML file, the book titles
+can be in different languages, so we need to ensure that we can identify them using the `lang`
 attribute of the `<title>` element. We can achieve this with a key-value mapping using a #StringMap.
-For authors, since they are not identified by a key, we can use a simple String array to store them.
+For authors, since they are not identified by a key, we can use a simple #String array to store them.
 
 ```blitzmax
 Type TBook
@@ -191,7 +191,7 @@ Now that we have parsed the XML file and created the `TBook` type to store the i
 we are ready to read the data from the XML and store it in our custom class.
 
 To extract information from the nodes in the parsed XML file, we can start by retrieving
-the root node using the `getRootElement()` method provided by the XmlDoc instance.
+the root node using the `getRootElement()` method provided by the #TXmlDoc instance.
 
 ```blitzmax
 Local rootNode:XmlNode = xmlDoc.getRootElement()
@@ -238,7 +238,7 @@ title, and `getContent()` to get the title text.
 * **Author, year, and price elements** : These elements only contain text, so we can use `getContent()`
 to read their values.
 
-For each book, we'll create a new TBook instance and add it to a TList that stores all our books.
+For each book, we'll create a new `TBook` instance and add it to a #TList that stores all our books.
 In your own projects, you might want to add conditional checks before adding a book to the list.
 For example, you could skip adding a book if certain required data is missing from the XML file
 (e.g., both "title" and "author" are absent). For the purpose of this example, we'll skip checking
@@ -278,7 +278,7 @@ For Local childNode:TxmlNode = EachIn rootNode.getChildren()
     allBooks.AddLast( book )
 Next
 
-' close the xmlDoc instance
+' close the TxmlDoc instance
 xmlDoc.Free()
 ```
 
@@ -374,7 +374,7 @@ Local allBooks:TList = New TList
 
 ' === LOADING ===
 ' Load and parse the books.xml file
-Local xmlDoc:TxmlDoc = New TxmlDoc.parseFile("books.xml")
+Local xmlDoc:TxmlDoc = TxmlDoc.parseFile("books.xml")
 ' Retrieve the root element (bookstore)
 Local rootNode:TxmlNode = xmlDoc.getRootElement()
 
@@ -512,7 +512,7 @@ nodes, attribute nodes, and text nodes.
 4. **Reading XML Files** : We demonstrated how to read an existing XML file using the #TxmlDoc class
 and parse the book data into our custom `TBook` type.
 
-5. **Storing Book Data** : We created a custom TBook type to store book data within our application and
+5. **Storing Book Data** : We created a custom `TBook` type to store book data within our application and
 added the book instances to a #TList.
 
 6. **Accessing XML Elements** : We retrieved specific elements and their attributes from the XML file
