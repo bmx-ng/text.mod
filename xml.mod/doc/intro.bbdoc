@@ -168,7 +168,7 @@ Local xmlDoc:TXmlDoc = TXmlDoc.parseFile("books.xml")
 ```
 
 However, we also want to store the book data as objects in BlitzMax,
-so we'll create a custom #Type for it first. As you observed in the XML file, the book titles
+so we will create a custom #Type for it first. As you observed in the XML file, the book titles
 can be in different languages, so we need to ensure that we can identify them using the `lang`
 attribute of the `<title>` element. We can achieve this with a key-value mapping using a #StringMap.
 For authors, since they are not identified by a key, we can use a simple #String array to store them.
@@ -185,7 +185,7 @@ End Type
 ```
 _(Note: Using floating-point numbers for financial values should generally be avoided,
 as it can lead to rounding errors, which is undesirable in financial contexts. For the sake
-of simplicity, we'll use `Float` in this example.)_
+of simplicity, we will use `Float` in this example.)_
 
 Now that we have parsed the XML file and created the `TBook` type to store the information,
 we are ready to read the data from the XML and store it in our custom class.
@@ -230,7 +230,7 @@ Let's take a closer look at a typical book entry in our XML file:
 </book>
 ```
 
-To extract information from this book entry, we'll use the following approaches:
+To extract information from this book entry, we will use the following approaches:
 
 * **Category attribute** : Use `getAttribute()` to retrieve the category value.
 * **Title element and `lang` attribute** : Use `getAttribute()` to obtain the language key of the
@@ -238,10 +238,10 @@ title, and `getContent()` to get the title text.
 * **Author, year, and price elements** : These elements only contain text, so we can use `getContent()`
 to read their values.
 
-For each book, we'll create a new `TBook` instance and add it to a #TList that stores all our books.
+For each book, we will create a new `TBook` instance and add it to a #TList that stores all our books.
 In your own projects, you might want to add conditional checks before adding a book to the list.
 For example, you could skip adding a book if certain required data is missing from the XML file
-(e.g., both "title" and "author" are absent). For the purpose of this example, we'll skip checking
+(e.g., both "title" and "author" are absent). For the purpose of this example, we will skip checking
 for duplicates or incomplete entries.
 
 ```blitzmax
@@ -283,20 +283,20 @@ xmlDoc.Free()
 ```
 
 Now that we have successfully extracted all the book information from the XML file and stored
-it in our application, it's time to take the next step. Let's explore how to save our book data back
+it in our application, it is time to take the next step. Let's explore how to save our book data back
 to a new XML file. 
 
 ### Saving Changes to XML Files
 
-When working with XML files, it's crucial to save your changes periodically.
-In this section, we'll explore the process of saving objects to XML files, otherwise known as
+When working with XML files, it is crucial to save your changes periodically.
+In this section, we will explore the process of saving objects to XML files, otherwise known as
 "serialization." This involves converting the desired data into text format, making it compatible
 with XML file structures.
 
 In our book example, we only have to handle numbers and text data, which simplifies the serialization process.
-To save our data, we'll need a #TxmlDoc object as the foundation and a root node to add our book nodes.
+To save our data, we will need a #TxmlDoc object as the foundation and a root node to add our book nodes.
 
-When creating a new #TxmlDoc, it's a good practice to use the `newDoc()` helper function, which allows you
+When creating a new #TxmlDoc, it is a good practice to use the `newDoc()` helper function, which allows you
 to specify the XML version to use. This ensures that your output file is consistent with the original
 `books.xml` file format.
 
