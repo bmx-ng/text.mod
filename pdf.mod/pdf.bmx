@@ -662,7 +662,7 @@ Type TPDFPage
 
 	Rem
 	bbdoc: Closes and then paints the current path.
-	return: #HPDF_OK on success. Otherwise, returns error code and error-handler is invoked.
+	returns: #HPDF_OK on success. Otherwise, returns error code and error-handler is invoked.
 	End Rem
 	Method ClosePathStroke:Int()
 		Return HPDF_Page_ClosePathStroke(pagePtr)

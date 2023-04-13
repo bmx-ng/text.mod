@@ -37,6 +37,13 @@ ifneq ($(ZSV_CACHE_PREFIX),)
   CFLAGS+= -DZSV_CACHE_PREFIX='${ZSV_CACHE_PREFIX}'
 endif
 
+ifneq ($(ZSV_IS_PROP_FILE_HANDLER),)
+	CFLAGS+=-DZSV_IS_PROP_FILE_HANDLER=${ZSV_IS_PROP_FILE_HANDLER}
+endif
+ifneq ($(ZSV_IS_PROP_FILE_DEPTH),)
+	CFLAGS+=-DZSV_IS_PROP_FILE_DEPTH=${ZSV_IS_PROP_FILE_DEPTH}
+endif
+
 DEBUG=0
 WIN=
 ifeq ($(WIN),)
@@ -163,8 +170,8 @@ endif
 
 ZSV=$(BINDIR)/zsv${EXE}
 
-SOURCES= echo count count-pull select select-pull 2tsv 2json serialize flatten pretty stack desc sql 2db compare prop rm jq
-CLI_SOURCES=echo select desc count 2tsv pretty sql flatten 2json serialize stack 2db compare prop rm jq
+SOURCES= echo count count-pull select select-pull 2tsv 2json serialize flatten pretty stack desc sql 2db compare prop rm mv jq
+CLI_SOURCES=echo select desc count 2tsv pretty sql flatten 2json serialize stack 2db compare prop rm mv jq
 
 CFLAGS+= -DUSE_JQ
 
@@ -240,8 +247,8 @@ SQLITE_SRC=${THIS_MAKEFILE_DIR}/external/sqlite3/sqlite3*.c
 SQLITE_EXT=${BUILD_DIR}-external/sqlite3/sqlite3_and_csv_vtab.o
 SQLITE_EXT_INCLUDE=-I${THIS_MAKEFILE_DIR}/external/sqlite3
 
-# everything uses prop, which in turn uses yajl and jq
-OBJECTS+= ${YAJL_OBJ} ${YAJL_HELPER_OBJ}
+# everything uses prop, which in turn uses yajl and jq and json
+OBJECTS+= ${YAJL_OBJ} ${YAJL_HELPER_OBJ} ${BUILD_DIR}/objs/utils/json.o
 MORE_SOURCE+= ${YAJL_INCLUDE} ${YAJL_HELPER_INCLUDE} -I${JQ_INCLUDE_DIR}
 MORE_LIBS+=${JQ_LIB} ${LDFLAGS_JQ}
 
@@ -255,7 +262,7 @@ help:
 	@echo "which will build and test all apps, or to build/test a single app:"
 	@echo "  ${MAKE} test-xx"
 	@echo "where xx is any of:"
-	@echo "  echo count count-pull select select-pull 2tsv 2json serialize flatten pretty stack desc sql 2db prop rm"
+	@echo "  echo count count-pull select select-pull 2tsv 2json serialize flatten pretty stack desc sql 2db prop rm mv"
 	@echo ""
 
 install: ${ZSV}
@@ -368,10 +375,6 @@ ${JSONWRITER_OBJECT}: ${JSONWRITER_SRC}/jsonwriter.c
 # ${STANDALONE_PFX}flatten${EXE} ${STANDALONE_PFX}stack${EXE} ${STANDALONE_PFX}desc${EXE}:
 MORE_SOURCE+=-I${THIS_MAKEFILE_DIR}/external/sglib
 
-# prop uses utils/json
-${CLI} ${STANDALONE_PFX}prop${EXE}: ${BUILD_DIR}/objs/utils/json.o
-${CLI} ${STANDALONE_PFX}prop${EXE}: MORE_OBJECTS+= ${BUILD_DIR}/objs/utils/json.o
-
 # sql, 2db, 2json, echo, compare use sqlite3
 ${CLI} ${STANDALONE_PFX}sql${EXE} ${STANDALONE_PFX}2db${EXE} ${STANDALONE_PFX}2json${EXE} ${STANDALONE_PFX}echo${EXE} ${STANDALONE_PFX}compare${EXE}: ${SQLITE_EXT}
 ${CLI} ${STANDALONE_PFX}sql${EXE} ${STANDALONE_PFX}2db${EXE} ${STANDALONE_PFX}2json${EXE} ${STANDALONE_PFX}echo${EXE} ${STANDALONE_PFX}compare${EXE}: MORE_OBJECTS+=${SQLITE_EXT}
@@ -408,8 +411,13 @@ ${YAJL_HELPER_OBJ}: external/yajl_helper/yajl_helper.c
 	@mkdir -p `dirname "$@"`
 	${CC} ${CFLAGS} -I${BASEDIR}/yajl_helper ${YAJL_INCLUDE} ${YAJL_HELPER_INCLUDE} -c $< -o $@
 
-test:
-	@${MAKE} -C test $@ QUIET=1 LEAKS=${LEAKS} CONFIGFILE=${CONFIGFILEPATH} DEBUG=${DEBUG}
+test:	test-standalone test-cli
+
+test-standalone:
+	@${MAKE} -C test test QUIET=1 LEAKS=${LEAKS} CONFIGFILE=${CONFIGFILEPATH} DEBUG=${DEBUG}
+
+test-cli:  ${CLI}
+	@${MAKE} -C test $@ QUIET=1 LEAKS=${LEAKS} CONFIGFILE=${CONFIGFILEPATH} DEBUG=${DEBUG} CLI=${CLI}
 
 clean-all: clean clean-external clean-obj clean-lib
 
