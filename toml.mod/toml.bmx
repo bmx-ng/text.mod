@@ -41,12 +41,12 @@ ModuleInfo "CPP_OPTS: -std=c++17 -fexceptions"
 Import "common.bmx"
 
 Rem
-bbdoc: 
+bbdoc: TOML loader.
 End Rem
 Type TToml
 
 	Rem
-	bbdoc: Parses a String of toml.
+	bbdoc: Parses a String of TOML.
 	about:
 	May throw a #TTomlParseError.
 	End Rem
@@ -55,7 +55,7 @@ Type TToml
 	End Function
 
 	Rem
-	bbdoc: Loads a toml file from the given @path.
+	bbdoc: Loads a TOML file from the given @path.
 	about:
 	May throw a #TTomlParseError.
 	End Rem
@@ -69,7 +69,7 @@ Type TToml
 	End Function
 
 	Rem
-	bbdoc: Loads a toml file from the given @stream.
+	bbdoc: Loads a TOML file from the given @stream.
 	about:
 	May throw a #TTomlParseError.
 	End Rem
