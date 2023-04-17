@@ -14,7 +14,7 @@ Const sampText2:String = "The quick brown fox jumps over the lazy dog."
 
 Local pdf:TPDFDoc = New TPDFDoc
 
-pdf.SetCompressionMode(EPDFCompressionMode.COMP_ALL)
+pdf.SetCompressionMode(EPDFCompressionMode.ALL)
 
 ' create default-font */
 Local font:TPDFFont = pdf.GetFont("Helvetica", Null)

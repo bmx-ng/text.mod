@@ -1,3 +1,6 @@
+'
+' This is not an example, it is used by some of the examples
+'
 SuperStrict
 
 Function PrintGrid(pdf:TPDFDoc, page:TPDFPage)
