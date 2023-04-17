@@ -1,4 +1,5 @@
 SuperStrict
+Framework Text.PDF
 
 Function PrintGrid(pdf:TPDFDoc, page:TPDFPage)
 	Local height:Float = page.GetHeight()
