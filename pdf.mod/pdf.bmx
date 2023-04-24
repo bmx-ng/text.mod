@@ -42,6 +42,7 @@ End Rem
 Type TPDFDoc
 	Private
 	Field docPtr:Byte Ptr
+	Field pageCount:Int
 
 	Global lastError:TPDFException
 
@@ -95,7 +96,7 @@ Type TPDFDoc
 	Method GetCurrentPage:TPDFPage()
 		Local page:Byte Ptr = HPDF_GetCurrentPage(docPtr)
 		If page Then
-			Return TPDFPage._create(page)
+			Return TPDFPage._create(page, self)
 		End If
 	End Method
 
@@ -104,7 +105,8 @@ Type TPDFDoc
 	returns: The created page object on success. Otherwise, it returns #Null and error-handler is called.
 	End Rem
 	Method AddPage:TPDFPage()
-		Return TPDFPage._create(HPDF_AddPage(docPtr))
+		pageCount :+ 1
+		Return TPDFPage._create(HPDF_AddPage(docPtr), Self)
 	End Method
 
 	Rem
@@ -112,7 +114,8 @@ Type TPDFDoc
 	returns: The created page object on success. Otherwise, it returns #Null and error-handler is called.
 	End Rem
 	Method InsertPage:TPDFPage(page:TPDFPage)
-		Return TPDFPage._create(HPDF_InsertPage(docPtr, page.pagePtr))
+		pageCount :+ 1
+		Return TPDFPage._create(HPDF_InsertPage(docPtr, page.pagePtr), Self)
 	End Method
 
 	Rem
@@ -157,10 +160,19 @@ Type TPDFDoc
 	End Method
 
 	Rem
-	bbdoc: 
+	bbdoc: Creates an extended graphics states object.
 	End Rem
 	Method CreateExtGState:TPDFExtGState()
 		Return TPDFExtGState._create(HPDF_CreateExtGState(docPtr))
+	End Method
+
+	Rem
+	bbdoc: Creates an extended graphics states object, with the specified @alpha.
+	End Rem
+	Method CreateExtGStateWithAlpha:TPDFExtGState(alpha:Float)
+		Local state:TPDFExtGState = TPDFExtGState._create(HPDF_CreateExtGState(docPtr))
+		state.SetAlphaFill(alpha)
+		return state
 	End Method
 
 	Rem
@@ -425,13 +437,30 @@ An application can change the setting of a pages tree by invoking #SetPagesConfi
 	End Method
 
 	Rem
-	bbdoc: 
+	bbdoc: Sets the current encoder of the document.
 	End Rem
 	Method SetCurrentEncoder:Int(encodingName:String)
 		Local n:Byte Ptr = encodingName.ToUTF8String()
 		Local res:Int = HPDF_SetCurrentEncoder(docPtr, n)
 		MemFree(n)
 		Return res
+	End Method
+
+	Rem
+	bbdoc: Returns the number of pages in the document.
+	End Rem
+	Method GetPageCount:Int()
+		Return pageCount
+	End Method
+
+	Rem
+	bbdoc: Loads a #TPDFImage from a #TPixmap.
+	End Rem
+	Method LoadImage:TPDFImage(pix:TPixmap)
+		If pix.format <> PF_RGB888 Then
+			pix = pix.Convert(PF_RGB888)
+		End If
+		Return TPDFImage._create(HPDF_LoadRawImageFromMem(docPtr, pix.pixels, UInt(pix.width), UInt(pix.height), EPDFColorSpace.DEVICE_RGB, 8))
 	End Method
 
 	Rem
@@ -457,19 +486,28 @@ Type TPDFPage
 	Private
 
 	Field pagePtr:Byte Ptr
+	Field doc:TPDFDoc
 
 	Method New()
 	End Method
 
-	Function _create:TPDFPage(pagePtr:Byte Ptr)
+	Function _create:TPDFPage(pagePtr:Byte Ptr, doc:TPDFDoc)
 		If pagePtr Then
 			Local page:TPDFPage = New TPDFPage
 			page.pagePtr = pagePtr
+			page.doc = doc
 			Return page
 		End If
 	End Function
 
 	Public
+
+	Rem
+	bbdoc: Gets the document object for this page.
+	End Rem
+	Method GetDoc:TPDFDoc()
+		Return doc
+	End Method
 
 	Rem
 	bbdoc: Changes the width of a page.
@@ -981,6 +1019,14 @@ The parameters that are saved by #GSave are:
 	End Method
 
 	Rem
+	bbdoc: Shows an image.
+	returns: #HPDF_OK on success. Otherwise, returns error code and error-handler is invoked.
+	End Rem
+	Method DrawImage:UInt(image:TPDFImage, x:Float, y:Float, width:Float, height:Float)
+		Return HPDF_Page_DrawImage(pagePtr, image.imagePtr, x, y, width, height)
+	End Method
+
+	Rem
 	bbdoc: Appends a circle to the current path.
 	returns: #HPDF_OK on success. Otherwise, returns error code and error-handler is invoked.
 	End Rem
@@ -1275,7 +1321,7 @@ The parameters that are saved by #GSave are:
 	about: For example, if you want to rotate the coordinate system of the page by 45 degrees, use #Concat() as follows.
 	```
 	Local angle:Float = 45
-	pace.Concat(Cos(angle), Sin(angle), -Sin(angle), Cos(angle), 220, 350)
+	page.Concat(Cos(angle), Sin(angle), -Sin(angle), Cos(angle), 220, 350)
   	```
 	To change the coordinate system of the page to 300 dpi, use #Concat() as follows.
 	```
@@ -1303,9 +1349,17 @@ The parameters that are saved by #GSave are:
 	End Method
 
 	Rem
-	bbdoc: Changes the size and direction of a page to a predefined size.
+	bbdoc: 
 	End Rem
-	Method SetSize:Int(size:EPDFPageSize, direction:EPDFPageDirection)
+	Method Rotate:Int(angle:Float, x:Float, y:Float)
+		Return Concat(Float(Cos(angle)), Float(Sin(angle)), Float(-Sin(angle)), Float(Cos(angle)), x, y)
+	End Method
+
+	Rem
+	bbdoc: Changes the size and direction of a page to a predefined size.
+	about: Defaults to Portrait direction.
+	End Rem
+	Method SetSize:Int(size:EPDFPageSize, direction:EPDFPageDirection = EPDFPageDirection.PORTRAIT)
 		Return HPDF_Page_SetSize(pagePtr, size, direction)
 	End Method
 
@@ -1480,7 +1534,7 @@ Type TPDFFont
 End Type
 
 Rem
-bbdoc: PDF graphics state.
+bbdoc: PDF extended graphics state.
 End Rem
 Type TPDFExtGState
 	Private
@@ -1691,6 +1745,74 @@ Type TPDFAnnotation
 	End Rem
 	Method SetBorderStyle:Int(subtype:EPDFBSSubtype, width:Float, dashOn:Short, dashOff:Short, dashPhase:Short)
 		Return HPDF_Annotation_SetBorderStyle(annotationPtr, subtype, width, dashOn, dashOff, dashPhase)
+	End Method
+
+End Type
+
+Rem
+bbdoc: A PDF image.
+End Rem
+Type TPDFImage
+	Private
+	Field imagePtr:Byte Ptr
+
+	Function _create:TPDFImage(imagePtr:Byte Ptr)
+		If imagePtr Then
+			Local img:TPDFImage = New TPDFImage
+			img.imagePtr = imagePtr
+			Return img
+		End If
+	End Function
+
+	Public
+
+	Rem
+	bbdoc: Returns the width of the image.
+	End Rem
+	Method GetWidth:UInt()
+		Return HPDF_Image_GetWidth(imagePtr)
+	End Method
+
+	Rem
+	bbdoc: Returns the height of the image.
+	End Rem
+	Method GetHeight:UInt()
+		Return HPDF_Image_GetHeight(imagePtr)
+	End Method
+
+	Rem
+	bbdoc: Returns the number of bits used to represent each color component.
+	End Rem
+	Method GetBitsPerComponent:UInt()
+		Return HPDF_Image_GetBitsPerComponent(imagePtr)
+	End Method
+
+	Rem
+	bbdoc: Returns the size of the image.
+	End Rem
+	Method GetSize:SPDFPoint()
+		Return HPDF_Image_GetSize(imagePtr)
+	End Method
+
+	Rem
+	bbdoc: Returns the color space of the image.
+	End Rem
+	Method GetColorSpace:String()
+		Return String.FromCString(HPDF_Image_GetColorSpace(imagePtr))
+	End Method
+
+	Rem
+	bbdoc: Sets the colour mask.
+	End Rem
+	Method SetColorMask:UInt(rmin:UInt, rmax:UInt, gmin:UInt, gmax:UInt, bmin:UInt, bmax:UInt)
+		Return HPDF_Image_SetColorMask(imagePtr, rmin, rmax, gmin, gmax, bmin, bmax)
+	End Method
+
+	Rem
+	bbdoc: Sets the mask image.
+	End Rem
+	Method SetMaskImage:UInt(maskImage:TPDFImage)
+		Return HPDF_Image_SetMaskImage(imagePtr, maskImage.imagePtr)
 	End Method
 
 End Type

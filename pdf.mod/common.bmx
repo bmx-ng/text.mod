@@ -20,6 +20,8 @@ SuperStrict
 
 Import Pub.Zlib
 Import BRL.Stream
+Import BRL.Math
+Import BRL.Pixmap
 
 Import "source.bmx"
 
@@ -57,6 +59,7 @@ Extern
 	Function HPDF_GetEncoder:Byte Ptr(handler:Byte Ptr, encodingName:Byte Ptr)
 	Function HPDF_GetCurrentEncoder:Byte ptr(handler:Byte Ptr, encodingName:Byte Ptr)
 	Function HPDF_SetCurrentEncoder:ULongInt(handler:Byte Ptr, encodingName:Byte Ptr)
+	Function HPDF_LoadRawImageFromMem:Byte Ptr(handler:Byte Ptr, buf:Byte Ptr, width:UInt, height:UInt, colorSpace:EPDFColorSpace, bitsPerComponent:UInt)
 
 	Function HPDF_Page_BeginText:ULongInt(handle:Byte Ptr)
 	Function HPDF_Page_EndText:ULongInt(handle:Byte Ptr)
@@ -99,6 +102,7 @@ Extern
 	Function HPDF_Page_CreateURILinkAnnot:Byte Ptr(handle:Byte Ptr, rect:SPDFRect, uri:Byte Ptr)
 	Function HPDF_Page_GetGrayFill:Float(handle:Byte Ptr)
 	Function HPDF_Page_GetGrayStroke:Float(handle:Byte Ptr)
+	Function HPDF_Page_DrawImage:UInt(handle:Byte Ptr, image:Byte Ptr, x:Float, y:Float, width:Float, height:Float)
 
 	Function HPDF_Page_SetFontAndSize:ULongInt(handle:Byte Ptr, font:Byte Ptr, size:Float)
 	Function HPDF_Page_SetCharSpace:ULongInt(handle:Byte Ptr, value:Float)
@@ -196,7 +200,14 @@ Extern
 	Function HPDF_Encoder_GetUnicode:Short(handle:Byte Ptr, code:Short)
 	Function HPDF_Encoder_GetWritingMode:EPDFWritingMode(handle:Byte Ptr)
 
-		
+	Function HPDF_Image_GetWidth:UInt(handle:Byte Ptr)
+	Function HPDF_Image_GetHeight:UInt(handle:Byte Ptr)
+	Function HPDF_Image_GetBitsPerComponent:UInt(handle:Byte Ptr)
+	Function HPDF_Image_GetSize:SPDFPoint(handle:Byte Ptr)
+	Function HPDF_Image_GetColorSpace:Byte Ptr(handle:Byte Ptr)
+	Function HPDF_Image_SetColorMask:UInt(handle:Byte Ptr, rmin:UInt, rmax:UInt, gmin:UInt, gmax:UInt, bmin:UInt, bmax:UInt)
+	Function HPDF_Image_SetMaskImage:UInt(handle:Byte Ptr, mask:Byte Ptr)
+
 End Extern
 
 Rem
@@ -223,6 +234,15 @@ End Rem
 Struct SPDFPoint
 	Field x:Float
 	Field y:Float
+
+	Method New()
+	End Method
+
+	Method New(x:Float, y:Float)
+		Self.x = x
+		Self.y = y
+	End Method
+	
 End Struct
 
 Rem
