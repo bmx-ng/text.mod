@@ -23,13 +23,16 @@ bbdoc: A PDF encoder.
 End Rem
 Module Text.PDF
 
-ModuleInfo "Version: 1.00"
+ModuleInfo "Version: 1.01"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: zlib/libpng"
 ModuleInfo "libharu - Copyright (c) 1999-2006 Takeshi Kanno"
 ModuleInfo "libharu - Copyright (c) 2007-2009 Antony Dovgal"
+ModuleInfo "libharu - https://github.com/woollybah/libharu"
 ModuleInfo "Copyright: 2023 Bruce A Henderson"
 
+ModuleInfo "History: 1.01"
+ModuleInfo "History: Update to libharu.f80dfbc"
 ModuleInfo "History: 1.00"
 ModuleInfo "History: Initial Release"
 
@@ -1427,6 +1430,13 @@ The parameters that are saved by #GSave are:
 	End Rem
 	Method SetSlideShow:Int(style:EPDFTransitionStyle, dispTime:Float, transTime:Float)
 		Return HPDF_Page_SetSlideShow(pagePtr, style, dispTime, transTime)
+	End Method
+
+	Rem
+	bbdoc: Sets the size of the given page @boundary.
+	End Rem
+	Method SetBoundary:Int(boundary:EPDFPageBoundary, left:Float, bottom:Float, right:Float, top:Float)
+		Return HPDF_Page_SetBoundary(pagePtr, boundary, left, bottom, right, top)
 	End Method
 
 End Type

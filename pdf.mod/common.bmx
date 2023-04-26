@@ -162,6 +162,7 @@ Extern
 	Function HPDF_Page_CreateDestination:Byte Ptr(handle:Byte Ptr)
 	Function HPDF_SetOpenAction:ULongInt(handle:Byte Ptr, action:Byte Ptr)
 	Function HPDF_Page_SetSlideShow:ULongInt(handle:Byte Ptr, style:EPDFTransitionStyle, dispTime:Float, transTime:Float)
+	Function HPDF_Page_SetBoundary:ULongInt(handle:Byte Ptr, boundary:EPDFPageBoundary, left:Float, bottom:Float, right:Float, top:Float)
 
 	Function HPDF_Font_MeasureText:UInt(handle:Byte Ptr, t:Byte Ptr, length:UInt, width:Float, fontSize:Float, charSpace:Float, wordSpace:Float, wordwrap:Int, realWidth:Float Ptr)
 	Function HPDF_Font_GetFontName:Byte Ptr(handle:Byte Ptr)
@@ -576,6 +577,17 @@ Enum EPDFByteType
     SINGLE
     LEAD
     TRAIL
+End Enum
+
+Rem
+bbdoc: 
+End Rem
+Enum EPDFPageBoundary
+	MEDIABOX
+    CROPBOX
+    BLEEDBOX
+    TRIMBOX
+    ARTBOX
 End Enum
 
 Rem
