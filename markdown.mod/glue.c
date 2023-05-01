@@ -20,6 +20,7 @@
   THE SOFTWARE.
 */ 
 #include "md4c.h"
+#include "md4c-html.h"
 #include "brl.mod/blitz.mod/blitz.h"
 
 
@@ -29,6 +30,10 @@ int text_markdown_TMarkdown__EnterSpan(BBObject * obj, MD_SPANTYPE type, void * 
 int text_markdown_TMarkdown__LeaveSpan(BBObject * obj, MD_SPANTYPE type, void * detail);
 int text_markdown_TMarkdown__Text(BBObject * obj, MD_TEXTTYPE type, BBString * text);
 void text_markdown_TMarkdown__HtmlOutput(const MD_CHAR * txt, MD_SIZE size, BBObject * ob );
+int text_markdown_TMarkdown__EnterCodeBlock(BBObject * obj, MD_BLOCKTYPE type, void * detail);
+int text_markdown_TMarkdown__LeaveCodeBlock(BBObject * obj, MD_BLOCKTYPE type, void * detail);
+int text_markdown_TMarkdown__CodeBlockText(BBObject * obj, MD_TEXTTYPE type, BBString * text);
+
 
 int bmx_md_cb_enter_block(MD_BLOCKTYPE type, void* detail, void* userdata) {
     return text_markdown_TMarkdown__EnterBlock((BBObject *)userdata, type, detail);
@@ -55,6 +60,19 @@ void bmx_md_cb_html_output(const MD_CHAR * txt, MD_SIZE size, void * userdata) {
     text_markdown_TMarkdown__HtmlOutput(txt, size, (BBObject*)userdata);
 }
 
+int bmx_md_cb_enter_codeblock(MD_BLOCKTYPE type, void* detail, void* userdata) {
+    return text_markdown_TMarkdown__EnterCodeBlock((BBObject *)userdata, type, detail);
+}
+
+int bmx_md_cb_leave_codeblock(MD_BLOCKTYPE type, void* detail, void* userdata) {
+    return text_markdown_TMarkdown__LeaveCodeBlock((BBObject *)userdata, type, detail);
+}
+
+int bmx_md_cb_codeblock_text(MD_TEXTTYPE type, const MD_CHAR* text, MD_SIZE size, void* userdata) {
+    BBString * txt = bbStringFromUTF8Bytes((unsigned char*)text, size);
+    return text_markdown_TMarkdown__CodeBlockText((BBObject *)userdata, type, txt);
+}
+
 int bmx_md_parse(BBObject * obj, BBString * txt, int flags) {
 
     MD_PARSER parser = {
@@ -79,7 +97,7 @@ int bmx_md_parse(BBObject * obj, BBString * txt, int flags) {
     return res;
 }
 
-int bmx_md_html(BBString * text, BBObject * output, int parserFlags, int rendererFlags, int depth, char * ph) {
+int bmx_md_html(BBString * text, BBObject * output, int parserFlags, int rendererFlags, int depth, char * ph, BBObject * codeHilite) {
 
     MD_TOC_OPTIONS tocOptions = {
         depth,
@@ -89,8 +107,23 @@ int bmx_md_html(BBString * text, BBObject * output, int parserFlags, int rendere
     char * t = bbStringToUTF8String(text);
     MD_SIZE size = strlen(t);
 
-    int res = md_html(t, size, bmx_md_cb_html_output, output, parserFlags, rendererFlags, &tocOptions);
+    int res;
+    
+    if (codeHilite == &bbNullObject) {
+        res = md_html(t, size, bmx_md_cb_html_output, output, parserFlags, rendererFlags, &tocOptions, 0);
+    } else {
 
+        MD_HTML_CODE_HILITE hilite = {
+            codeHilite,
+            0,
+            bmx_md_cb_enter_codeblock,
+            bmx_md_cb_leave_codeblock,
+            bmx_md_cb_codeblock_text
+        };
+
+        res = md_html(t, size, bmx_md_cb_html_output, output, parserFlags, rendererFlags, &tocOptions, &hilite);
+    }
+   
     bbMemFree(t);
 
     return res;

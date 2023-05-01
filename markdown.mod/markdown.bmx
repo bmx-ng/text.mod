@@ -20,12 +20,14 @@
 ' 
 SuperStrict
 
-ModuleInfo "Version: 1.00"
+ModuleInfo "Version: 1.01"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
-ModuleInfo "md4c - Copyright (c) Martin Mitas - https://github.com/tim-gromeyer/MarkdownEdit_md4c"
+ModuleInfo "md4c - Copyright (c) Martin Mitas - https://github.com/woollybah/MarkdownEdit_md4c"
 ModuleInfo "Copyright: 2023 Bruce A Henderson"
 
+ModuleInfo "History: 1.01"
+ModuleInfo "History: Added TMDHtmlCodeHighlighter for code highlighting."
 ModuleInfo "History: 1.00"
 ModuleInfo "History: Initial Release"
 
@@ -47,6 +49,53 @@ Interface IMDRenderer
 	Method LeaveSpan:Int(span:TMDSpan)
 	Method Text:Int(text:String, textType:EMDTextType)
 End Interface
+
+Rem
+bbdoc: 
+End Rem
+Type TMDHtmlCodeHighlighter Abstract
+
+	Private
+	Field _codeblock:TStringBuilder
+	Field _output:TStringBuilder
+	Field _lang:String
+
+	Method _EnterCodeBlock:Int(block:TMDBlockCode)
+		_codeblock = New TStringBuilder
+		Local lang:SMDAttribute = block.Lang()
+		If lang.size > 0 Then
+			_lang = String.FromUTF8Bytes(lang.text, lang.size)
+		End If
+		Return 0
+	End Method
+
+	Method _LeaveCodeBlock:Int(block:TMDBlockCode)
+		Local processed:Int = Text(_lang, _codeblock.ToString(), _output)
+		If Not processed Then
+			_output.Append("<pre><code")
+			If _lang Then
+				_output.Append(" class=~qlanguage-").Append(_lang).Append("~q")
+			End If
+			_output.Append(">")
+			_output.Append(_codeblock.ToString()) ' TODO - escape
+			_output.Append("</code></pre>")
+		End If
+	End Method
+
+	Method _CodeBlockText:Int(txt:String, textType:EMDTextType)
+		_codeblock.Append(txt)
+	End Method
+
+	Public
+
+	Rem
+	bbdoc: Provides the text for a code block.
+	returns: #True if the code was processed, #False if the default code block rendering should be used.
+	about: If the code is processed, the output should be appended to @output.
+	End Rem
+	Method Text:Int(lang:String, text:String, output:TStringBuilder) Abstract
+
+End Type
 
 Rem
 bbdoc: Html table of contents options.
@@ -71,14 +120,20 @@ Type TMarkdown
 	Rem
 	bbdoc: Parses markdown @text, appending HTML into @output.
 	End Rem
-	Function ParseToHtml:Int(text:String, output:TStringBuilder, parserFlags:EMDFlags = EMDFlags.DIALECT_COMMONMARK, rendererFlags:EMDHtmlFlags = EMDHtmlFlags.NONE, tocOptions:TMDHtmlTocOptions = Null)
+	Function ParseToHtml:Int(text:String, output:TStringBuilder, parserFlags:EMDFlags = EMDFlags.DIALECT_COMMONMARK,..
+				rendererFlags:EMDHtmlFlags = EMDHtmlFlags.NONE,
+				tocOptions:TMDHtmlTocOptions = Null,
+				codehilite:TMDHtmlCodeHighlighter = Null)
 		Local depth:Int = 0
 		Local ph:Byte Ptr
 		If tocOptions Then
 			depth = tocOptions.depth
 			ph = tocOptions.placeHolder.ToUTF8String()
 		End If
-		Local res:Int = bmx_md_html(text, output, parserFlags, rendererFlags, depth, ph)
+		if codehilite Then
+			codehilite._output = output
+		End If
+		Local res:Int = bmx_md_html(text, output, parserFlags, rendererFlags, depth, ph, codehilite)
 		MemFree(ph)
 		Return res
 	End Function
@@ -110,6 +165,20 @@ Type TMarkdown
 
 	Function _Text:Int(parser:IMDRenderer, textType:EMDTextType, text:String) { nomangle }
 		Return parser.Text(text, textType)
+	End Function
+
+	Function _EnterCodeBlock:Int(hilite:TMDHtmlCodeHighlighter, blockType:EMDBlockType, detail:Byte Ptr) { nomangle }
+		Local block:TMDBlockCode = TMDBlockCode(BlockAs(blockType, detail))
+		Return hilite._EnterCodeBlock(block)
+	End Function
+
+	Function _LeaveCodeBlock:Int(hilite:TMDHtmlCodeHighlighter, blockType:EMDBlockType, detail:Byte Ptr) { nomangle }
+		Local block:TMDBlockCode = TMDBlockCode(BlockAs(blockType, detail))
+		Return hilite._LeaveCodeBlock(block)
+	End Function
+
+	Function _CodeBlockText:Int(hilite:TMDHtmlCodeHighlighter, textType:EMDTextType, text:String) { nomangle }
+		Return hilite._CodeBlockText(text, textType)
 	End Function
 
 	Function BlockAs:TMDBlock(blockType:EMDBlockType, detail:Byte Ptr)
@@ -705,7 +774,8 @@ Private
 
 Extern
 	Function bmx_md_parse:Int(parser:IMDRenderer, text:String, flags:EMDFlags)
-	Function bmx_md_html:Int(text:String, output:TStringBuilder, parserFlags:EMDFlags, rendererFlags:EMDHtmlFlags, depth:Int, ph:Byte Ptr)
+	Function bmx_md_html:Int(text:String, output:TStringBuilder, parserFlags:EMDFlags, ..
+		rendererFlags:EMDHtmlFlags, depth:Int, ph:Byte Ptr, ch:Object)
 
 	Function bmx_md_blockul_istight:Int(detail:Byte Ptr)
 	Function bmx_md_blockul_mark:Int(detail:Byte Ptr)

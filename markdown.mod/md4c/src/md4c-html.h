@@ -40,6 +40,15 @@
 #define MD_HTML_FLAG_XHTML                  0x0008
 
 
+typedef struct MD_HTML_CODE_HILITE MD_HTML_CODE_HILITE;
+struct MD_HTML_CODE_HILITE {
+    void* userdata;
+    int in_code_block;
+    int (*enter_block)(MD_BLOCKTYPE /*type*/, void* /*detail*/, void* /*userdata*/);
+    int (*leave_block)(MD_BLOCKTYPE /*type*/, void* /*detail*/, void* /*userdata*/);
+    int (*text)(MD_TEXTTYPE /*type*/, const MD_CHAR* /*text*/, MD_SIZE /*size*/, void* /*userdata*/);
+};
+
 /* Render Markdown into HTML.
  *
  * Note only contents of <body> tag is generated. Caller must generate
@@ -60,7 +69,7 @@
 int md_html(const MD_CHAR* input, MD_SIZE input_size,
             void (*process_output)(const MD_CHAR*, MD_SIZE, void*),
             void* userdata, unsigned parser_flags, unsigned renderer_flags,
-            MD_TOC_OPTIONS* toc_options 
+            MD_TOC_OPTIONS* toc_options, MD_HTML_CODE_HILITE* code_hilite
             );
 
 
