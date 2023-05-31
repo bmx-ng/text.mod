@@ -1,4 +1,12 @@
-# Mini-XML Version 3.0
+Mini-XML - Tiny XML Parsing Library
+===================================
+
+![Version](https://img.shields.io/github/v/release/michaelrsweet/mxml?include_prereleases)
+![Apache 2.0](https://img.shields.io/github/license/michaelrsweet/mxml)
+![Build](https://github.com/michaelrsweet/mxml/workflows/Build/badge.svg)
+[![Coverity Scan Status](https://img.shields.io/coverity/scan/23959.svg)](https://scan.coverity.com/projects/michaelrsweet-mxml)
+[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/michaelrsweet/mxml)](https://lgtm.com/projects/g/michaelrsweet/mxml/context:cpp)
+[![LGTM Alerts](https://img.shields.io/lgtm/alerts/github/michaelrsweet/mxml)](https://lgtm.com/projects/g/michaelrsweet/mxml/)
 
 Mini-XML is a small XML parsing library that you can use to read XML data files
 or strings in your application without requiring large non-standard libraries.
@@ -21,8 +29,13 @@ Mini-XML provides the following functionality:
 Mini-XML doesn't do validation or other types of processing on the data
 based upon schema files or other sources of definition information.
 
+> Note: Version 3.0 hides the definition of the `mxml_node_t` structure,
+> requiring the use of the various accessor functions that were introduced in
+> version 2.0.
 
-## Building Mini-XML
+
+Building Mini-XML
+-----------------
 
 Mini-XML comes with an autoconf-based configure script; just type the
 following command to get things going:
@@ -59,22 +72,23 @@ Once you have installed it, use the `-lmxml` option to link your application
 against it.
 
 
-## Documentation
+Documentation
+-------------
 
 The documentation is available in the `doc` subdirectory in the files
-`mxml.html` (HTML) and `mxml.pdf` (PDF). You can also look at the
-`testmxml.c` and `mxmldoc.c` source files for examples of using Mini-XML.
+`mxml.html` (HTML) and `mxml.epub` (EPUB).  You can also look at the
+`testmxml.c` source file for examples of using Mini-XML.
 
 Mini-XML provides a single header file which you include:
 
     #include <mxml.h>
 
-Nodes are defined by the `mxml_node_t` structure; the `type` member defines the
-node type (`element`, `integer`, `opaque`, `real`, or `text`) which determines
-which value you want to look at in the `value` union.  New nodes can be created
-using the `mxmlNewElement()`, `mxmlNewInteger()`, `mxmlNewOpaque()`,
-`mxmlNewReal()`, and `mxmlNewText()` functions.  Only elements can have child
-nodes, and the top node must be an element, usually "?xml".
+Nodes (elements, comments, processing directives, integers, opaque strings, real
+numbers, and text strings) are represented by `mxml_node_t` objects.  New nodes
+can be created using the `mxmlNewElement()`, `mxmlNewInteger()`,
+`mxmlNewOpaque()`, `mxmlNewReal()`, and `mxmlNewText()` functions.  Only
+elements can have child nodes, and the top node must be the "?xml" processing
+directive.
 
 You load an XML file using the `mxmlLoadFile()` function:
 
@@ -155,7 +169,7 @@ element using an XPath:
     mxml_node_t *value = mxmlFindPath(tree, "path/to/*/foo/bar");
 
 The `mxmlGetInteger()`, `mxmlGetOpaque()`, `mxmlGetReal()`, and
-`mxmlGetText()` functions retrieve the value from a node:
+`mxmlGetText()` functions retrieve the corresponding value from a node:
 
     mxml_node_t *node;
 
@@ -175,17 +189,27 @@ or the entire tree:
     mxmlDelete(tree);
 
 
-## Getting Help And Reporting Problems
+Getting Help And Reporting Problems
+-----------------------------------
 
-The Mini-XML project page provides access to the Github issue tracking page:
+The [Mini-XML project page](https://www.msweet.org/mxml) provides access to the
+current version of this software, documentation, and Github issue tracking page.
 
-    https://www.msweet.org/mxml
 
+Legal Stuff
+-----------
 
-## Legal Stuff
-
-Copyright © 2003-2019 by Michael R Sweet
+Copyright © 2003-2022 by Michael R Sweet
 
 The Mini-XML library is licensed under the Apache License Version 2.0 with an
-exception to allow linking against GPL2/LGPL2-only software.  See the files
-"LICENSE" and "NOTICE" for more information.
+*optional* exception to allow linking against GPL2/LGPL2-only software.  See the
+files "LICENSE" and "NOTICE" for more information.
+
+> Note: The exception listed in the NOTICE file only applies when linking
+> against GPL2/LGPL2-only software.  Some Apache License purists have objected
+> to linking Apache Licensed code against Mini-XML with these exceptions on the
+> grounds that it makes Mini-XML somehow incompatible with the Apache License.
+> For that reason, people wishing to retain their Apache License purity may
+> omit the exception from their copy of Mini-XML.
+
+> Note 2: IANAL, but I am beginning to dislike them!
