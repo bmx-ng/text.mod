@@ -197,7 +197,7 @@ Type TxmlNode Extends TxmlBase
 	
 	Rem
 	bbdoc: Search an attribute associated to the node
-	returns: the attribute or Null if not found.
+	returns: #True if the attribute exists, or #False otherwise.
 	End Rem
 	Method hasAttribute:Int(name:String)
 		Return bmx_mxmlElementHasAttr(nodePtr, name)
