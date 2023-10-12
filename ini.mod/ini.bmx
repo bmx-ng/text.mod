@@ -1,4 +1,4 @@
-' Copyright (c) 2022 Bruce A Henderson
+' Copyright (c) 2022-2023 Bruce A Henderson
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,14 @@ bbdoc: An INI reader/writer.
 End Rem
 Module Text.Ini
 
-ModuleInfo "Version: 1.00"
+ModuleInfo "Version: 1.01"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
 ModuleInfo "ini.h - Copyright (c) 2015 Mattias Gustavsson"
-ModuleInfo "Copyright: 2022 Bruce A Henderson"
+ModuleInfo "Copyright: 2022-2023 Bruce A Henderson"
 
+ModuleInfo "History: 1.01"
+ModuleInfo "History: Fixed missing terminator"
 ModuleInfo "History: 1.00"
 ModuleInfo "History: Initial Release"
 
@@ -100,7 +102,9 @@ Type TIni
 				If size=data.length data=data[..size*3/2]
 				size:+stream.Read( (Byte Ptr data)+size,data.length-size )
 			Wend
-			data = data[..size]
+
+			data = data[..size + 1]
+			data[size] = 0
 		End If
 
 		If data Then
