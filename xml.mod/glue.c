@@ -30,6 +30,15 @@ static int bmx_mxml_stream_write(void * ctxt, const void *buf, unsigned int leng
 	return text_xml__xmlstream_write(ctxt, buf, length);
 }
 
+static mxml_node_t * bmx_add_directive_if_required(mxml_node_t * doc) {
+	if (doc && strncasecmp(mxmlGetElement(doc), "?xml", 4) != 0) {
+		mxml_node_t * d = mxmlNewXML(NULL);
+		mxmlAdd(d, MXML_ADD_AFTER, NULL, doc);
+		doc = d;
+	}
+	return doc;
+}
+
 struct whitespace_t {
 	char buf[4096];
 	int spaces;
@@ -107,11 +116,25 @@ void bmx_mxmlDelete(mxml_node_t * node) {
 }
 
 mxml_node_t * bmx_mxmlGetRootElement(mxml_node_t * node) {
-	mxml_node_t * n = mxmlWalkNext(node, node, MXML_DESCEND);
-	while (n && mxmlGetType(n) != MXML_ELEMENT) {
-		n = mxmlWalkNext(n, node, MXML_DESCEND);
+
+	while (mxmlGetParent(node) != NULL) {
+        node = mxmlGetParent(node);
+    }
+
+	// mxml turns the ?xml directive into the root element, so we need to skip it.
+	// Also, there's no real concept of "directive" elements in mxml, so they appear as MXML_ELEMENT.
+	if (node && strncasecmp(mxmlGetElement(node), "?xml", 4) == 0) {
+		mxml_node_t * n = mxmlWalkNext(node, node, MXML_DESCEND);
+		while (n && mxmlGetType(n) != MXML_ELEMENT) {
+			n = mxmlWalkNext(n, node, MXML_DESCEND);
+		}
+
+		if (n) {
+			node = n;
+		}
 	}
-	return n;
+
+    return node;
 }
 
 mxml_node_t * bmx_mxmlSetRootElement(mxml_node_t * parent, mxml_node_t * root) {
@@ -235,7 +258,12 @@ BBString * bmx_mxmlElementGetAttrByIndex(mxml_node_t * node, int index, BBString
 }
 
 mxml_node_t * bmx_mxmlLoadStream(BBObject * stream) {
-	return mxmlLoadStream(NULL, bmx_mxml_stream_read, stream, MXML_OPAQUE_CALLBACK);
+	mxml_node_t * doc = mxmlLoadStream(NULL, bmx_mxml_stream_read, stream, MXML_OPAQUE_CALLBACK);
+
+	// add a directive if the document doesn't have one
+	doc = bmx_add_directive_if_required(doc);
+
+	return doc;
 }
 
 mxml_node_t * bmx_mxmlWalkNext(mxml_node_t * node, mxml_node_t * top, int descend) {
@@ -366,7 +394,12 @@ mxml_node_t * bmx_mxmlLoadString(BBString * txt) {
 	
 	struct _string_buf buf = {txt = txt};
 
-	return mxmlLoadStream(NULL, bmx_mxml_string_read, &buf, MXML_OPAQUE_CALLBACK);
+	mxml_node_t * doc = mxmlLoadStream(NULL, bmx_mxml_string_read, &buf, MXML_OPAQUE_CALLBACK);
+
+	// add a directive if the document doesn't have one
+	doc = bmx_add_directive_if_required(doc);
+
+	return doc;
 }
 
 void bmx_mxmlSetWrapMargin(int column) {
