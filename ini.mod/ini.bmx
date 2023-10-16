@@ -25,12 +25,16 @@ bbdoc: An INI reader/writer.
 End Rem
 Module Text.Ini
 
-ModuleInfo "Version: 1.01"
+ModuleInfo "Version: 1.02"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
 ModuleInfo "ini.h - Copyright (c) 2015 Mattias Gustavsson"
 ModuleInfo "Copyright: 2022-2023 Bruce A Henderson"
 
+ModuleInfo "History: 1.02"
+ModuleInfo "History: Fixed SetName update the name copy"
+ModuleInfo "History: Added some helper methods"
+ModuleInfo "History: Added tests"
 ModuleInfo "History: 1.01"
 ModuleInfo "History: Fixed missing terminator"
 ModuleInfo "History: 1.00"
@@ -77,6 +81,7 @@ Type TIni
 
 	Rem
 	bbdoc: Loads an ini file at the given @path.
+	returns: The loaded ini file, or #Null if the file could not be loaded.
 	End Rem
 	Function Load:TIni(path:String)
 		Local stream:TStream = ReadStream(path)
@@ -89,6 +94,7 @@ Type TIni
 
 	Rem
 	bbdoc: Loads an ini file from the given @stream.
+	returns: The loaded ini file from the stream, or #Null if the file could not be loaded.
 	about: Does not close the #TStream.
 	End Rem
 	Function Load:TIni(stream:TStream)
@@ -140,6 +146,8 @@ Type TIni
 
 	Rem
 	bbdoc: Returns the number of sections.
+	about: There's at least one section in an ini file (the global section), but there can be many more,
+	each specified in the file by the section name wrapped in square brackets `[ ]`
 	End Rem
 	Method CountSections:Int()
 		Return ini_section_count(iniPtr)
@@ -147,17 +155,19 @@ Type TIni
 
 	Rem
 	bbdoc: Returns the section at the given @index, or #Null if the index is out of bounds.
+	about: #INI_GLOBAL_SECTION can be used to get the global section.
 	End Rem
 	Method GetSection:TIniSection(index:Int)
 		If index < 0 Or index >= ini_section_count(iniPtr) Then
 			Return Null
 		End If
+
 		Return sections[index]
 	End Method
 
 	Rem
 	bbdoc: Finds a section by @name.
-	returns: The named section, or Null if not found.
+	returns: The named section, or #Null if not found.
 	End Rem
 	Method FindSection:TIniSection(name:String)
 		name = name.ToUpper()
@@ -165,6 +175,7 @@ Type TIni
 			If Not section.upperName Then
 				section.upperName = section.name.ToUpper()
 			End If
+
 			If name = section.upperName Then
 				Return section
 			End If
@@ -193,6 +204,12 @@ Type TIni
 			Return
 		End If
 
+		If index = 0 Then ' we just clear the global section, rather than remove it.
+			Local s:TIniSection = GetSection(0)
+			s.Clear()
+			Return
+		End If
+
 		ini_section_remove(iniPtr, index)
 
 		' not the last section?  We'll need to fix the array
@@ -211,6 +228,67 @@ Type TIni
 		Else
 			sections = sections[..index]
 		End If
+	End Method
+
+	Rem
+	bbdoc: Sets the value for the property with the given @section and @name.
+	about: If the section or property does not exist, it is created.
+	End Rem
+	Method Set(section:String, name:String, value:String)
+		Local s:TIniSection
+		If section.Trim() = Null Then
+			s = GetSection(INI_GLOBAL_SECTION)
+		Else
+			s = FindSection(section)
+		End If
+
+		If Not s Then
+			s = AddSection(section)
+		End If
+
+		If s Then
+			Local p:TIniProperty = s.FindProperty(name)
+			If Not p Then
+				p = s.AddProperty(name, value)
+			End If
+			If p Then
+				p.SetValue(value)
+			End If
+		End If
+	End Method
+
+	Rem
+	bbdoc: Sets the value for the property with the given @name in the global section.
+	about: If the property does not exist, it is created.
+	End Rem
+	Method Set(name:String, value:String)
+		Set(Null, name, value)
+	End Method
+
+	Rem
+	bbdoc: Returns the value for the property with the given @section and @name, or #Null if not found.
+	End Rem
+	Method Get:String(section:String, name:String)
+		Local s:TIniSection
+		If section = Null Then
+			s = GetSection(INI_GLOBAL_SECTION)
+		Else
+			s = FindSection(section)
+		End If
+
+		If s Then
+			Local p:TIniProperty = s.FindProperty(name)
+			If p Then
+				Return p.GetValue()
+			End If
+		End If
+	End Method
+
+	Rem
+	bbdoc: Returns the value for the property with the given @name in the global section, or #Null if not found.
+	End Rem
+	Method Get:String(name:String)
+		Return Get(Null, name)
 	End Method
 
 	Rem
@@ -239,6 +317,11 @@ End Type
 
 Rem
 bbdoc: An ini section. 
+about: Represents a distinct section within an INI file.
+In the structure of an INI file, sections are used to group related key-value pairs.
+A section can either be global, meaning it applies to the entire INI file, or named, identified by a unique header enclosed in
+square brackets (e.g., `[section name]`). This type facilitates the parsing, manipulation, and storage of these sections,
+allowing for organized access to the contained data.
 End Rem
 Type TIniSection
 
@@ -271,10 +354,18 @@ Type TIniSection
 	Public
 
 	Rem
-	bbdoc: Returns the name of the section, or Null if it is the global section.
+	bbdoc: Returns the name of the section, or #Null if it is the global section.
 	End Rem
 	Method GetName:String()
 		Return name
+	End Method
+
+	Rem
+	bbdoc: Returns the index of the section.
+	about: The global section is represented by the index #INI_GLOBAL_SECTION.
+	End Rem
+	Method GetIndex:Int()
+		Return index
 	End Method
 
 	Rem
@@ -282,7 +373,7 @@ Type TIniSection
 	End Rem
 	Method SetName(name:String)
 		bmx_ini_section_name_set(ini.iniPtr, index, name)
-		name = bmx_ini_section_name(ini.iniPtr, index)
+		Self.name = bmx_ini_section_name(ini.iniPtr, index)
 		upperName = Null
 	End Method
 
@@ -294,13 +385,38 @@ Type TIniSection
 	End Method
 
 	Rem
-	bbdoc: Returns a property at the given @index position, or Null if the @index is out of range.
+	bbdoc: Returns a property at the given @index position, or #Null if the @index is out of range.
 	End Rem
 	Method GetProperty:TIniProperty(index:Int)
 		If index < 0 Or index >= ini_property_count(ini.iniPtr, Self.index) Then
 			Return Null
 		End If
 		Return properties[index]
+	End Method
+
+	Rem
+	bbdoc: Returns the property value with the given @name, or #Null if not found.
+	End Rem
+	Method Get:String(name:String)
+		Local p:TIniProperty = FindProperty(name)
+		If p Then
+			Return p.GetValue()
+		End If
+	End Method
+
+	Rem
+	bbdoc: Sets the property with the given @name to the specified @value.
+	about: If the property does not exist, it is created.
+	End Rem
+	Method Set(name:String, value:String)
+		Local p:TIniProperty = FindProperty(name)
+		If Not p Then
+			p = AddProperty(name, value)
+		End If
+
+		If p Then
+			p.SetValue(value)
+		End If
 	End Method
 
 	Rem
@@ -356,6 +472,23 @@ Type TIniSection
 		End If
 	End Method
 
+	Rem
+	bbdoc: Removes all properties from the section.
+	End Rem
+	Method Clear()
+		While properties.Length > 0
+			RemoveProperty(properties.Length - 1)
+		Wend
+	End Method
+
+	Rem
+	bbdoc: Removes the section from the ini file.
+	about: On removal, the section is freed and this instance, and all referenced properties should no longer be used.
+	End Rem
+	Method Remove()
+		ini.RemoveSection(index)
+	End Method
+
 	Method Free()
 		properties = Null
 	End Method
@@ -364,6 +497,8 @@ End Type
 
 Rem
 bbdoc: An ini property, with a name and value.
+about: An individual key-value pair, commonly referred to as a "property", within an INI file.
+Each property comprises a distinct key and its associated value, serving as the basic data element in the INI file structure.
 End Rem
 Type TIniProperty
 
@@ -392,22 +527,30 @@ Type TIniProperty
 	End Method
 
 	Rem
-	bbdoc: Sets the name the property.
+	bbdoc: Returns the index of the property.
 	End Rem
-	Method SetName(name:String)
-		bmx_ini_property_name_set(section.ini.iniPtr, section.index, index, name)
-		name = bmx_ini_property_name(section.ini.iniPtr, section.index, index)
+	Method GetIndex:Int()
+		Return index
 	End Method
 
 	Rem
-	bbdoc: Returns the value for the property
+	bbdoc: Sets the name the property.
+	about: Names should not contain the `=` character, as it is used to separate the name from the value.
+	End Rem
+	Method SetName(name:String)
+		bmx_ini_property_name_set(section.ini.iniPtr, section.index, index, name)
+		Self.name = bmx_ini_property_name(section.ini.iniPtr, section.index, index)
+	End Method
+
+	Rem
+	bbdoc: Returns the value for the property, or #Null if it is not set.
 	End Rem
 	Method GetValue:String()
 		Return bmx_ini_property_value(section.ini.iniPtr, section.index, index)
 	End Method
 
 	Rem
-	bbdoc: Sets the value for the property
+	bbdoc: Sets the value for the property.
 	End Rem
 	Method SetValue(value:String)
 		bmx_ini_property_value_set(section.ini.iniPtr, section.index, index, value)
@@ -415,6 +558,7 @@ Type TIniProperty
 
 	Rem
 	bbdoc: Removes the property from its section.
+	about: On removal, the property is freed and this instance should no longer be used.
 	End Rem
 	Method Remove()
 		section.RemoveProperty(index)
