@@ -19,7 +19,7 @@
 #include <zsv/utils/mem.h>
 #include <zsv/utils/string.h>
 
-#include <yajl_helper.h>
+#include <yajl_helper/yajl_helper.h>
 
 #define ZSV_2DB_DEFAULT_TABLE_NAME "mytable"
 
@@ -72,9 +72,7 @@ struct zsv_2db_data {
   char *connection_string;
 
   struct {
-//    yajl_handle handle;
     struct yajl_helper_parse_state st;
-//    yajl_callbacks callbacks;
     yajl_status yajl_stat;
     enum zsv_2db_state state;
 
@@ -669,7 +667,7 @@ static yajl_handle zsv_2db_yajl_handle(zsv_2db_handle data) {
   return data->json_parser.st.yajl;
 }
 
-int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *zsv_opts, const char *opts_used) {
+int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *zsv_opts, struct zsv_prop_handler *custom_prop_handler, const char *opts_used) {
   (void)(zsv_opts);
   (void)(opts_used);
   FILE *f_in = NULL;
@@ -683,6 +681,8 @@ int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *zs
      "",
      "Usage: " APPNAME " -o <output path> [-t <table name>] [input.json]\n",
      "",
+     "Alternatively, --output may be used in lieu of -o",
+     "",
      "Options:",
      "  -h,--help",
      "  --table <table_name> : save as specified table name",
@@ -691,8 +691,24 @@ int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *zs
      // --sql to output sql statements
      // --append: append to existing db
      "",
-     "Miscellaneous:",
-     "  Alternatively, --output may be used in lieu of -o",
+     "Converts a json representation of a database table to an sqlite3 file.",
+     "",
+
+     // TO DO: add output examples and schema descriptions
+     "The input should conform to the schema defined at:",
+     "  https://github.com/liquidaty/zsv/blob/main/app/schema/database-table.json",
+     "",
+     "For example:",
+     "  [",
+     "    {",
+     "      \"columns\":[{\"name\":\"column 1\"}],",
+     "      \"indexes\":{\"ix1\":{\"on\":\"[column 1]\",\"unique\":true}}",
+     "    },",
+     "    [",
+     "      [\"row 1 cell 1\"],",
+     "      [\"row 2 cell 1\"]",
+     "    ]",
+     "  ]",
      NULL
     };
 

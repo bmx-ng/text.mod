@@ -43,7 +43,7 @@ struct zsv_compare_input {
 
   unsigned col_count;
   unsigned *out2in; // out2in[output column ix] = input column ix + 1 (zero for no match)
-  zsv_compare_unique_colname **output_colnames; // colname_ptrs;
+  zsv_compare_unique_colname **output_colnames;
 
   unsigned key_count;
   struct zsv_compare_input_key *keys;
@@ -51,8 +51,9 @@ struct zsv_compare_input {
   sqlite3_stmt *sort_stmt;
 
   unsigned char row_loaded:1;
+  unsigned char missing:1;
   unsigned char done:1;
-  unsigned char _:6;
+  unsigned char _:5;
 };
 
 struct zsv_compare_key {
@@ -69,13 +70,6 @@ struct zsv_compare_added_column {
   unsigned col_ix; // index of column in input from which to extract this value
 };
 
-/*
-struct zsv_compare_sort {
-  struct zsv_compare_sort *next;
-  const char *by;
-};
-*/
-
 struct zsv_compare_data {
   enum zsv_compare_status status;
   unsigned input_count; // number of allocated compare_input structs
@@ -84,6 +78,7 @@ struct zsv_compare_data {
 
   unsigned key_count;
   struct zsv_compare_key *keys;
+  unsigned char *combined_key_names;
 
   size_t row_count; // only matters if no ID columns are specified
 
@@ -106,9 +101,9 @@ struct zsv_compare_data {
   enum zsv_compare_status (*input_init)(struct zsv_compare_data *data,
                                         struct zsv_compare_input *input,
                                         struct zsv_opts *opts,
+                                        struct zsv_prop_handler *custom_prop_handler,
                                         const char *opts_used);
 
-//  struct zsv_compare_sort *sort;
   sqlite3 *sort_db; // used when --sort option was specified
 
   struct {
@@ -132,7 +127,8 @@ struct zsv_compare_data {
 
   unsigned char sort:1;
   unsigned char sort_in_memory:1;
-  unsigned char _:6;
+  unsigned char print_key_col_names:1;
+  unsigned char _:5;
 };
 
 #endif

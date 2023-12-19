@@ -74,6 +74,8 @@ struct zsv_select_data {
   unsigned int header_name_count;
   unsigned char **header_names;
 
+  const char *prepend_header; // --prepend-header
+
   char header_finished;
 
   char embedded_lineend;
@@ -111,7 +113,9 @@ struct zsv_select_data {
   unsigned char any_clean:1;
 #define ZSV_SELECT_DISTINCT_MERGE 2
   unsigned char distinct:2; // 1 = ignore subsequent cols, ZSV_SELECT_DISTINCT_MERGE = merge subsequent cols (first non-null value)
-  unsigned char _:5;
+
+  unsigned char no_header:1;
+  unsigned char _:4;
 };
 
 enum zsv_select_column_index_selection_type {
@@ -138,10 +142,30 @@ static inline unsigned char *zsv_select_get_header_name(struct zsv_select_data *
 static inline char zsv_select_excluded_current_header_name(struct zsv_select_data *data, unsigned in_ix) {
   if(data->exclusion_count) {
     unsigned char *header_name = zsv_select_get_header_name(data, in_ix);
-    if(header_name) {
-      for(unsigned int i = 0; i < data->exclusion_count; i++)
-        if(!zsv_stricmp(header_name, data->exclusions[i]))
-          return 1;
+    if(data->use_header_indexes) {
+      for(unsigned int ix = 0; ix < data->exclusion_count; ix++) {
+        unsigned i, j;
+        switch(zsv_select_column_index_selection(data->exclusions[ix], &i, &j)) {
+        case zsv_select_column_index_selection_type_none:
+          // not expected!
+          break;
+        case zsv_select_column_index_selection_type_single:
+          if(in_ix + 1 == i) return 1;
+          break;
+        case zsv_select_column_index_selection_type_range:
+          if(i <= in_ix + 1 && in_ix + 1 <= j) return 1;
+          break;
+        case zsv_select_column_index_selection_type_lower_bounded:
+          if(i <= in_ix + 1) return 1;
+          break;
+        }
+      }
+    } else {
+      if(header_name) {
+        for(unsigned int i = 0; i < data->exclusion_count; i++)
+          if(!zsv_stricmp(header_name, data->exclusions[i]))
+            return 1;
+      }
     }
   }
   return 0;
@@ -446,12 +470,16 @@ static void zsv_select_data_row(struct zsv_select_data *data, zsv_parser p) {
 }
 
 static void zsv_select_print_header_row(struct zsv_select_data *data) {
+  if(data->no_header)
+    return;
+  zsv_writer_cell_prepend(data->csv_writer, (const unsigned char *)data->prepend_header);
   if(data->prepend_line_number)
     zsv_writer_cell_s(data->csv_writer, 1, (const unsigned char *)"#", 0);
   for(unsigned int i = 0; i < data->output_cols_count; i++) {
     unsigned char *header_name = zsv_select_get_header_name(data, data->out2in[i].ix);
     zsv_writer_cell_s(data->csv_writer, i == 0 && !data->prepend_line_number, header_name, 1);
   }
+  zsv_writer_cell_prepend(data->csv_writer, NULL);
 }
 
 static void zsv_select_header_finish(struct zsv_select_data *data) {
@@ -511,10 +539,9 @@ const char *zsv_select_usage_msg[] = {
 #ifndef ZSV_CLI
   "  -v, --verbose: verbose output",
 #endif
-  "  -H, --head <n>: (head) only process the first n rows of data",
-  "                                selected from all rows in the input",
-  "  --header-row <header row>: insert the provided CSV as the first row",
-  "        e.g. --header-row 'colname1,colname2,\"my column 3\"'",
+  "  -H,--head <n>               : (head) only process the first n rows of data from all rows (including header) in the input",
+  "  --no-header                 : do not output a header row",
+  "  --prepend-header <value>    : prepend each column header with the given text value",
   "  -s, --search <value>: only output rows with at least one cell containing value",
   // to do: " -s, --search /<pattern>/modifiers: search on regex pattern; modifiers include 'g' (global) and 'i' (case-insensitive)",
   "  --sample-every <num of rows>: output a sample consisting of the first row, then every nth row",
@@ -574,7 +601,7 @@ static void zsv_select_cleanup(struct zsv_select_data *data) {
 /*  free(data->fixed.offsets); */
 }
 
-int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *opts, const char *opts_used) {
+int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *opts, struct zsv_prop_handler *custom_prop_handler, const char *opts_used) {
   if(argc > 1 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))) {
     zsv_select_usage();
     return zsv_status_ok;
@@ -671,6 +698,13 @@ int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *op
         stat = zsv_printerr(-1, "--sample-pct value should be a number between 0 and 100 (e.g. 1.5 for a sample of 1.5% of the data");
       else
         data.sample_pct = d;
+    } else if(!strcmp(argv[arg_i], "--prepend-header")) {
+      if(!(arg_i + 1 < argc))
+        stat = zsv_printerr(1, "%s option requires a value");
+      else
+        data.prepend_header = argv[++arg_i];
+    } else if(!strcmp(argv[arg_i], "--no-header")) {
+      data.no_header = 1;
     } else if(!strcmp(argv[arg_i], "-H") || !strcmp(argv[arg_i], "--head")) {
       if(!(arg_i + 1 < argc && atoi(argv[arg_i+1]) >= 0))
         stat = zsv_printerr(1, "%s option value invalid: should be positive integer; got %s", argv[arg_i], arg_i + 1 < argc ? argv[arg_i+1] : "");
@@ -696,9 +730,6 @@ int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *op
       arg_i++;
       if(!(arg_i < argc))
         stat = zsv_printerr(1, "%s option requires a value", argv[arg_i-1]);
-      else if(zsv_select_column_index_selection((const unsigned char *)argv[arg_i], NULL, NULL) ==
-              zsv_select_column_index_selection_type_none)
-        stat = zsv_printerr(1, "%s option: invalid value %s (expected number or number range e.g. 8 or 8-12)", argv[arg_i-1], argv[arg_i]);
       else
         zsv_select_add_exclusion(&data, argv[arg_i]);
     } else if(*argv[arg_i] == '-')
@@ -741,7 +772,7 @@ int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *op
       stat = zsv_status_memory;
     else {
       zsv_parser parser;
-      if(zsv_new_with_properties(data.opts, input_path, opts_used, &parser)
+      if(zsv_new_with_properties(data.opts, custom_prop_handler, input_path, opts_used, &parser)
          == zsv_status_ok) {
         // all done with
         data.any_clean =
