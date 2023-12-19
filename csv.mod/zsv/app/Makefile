@@ -134,12 +134,9 @@ CFLAGS+= -I${PREFIX}/include
 THIS_LIB_BASE=$(shell cd .. && pwd)
 INCLUDE_DIR=${THIS_LIB_BASE}/include
 BUILD_DIR=${THIS_LIB_BASE}/build/${BUILD_SUBDIR}/${CCBN}
-UTILS1=writer file err signal mem clock arg dl string dirs prop cache jq
+UTILS1=writer file err signal mem clock arg dl string dirs prop cache jq os
 
 ZSV_EXTRAS ?=
-ifneq ($(WIN),0)
- UTILS1+= os
-endif
 
 ifneq ($(findstring emcc,$(CC)),) # emcc
   ZSV_EXTRAS=1
@@ -170,8 +167,8 @@ endif
 
 ZSV=$(BINDIR)/zsv${EXE}
 
-SOURCES= echo count count-pull select select-pull 2tsv 2json serialize flatten pretty stack desc sql 2db compare prop rm mv jq
-CLI_SOURCES=echo select desc count 2tsv pretty sql flatten 2json serialize stack 2db compare prop rm mv jq
+SOURCES= echo paste count count-pull select select-pull 2tsv 2json serialize flatten pretty stack desc sql 2db compare prop rm mv jq
+CLI_SOURCES=echo select desc count paste 2tsv pretty sql flatten 2json serialize stack 2db compare prop rm mv jq
 
 CFLAGS+= -DUSE_JQ
 
@@ -208,13 +205,15 @@ INIH_INCLUDE=${THIS_MAKEFILE_DIR}/external/inih
 INIH_OBJECT=${BUILD_DIR}-external/inih/inih.o
 CLI_INCLUDE+= -I${INIH_INCLUDE}
 
-YAJL_SRC=${THIS_MAKEFILE_DIR}/external/yajl/yajl.c
+YAJL_SRC_DIR=${THIS_MAKEFILE_DIR}/external/yajl
 YAJL_OBJ1=yajl yajl_alloc yajl_buf yajl_encode yajl_gen yajl_lex yajl_parser yajl_tree yajl_version
 YAJL_OBJ=$(addprefix ${BUILD_DIR}-external/yajl/,$(addsuffix .o,${YAJL_OBJ1}))
-YAJL_INCLUDE=-I${THIS_MAKEFILE_DIR}/external/yajl/build/yajl-2.1.1/include
+YAJL_INCLUDE=-I${YAJL_SRC_DIR}/build/yajl-2.1.1/include
 
 YAJL_HELPER_OBJ=${BUILD_DIR}-external/yajl_helper/yajl_helper.o
-YAJL_HELPER_INCLUDE=-I${THIS_MAKEFILE_DIR}/external/yajl_helper
+# YAJL_HELPER_INCLUDE=-I${THIS_MAKEFILE_DIR}/external/yajl_helper
+YAJL_HELPER_INCLUDE=-I${THIS_MAKEFILE_DIR}/external
+CFLAGS+=${YAJL_HELPER_INCLUDE} ${YAJL_INCLUDE}
 
 # jq
 JQ_TARBALL=${THIS_MAKEFILE_DIR}/external/jq-1.6.tar.bz2
@@ -262,15 +261,36 @@ help:
 	@echo "which will build and test all apps, or to build/test a single app:"
 	@echo "  ${MAKE} test-xx"
 	@echo "where xx is any of:"
-	@echo "  echo count count-pull select select-pull 2tsv 2json serialize flatten pretty stack desc sql 2db prop rm mv"
+	@echo "  echo count count-pull paste select select-pull 2tsv 2json serialize flatten pretty stack desc sql 2db prop rm mv"
 	@echo ""
 
 install: ${ZSV}
 
+uninstall-all: uninstall uninstall-util-lib
+
 uninstall:
 	rm -rf ${ZSV}
 
-build: all
+ZSV_UTIL_A=${LIBDIR}/libzsvutil.a
+${ZSV_UTIL_A}: ${BUILD_DIR}/objs/utils/util.a
+	@mkdir -p `dirname $@`
+	cp -p $< $@
+
+UTIL_A_OBJ:=writer file dirs-no-jq os
+UTIL_A_OBJ:=$(addprefix ${BUILD_DIR}/objs/utils/,$(addsuffix .o,${UTIL_A_OBJ}))
+
+${BUILD_DIR}/objs/utils/util.a: ${UTIL_A_OBJ}
+	$(AR) rcv $@ $^ # $?
+	$(RANLIB) $@
+	$(AR) -t $@ # check it is there
+	@echo Built $@
+
+uninstall-util-lib:
+	@rm -f ${ZSV_UTIL_A}
+
+install-util-lib: ${ZSV_UTIL_A}
+
+build: ${CLI}
 
 all: ${TARGETS}
 
@@ -300,7 +320,7 @@ ${CLEANS}: clean-%:
 	rm -f ${STANDALONE_PFX}$*${EXE}
 	rm -f ${BUILD_DIR}/*/*$*.o
 
-.PHONY: all install cli build build-% clean clean-% test test-% lib-%
+.PHONY: all install cli build build-% clean clean-% test test-% lib-% check install-util-lib uninstall-util-lib clean-util-lib
 
 .SECONDARY: ${OBJECTS}
 
@@ -311,6 +331,10 @@ ${CLEANS}: clean-%:
 ${BUILD_DIR}/objs/utils/%.o : utils/%.c ${INCLUDE_DIR}/zsv/utils/%.h ${JQ_LIB}
 	@mkdir -p `dirname "$@"`
 	${CC} ${CFLAGS} -I${INCLUDE_DIR} -I${UTF8PROC_INCLUDE} -DINCLUDE_SRC -o $@ -c utils/$*.c ${MORE_SOURCE}
+
+${BUILD_DIR}/objs/utils/dirs-no-jq.o : utils/dirs.c ${INCLUDE_DIR}/zsv/utils/dirs.h
+	@mkdir -p `dirname "$@"`
+	${CC} ${CFLAGS} -I${INCLUDE_DIR} -I${UTF8PROC_INCLUDE} -DINCLUDE_SRC -o $@ -c utils/dirs-no-jq.c ${MORE_SOURCE}
 
 ${BUILD_DIR}/objs/zsv_%.o: %.c
 	@mkdir -p `dirname "$@"`
@@ -409,9 +433,9 @@ ${YAJL_OBJ}: ${BUILD_DIR}-external/yajl/%.o : external/yajl/src/%.c
 
 ${YAJL_HELPER_OBJ}: external/yajl_helper/yajl_helper.c
 	@mkdir -p `dirname "$@"`
-	${CC} ${CFLAGS} -I${BASEDIR}/yajl_helper ${YAJL_INCLUDE} ${YAJL_HELPER_INCLUDE} -c $< -o $@
+	${CC} ${CFLAGS} ${YAJL_INCLUDE} ${YAJL_HELPER_INCLUDE} -c $< -o $@
 
-test:	test-standalone test-cli
+check test:	test-standalone test-cli
 
 test-standalone:
 	@${MAKE} -C test test QUIET=1 LEAKS=${LEAKS} CONFIGFILE=${CONFIGFILEPATH} DEBUG=${DEBUG}
@@ -419,10 +443,13 @@ test-standalone:
 test-cli:  ${CLI}
 	@${MAKE} -C test $@ QUIET=1 LEAKS=${LEAKS} CONFIGFILE=${CONFIGFILEPATH} DEBUG=${DEBUG} CLI=${CLI}
 
-clean-all: clean clean-external clean-obj clean-lib
+clean-all: clean clean-external clean-obj clean-lib clean-util-lib
 
 clean-external:
 	@rm -rf ${JQ_SRC}
+
+clean-util-lib:
+	@rm -f ${BUILD_DIR}/objs/utils/util.a
 
 clean-lib:
 	@rm -rf ${BUILD_DIR}-external

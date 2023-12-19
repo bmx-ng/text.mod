@@ -24,7 +24,7 @@ struct zsv_csv_writer_options {
 };
 
 void zsv_writer_set_default_opts(struct zsv_csv_writer_options opts);
-struct zsv_csv_writer_options zsv_writer_get_default_opts();
+struct zsv_csv_writer_options zsv_writer_get_default_opts(void);
 
 enum zsv_writer_status {
   zsv_writer_status_ok = 0,
@@ -73,5 +73,13 @@ enum zsv_writer_status zsv_writer_cell_Lf(zsv_csv_writer w, char new_row,
 
 // write a blank cell
 enum zsv_writer_status zsv_writer_cell_blank(zsv_csv_writer w, char new_row);
+
+/**
+ * set a value to be prepended to the next cell value that is written
+ *
+ * @param w  handle to the writer
+ * @param s  text value to write (can be NULL)
+ */
+void zsv_writer_cell_prepend(zsv_csv_writer w, const unsigned char *s);
 
 #endif
