@@ -25,12 +25,14 @@ bbdoc: A TOML decoder.
 End Rem
 Module Text.Toml
 
-ModuleInfo "Version: 1.01"
+ModuleInfo "Version: 1.02"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
 ModuleInfo "toml.hpp - Copyright (c) Mark Gillard"
 ModuleInfo "Copyright: 2023 Bruce A Henderson"
 
+ModuleInfo "History: 1.02"
+ModuleInfo "History: Updated to toml++ 3.4.0.d8fa9a1"
 ModuleInfo "History: 1.01"
 ModuleInfo "History: Updated to toml++ 3.3.0.7eb2ffc"
 ModuleInfo "History: 1.00"
