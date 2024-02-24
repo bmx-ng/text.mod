@@ -19,6 +19,6 @@ For Local file:String = EachIn files
 	
 	Print "Encoding: " + cd.GetEncoding()
 	Print "Confidence: " + cd.GetConfidence()
-	Print "BOM: " + cd.GetBom()
+	Print "BOM: " + cd.HasBom()
 	Print
 Next
