@@ -77,7 +77,7 @@ Public
 	Rem
 	bbdoc: Returns true if the encoding uses BOM (Byte Order Mark) to signal the encoding used
 	EndRem
-	Method HasBOM:Short()
+	Method HasBOM:Int()
 		Return bmx_chardet_bom(obj)
 	EndMethod
 	
