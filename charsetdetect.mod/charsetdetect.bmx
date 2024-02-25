@@ -21,6 +21,15 @@ bbdoc: A charset detector
 EndRem
 Module Text.CharsetDetect
 
+ModuleInfo "Version: 1.00"
+ModuleInfo "Author: libchardet - JoungKyun.Kim"
+ModuleInfo "License: MPL"
+ModuleInfo "Copyright: libchardet - 2019 JoungKyun.Kim"
+ModuleInfo "Copyright: Wrapper - 2024 Carl Arwed Husberg"
+
+ModuleInfo "History: 1.00"
+ModuleInfo "History: Initial Release. (libchardet 1.0.6)"
+
 Import "common.bmx"
 
 Rem
