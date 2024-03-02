@@ -1,4 +1,4 @@
-' Copyright (c) 2007-2021 Bruce A Henderson
+' Copyright (c) 2007-2024 Bruce A Henderson
 ' All rights reserved.
 '
 ' Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@ Import "src/*.h"
 
 Import "pcre/src/pcre2_auto_possess.c"
 Import "pcre/src/pcre2_chartables.c"
+Import "pcre/src/pcre2_chkdint.c"
 Import "pcre/src/pcre2_compile.c"
 Import "pcre/src/pcre2_config.c"
 Import "pcre/src/pcre2_context.c"
@@ -71,6 +72,7 @@ Const PCRE2_CONFIG_VERSION:Int =                11
 Const PCRE2_CONFIG_HEAPLIMIT:Int =              12
 Const PCRE2_CONFIG_NEVER_BACKSLASH_C:Int =      13
 Const PCRE2_CONFIG_COMPILED_WIDTHS:Int =        14
+Const PCRE2_CONFIG_TABLES_LENGTH:Int =          15
 
 ' Exec-time and get/set-time error codes
 ' Error codes: no match and partial match are "expected" errors.
@@ -151,6 +153,9 @@ Const PCRE2_ERROR_TOOMANYREPLACE:Int =    -61
 Const PCRE2_ERROR_BADSERIALIZEDDATA:Int = -62
 Const PCRE2_ERROR_HEAPLIMIT:Int =         -63
 Const PCRE2_ERROR_CONVERT_SYNTAX:Int =    -64
+Const PCRE2_ERROR_INTERNAL_DUPMATCH:Int = -65
+Const PCRE2_ERROR_DFA_UINVALID_UTF:Int =  -66
+Const PCRE2_ERROR_INVALIDOFFSET:Int =     -67
 
 ' Error codes for pcre2_compile(). Some of these are also used by
 ' pcre2_pattern_convert()
@@ -213,7 +218,7 @@ Const PCRE2_ERROR_BACKSLASH_O_MISSING_BRACE:Int =      155
 Const PCRE2_ERROR_INTERNAL_UNKNOWN_NEWLINE:Int =       156
 Const PCRE2_ERROR_BACKSLASH_G_SYNTAX:Int =             157
 Const PCRE2_ERROR_PARENS_QUERY_R_MISSING_CLOSING:Int = 158
-Const PCRE2_ERROR_VERB_ARGUMENT_NOT_ALLOWED:Int =      159
+Const PCRE2_ERROR_VERB_ARGUMENT_NOT_ALLOWED:Int =      159 ' Error 159 is obsolete and should now never occur
 Const PCRE2_ERROR_VERB_UNKNOWN:Int =                   160
 Const PCRE2_ERROR_SUBPATTERN_NUMBER_TOO_BIG:Int =      161
 Const PCRE2_ERROR_SUBPATTERN_NAME_EXPECTED:Int =       162
@@ -247,6 +252,14 @@ Const PCRE2_ERROR_INTERNAL_BAD_CODE:Int =              189
 Const PCRE2_ERROR_INTERNAL_BAD_CODE_IN_SKIP:Int =      190
 Const PCRE2_ERROR_NO_SURROGATES_IN_UTF16:Int =         191
 Const PCRE2_ERROR_BAD_LITERAL_OPTIONS:Int =            192
+Const PCRE2_ERROR_SUPPORTED_ONLY_IN_UNICODE:Int =      193
+Const PCRE2_ERROR_INVALID_HYPHEN_IN_OPTIONS:Int =      194
+Const PCRE2_ERROR_ALPHA_ASSERTION_UNKNOWN:Int =        195
+Const PCRE2_ERROR_SCRIPT_RUN_NOT_AVAILABLE:Int =       196
+Const PCRE2_ERROR_TOO_MANY_CAPTURES:Int =              197
+Const PCRE2_ERROR_CONDITION_ATOMIC_ASSERTION_EXPECTED:Int = 198
+Const PCRE2_ERROR_BACKSLASH_K_IN_LOOKAROUND:Int =      199
+
 
 ' The following option bits can be passed to pcre2_compile(), pcre2_match(),
 ' or pcre2_dfa_match(). PCRE2_NO_UTF_CHECK affects only the function to which it
@@ -291,6 +304,7 @@ Const PCRE2_ALT_VERBNAMES:Int =       $00400000  ' C
 Const PCRE2_USE_OFFSET_LIMIT:Int =    $00800000  '   J M D 
 Const PCRE2_EXTENDED_MORE:Int =       $01000000  ' C       
 Const PCRE2_LITERAL:Int =             $02000000  ' C       
+Const PCRE2_MATCH_INVALID_UTF:Int =   $04000000  '   J M D 
 
 ' These are for pcre2_jit_compile(). 
 
@@ -369,27 +383,15 @@ Extern
 
 	Function pcre2_config_16:Int(what:Int, where_:Int Ptr)
 
-?ptr64
-	Function pcre2_compile_16:Byte Ptr(pattern:Short Ptr, patternLength:Long, options:Int, errorcodeptr:Int Ptr, ..
-		erroffset:Long Ptr, contextptr:Byte Ptr)
-	Function pcre2_match_16:Int(pattern:Byte Ptr, subject:Byte Ptr, subjectLength:Long, startOffset:Long, ..
+	Function pcre2_compile_16:Byte Ptr(pattern:Short Ptr, patternLength:Size_T, options:Int, errorcodeptr:Int Ptr, ..
+		erroffset:Size_T Ptr, contextptr:Byte Ptr)
+	Function pcre2_match_16:Int(pattern:Byte Ptr, subject:Byte Ptr, subjectLength:Size_T, startOffset:Size_T, ..
 		options:Int, matchPtr:Byte Ptr, context:Byte Ptr)
 	Function pcre2_substring_get_bynumber_16:Int(matchPtr:Byte Ptr, stringnumber:Int, ..
-		stringptr:Short Ptr Ptr, stringlength:Long Ptr)
-	Function pcre2_substring_get_byname_16:Int(matchPtr:Byte Ptr, name:Short Ptr, stringptr:Short Ptr Ptr, stringlength:Long Ptr)
-	Function pcre2_get_error_message_16:Int(errorcode:Int, buffer:Short Ptr, length:Long)
-	Function pcre2_get_ovector_pointer_16:Long Ptr(matchPtr:Byte Ptr)
-?Not ptr64
-	Function pcre2_compile_16:Byte Ptr(pattern:Short Ptr, patternLength:Int, options:Int, errorcodeptr:Int Ptr, ..
-		erroffset:Int Ptr, contextptr:Byte Ptr)
-	Function pcre2_match_16:Int(pattern:Byte Ptr, subject:Byte Ptr, subjectLength:Int, startOffset:Int, ..
-		options:Int, matchPtr:Byte Ptr, context:Byte Ptr)
-	Function pcre2_substring_get_bynumber_16:Int(matchPtr:Byte Ptr, stringnumber:Int, ..
-		stringptr:Short Ptr Ptr, stringlength:Int Ptr)
-	Function pcre2_substring_get_byname_16:Int(matchPtr:Byte Ptr, name:Short Ptr, stringptr:Short Ptr Ptr, stringlength:Int Ptr)
-	Function pcre2_get_error_message_16:Int(errorcode:Int, buffer:Short Ptr, length:Int)
-	Function pcre2_get_ovector_pointer_16:Int Ptr(matchPtr:Byte Ptr)
-?
+		stringptr:Short Ptr Ptr, stringlength:Size_T Ptr)
+	Function pcre2_substring_get_byname_16:Int(matchPtr:Byte Ptr, name:Short Ptr, stringptr:Short Ptr Ptr, stringlength:Size_T Ptr)
+	Function pcre2_get_error_message_16:Int(errorcode:Int, buffer:Short Ptr, length:Size_T)
+	Function pcre2_get_ovector_pointer_16:Size_T Ptr(matchPtr:Byte Ptr)
 
 	Function pcre2_substring_free_16(strinptr:Short Ptr)
 	
@@ -398,7 +400,7 @@ Extern
 	
 	Function pcre2_pattern_info_16:Int(pcre:Byte Ptr, what:Int, where_:Int Ptr)
 	
-	Function pcre2_get_ovector_count_16:Int(matchPtr:Byte Ptr)
+	Function pcre2_get_ovector_count_16:UInt(matchPtr:Byte Ptr)
 	
 	Function pcre2_jit_compile_16:Int(pcre:Byte Ptr, options:Int)
 	

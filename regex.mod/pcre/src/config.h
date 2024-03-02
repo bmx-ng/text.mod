@@ -212,6 +212,10 @@ sure both macros are undefined; an emulation function will then be used. */
 #define MAX_NAME_SIZE 32
 #endif
 
+/* The value of MAX_VARLOOKBEHIND specifies the default maximum length, in
+   characters, for a variable-length lookbehind assertion. */
+#define MAX_VARLOOKBEHIND 255
+
 /* Defining NEVER_BACKSLASH_C locks out the use of \C in all patterns. */
 /* #undef NEVER_BACKSLASH_C */
 
@@ -233,7 +237,7 @@ sure both macros are undefined; an emulation function will then be used. */
 #define PACKAGE_NAME "PCRE2"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "PCRE2 10.39"
+#define PACKAGE_STRING "PCRE2 10.43"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "pcre2"
@@ -242,7 +246,7 @@ sure both macros are undefined; an emulation function will then be used. */
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "10.39"
+#define PACKAGE_VERSION "10.43"
 
 /* The value of PARENS_NEST_LIMIT specifies the maximum depth of nested
    parentheses (of any kind) in a pattern. This limits the amount of system
@@ -269,6 +273,9 @@ sure both macros are undefined; an emulation function will then be used. */
 #define PCRE2GREP_MAX_BUFSIZE 1048576
 #endif
 
+/* to make a symbol visible */
+#define PCRE2_EXPORT __attribute__ ((visibility ("default")))
+
 /* Define to any value to include debugging code. */
 /* #undef PCRE2_DEBUG */
 
@@ -284,7 +291,7 @@ sure both macros are undefined; an emulation function will then be used. */
 #define PCRE2_EXP_DEFN __attribute__ ((visibility ("default")))
 
 /* Define to any value if linking statically (TODO: make nice with Libtool) */
-#define PCRE2_STATIC /**/
+#define PCRE2_STATIC 1
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -301,7 +308,7 @@ sure both macros are undefined; an emulation function will then be used. */
 /* #undef STDC_HEADERS */
 
 /* Define to any value to enable support for Just-In-Time compiling. */
-#define SUPPORT_JIT /**/
+#define SUPPORT_JIT 1
 
 /* Define to any value to allow pcre2grep to be linked with libbz2, so that it
    is able to handle .bz2 files. */
@@ -336,7 +343,7 @@ sure both macros are undefined; an emulation function will then be used. */
 /* #undef SUPPORT_PCRE2_32 */
 
 /* Define to any value to enable the 8 bit PCRE2 library. */
-#define SUPPORT_PCRE2_8 /**/
+//#define SUPPORT_PCRE2_8 /**/
 
 /* Define to any value to enable support for Unicode and UTF encoding. This
    will work even in an EBCDIC environment, but it is incompatible with the
@@ -435,7 +442,7 @@ sure both macros are undefined; an emulation function will then be used. */
 #endif
 
 /* Version number of package */
-#define VERSION "10.39"
+#define VERSION "10.40"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
