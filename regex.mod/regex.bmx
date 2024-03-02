@@ -1,4 +1,4 @@
-' Copyright (c) 2007-2021 Bruce A Henderson
+' Copyright (c) 2007-2024 Bruce A Henderson
 ' All rights reserved.
 '
 ' Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,17 @@ bbdoc: Regular Expressions
 End Rem
 Module Text.RegEx
 
-ModuleInfo "Version: 1.11"
+ModuleInfo "Version: 1.12"
 ModuleInfo "Author: PCRE - Philip Hazel"
 ModuleInfo "License: BSD"
 ModuleInfo "Copyright: PCRE - 1997-2021 University of Cambridge"
-ModuleInfo "Copyright: Wrapper - 2007-2021 Bruce A Henderson"
+ModuleInfo "Copyright: Wrapper - 2007-2024 Bruce A Henderson"
 
+ModuleInfo "History: 1.12"
+ModuleInfo "History: Updated to PCRE 10.43"
+ModuleInfo "History: Options are now configured per search. Default options are used if none provided."
+ModuleInfo "History: Added SetDefaultOptions method."
+ModuleInfo "History: Options can be ignored in preference for pattern provided options."
 ModuleInfo "History: 1.11"
 ModuleInfo "History: Updated to PCRE 10.39"
 ModuleInfo "History: 1.10"
@@ -71,6 +76,10 @@ ModuleInfo "History: Initial Release. (PCRE 7.0)"
 
 ModuleInfo "CC_OPTS: -DHAVE_CONFIG_H -DPCRE2_CODE_UNIT_WIDTH=16"
 
+?macos
+ModuleInfo "CC_VOPT: osversion|-mmacosx-version-min=11.00"
+?
+
 Import "common.bmx"
 
 Rem
@@ -78,7 +87,10 @@ bbdoc: Performs #Find and #Replace / #ReplaceAll on strings using Perl Compatibl
 End Rem
 Type TRegEx
 	' Configures the way in which Regular Expressions are handled.
-	Global options:TRegExOptions
+	Global defaultOptions:TRegExOptions
+
+	' The options to use for this search.
+	Field options:TRegExOptions
 
 	' The pattern to search for.
 	Field searchPattern:String
@@ -93,7 +105,7 @@ Type TRegEx
 	' pointer to the target string (as a WString)
 	Field TArg:Byte Ptr
 	' the length of the target string
-	Field targLength:Int
+	Field targLength:Size_T
 	
 	Field lastEndPos:Int
 	
@@ -101,11 +113,8 @@ Type TRegEx
 	Field pcre:Byte Ptr
 	
 	' pointer to the offsets vector, owned by pcre2
-?ptr64
-	Field offsets:Long Ptr
-?Not ptr64
-	Field offsets:Int Ptr
-?
+	Field offsets:Size_T Ptr
+
 	' number of offsets
 	Field sizeOffsets:Int
 	
@@ -124,23 +133,37 @@ Type TRegEx
 		End If
 		
 	End Method
+
+	Rem
+	bbdoc: Creates a new #TRegEx object.
+	about: @searchPattern is the regular expression with which to perform the search.
+	End Rem
+	Method New(searchPattern:String, options:TRegExOptions = Null)
+		Self.searchPattern = searchPattern
+		If options Then
+			Self.options = options
+		Else
+			If Not defaultOptions Then
+				defaultOptions = New TRegExOptions
+			End If
+			Self.options = defaultOptions
+		End If
+	End Method
 	
 	Rem
 	bbdoc: Creates a new #TRegEx object.
-	about: @searchPattern is the regular expression with which to perform the search.<br>
-	@options sets the global #TRegExOptions. Overrides all previous options.
+	about: @searchPattern is the regular expression with which to perform the search.
 	End Rem
 	Function Create:TRegEx(searchPattern:String, options:TRegExOptions = Null)
-		Local this:TRegEx = New TRegEx
-		
-		this.searchPattern = searchPattern
-		'this.replacePattern = replacePattern
-		
-		If options Then
-			TRegEx.options = options
-		End If
-		
-		Return this
+		Return New TRegEx(searchPattern, options)
+	End Function
+
+	Rem
+	bbdoc: Sets the default options for all new #TRegEx objects.
+	about: This is useful if you want to set the options once and use them for all searches.
+	End Rem
+	Function SetDefaultOptions(options:TRegExOptions)
+		defaultOptions = options
 	End Function
 	
 	Rem
@@ -148,7 +171,7 @@ Type TRegEx
 	returns: The newly replaced string.
 	about: Doesn't affect the original @target contents.
 	End Rem
-	Method ReplaceAll:String(target:String, replaceWith:String, startPos:Int = 0)
+	Method ReplaceAll:String(target:String, replaceWith:String, startPos:Size_T = 0)
 
 		If Not options Then
 			options = New TRegExOptions
@@ -177,7 +200,7 @@ Type TRegEx
 	<a href="../tests/test_07.bmx">test_07</a> for an example)</i>.
 	<p>Doesn't affect the original @target contents.</p>
 	End Rem
-	Method Replace:String(target:String, replaceWith:String, startPos:Int = 0)
+	Method Replace:String(target:String, replaceWith:String, startPos:Size_T = 0)
 		If Not options Then
 			options = New TRegExOptions
 		End If
@@ -256,13 +279,80 @@ Type TRegEx
 	Rem
 	bbdoc: Performs a search on the given @target from @startPos, using the search Pattern.
 	returns: A #TRegExMatch object or Null if no matches found.
-	about: Both parameters are optional.<br>
-	If @target is <b>not</b> set, the search will use the <b>previous</b> @target.
+	about: If @target is <b>not</b> set, the search will use the <b>previous</b> @target.
 	You will want to set @target the first time this method is called.<br>
 	If you call this method with no parameters it will start the search from the end of the last search, effectively
 	iterating through the target string.
 	End Rem
-	Method Find:TRegExMatch(target:String = Null, startPos:Int = -1)
+	Method Find:TRegExMatch(target:String = Null)
+		If Not options Then
+			options = New TRegExOptions
+		End If
+
+		' the search pattern has changed !
+		' recompile
+		' this only happens very occasionally... (probably ;-)
+		'If lastPattern <> searchPattern Or Not pcre Then
+		If Not compiled Then
+			init()
+		End If
+
+		Local startPos:Size_T
+
+		' no target specified, we are probably performing another search on the original target
+		If Not target Then
+		
+			' no lastTarget? Not allowed.
+			If Not lastTarget Then
+				Return Null
+			End If
+
+			startPos = lastEndPos
+		Else
+			' this is a new target... 
+			If target <> lastTarget Then
+				lastTarget = target
+				
+				If TArg Then
+					MemFree(TArg)
+				End If
+			
+				TArg = target.toWString()
+				targLength = target.length
+			End If
+		End If
+
+		Return DoFind(startPos)
+	End Method
+
+	Method DoFind:TRegExMatch(startPos:Size_T)
+		Local result:Int = pcre2_match_16(pcre, TArg, targLength, startPos, getExecOpt(), matchPtr, Null)
+	
+		If result >= 0 Then
+
+			sizeOffsets = pcre2_get_ovector_count_16(matchPtr)
+			offsets = pcre2_get_ovector_pointer_16(matchPtr)
+
+			Local match:TRegExMatch = New TRegExMatch(pcre, matchPtr)
+			lastEndPos = offsets[1]
+			Return match
+		Else
+
+			' no point raising an exception when nothing found... we can just return a null object
+			If result = PCRE2_ERROR_NOMATCH Then
+				Return Null
+			End If
+			
+			' there was an error of some kind... throw it!
+			Throw TRegExException.Raise(result)
+		End If
+	End Method
+
+	Rem
+	bbdoc: Performs a search on the given @target from @startPos, using the search Pattern.
+	returns: A #TRegExMatch object or Null if no matches found.
+	End Rem
+	Method Find:TRegExMatch(target:String, startPos:Size_T)
 	
 		If Not options Then
 			options = New TRegExOptions
@@ -307,28 +397,7 @@ Type TRegEx
 			startPos = 0
 		End If
 		
-		Local result:Int = pcre2_match_16(pcre, TArg, targLength, startPos, getExecOpt(), matchPtr, Null)
-		
-		If result >= 0 Then
-
-			sizeOffsets = pcre2_get_ovector_count_16(matchPtr)
-			offsets = pcre2_get_ovector_pointer_16(matchPtr)
-
-			Local match:TRegExMatch = New TRegExMatch
-			match.pcre = pcre
-			match.matchPtr = matchPtr
-			lastEndPos = offsets[1]
-			Return match
-		Else
-
-			' no point raising an exception when nothing found... we can just return a null object
-			If result = PCRE2_ERROR_NOMATCH Then
-				Return Null
-			End If
-			
-			' there was an error of some kind... throw it!
-			Throw TRegExException.Raise(result)
-		End If
+		Return DoFind(startPos)
 	End Method
 	
 	' resets and recompiles the regular expression
@@ -337,12 +406,9 @@ Type TRegEx
 		
 		Local pat:Short Ptr = lastPattern.ToWString()
 		Local errorcode:Int
-?ptr64
-		Local erroffset:Long
-?Not ptr64
-		Local erroffset:Int
-?
-		Local bptr:Byte Ptr = pcre2_compile_16(pat, lastPattern.length, getCompileOpt(), Varptr errorcode, ..
+		Local erroffset:Size_T
+
+		Local bptr:Byte Ptr = pcre2_compile_16(pat, Size_T(lastPattern.length), getCompileOpt(), Varptr errorcode, ..
  				Varptr erroffset, Null)
 
 		MemFree(pat)
@@ -372,6 +438,10 @@ Type TRegEx
 	' possible options for compiling
 	Method getCompileOpt:Int()
 		Local opt:Int = PCRE2_UTF
+
+		If options.onlyPatternOptions Then
+			Return opt
+		End If
 		
 		If Not options.caseSensitive Then
 			opt:| PCRE2_CASELESS
@@ -418,6 +488,10 @@ Type TRegEx
 	' possible options for execution
 	Method getExecOpt:Int()
 		Local opt:Int
+
+		If options.onlyPatternOptions Then
+			Return opt
+		End If
 		
 		Select options.lineEndType
 			Case 1
@@ -448,6 +522,10 @@ Type TRegEx
 	' possible options for jit
 	Method getJITOpt:Int()
 		Local opt:Int
+
+		If options.onlyPatternOptions Then
+			Return opt
+		End If
 		
 		If options.jitComplete Then
 			opt :| PCRE2_JIT_COMPLETE
@@ -480,14 +558,27 @@ bbdoc: Used to extract the matched string when doing a search with regular expre
 End Rem
 Type TRegExMatch
 
+	Private
+
 	Field pcre:Byte Ptr
 	Field matchPtr:Byte Ptr
+
+	Field count:UInt
+
+	Method New(pcre:Byte Ptr, matchPtr:Byte Ptr)
+		Self.pcre = pcre
+		Self.matchPtr = matchPtr
+
+		Self.count = pcre2_get_ovector_count_16(matchPtr)
+	End Method
+
+	Public
 
 	Rem
 	bbdoc: Returns the number of subexpressions as a result of the search.
 	End Rem
 	Method SubCount:Int()
-		Return pcre2_get_ovector_count_16(matchPtr)
+		Return count
 	End Method
 	
 	Rem
@@ -499,13 +590,10 @@ Type TRegExMatch
 	Method SubExp:String(matchNumber:Int = 0)
 		Local _subExpr:String
 		
-		If matchNumber >= 0 And matchNumber < pcre2_get_ovector_count_16(matchPtr) Then
+		If matchNumber >= 0 And matchNumber < count Then
 			Local sPtr:Short Ptr
-?ptr64
-			Local sLen:Long
-?Not ptr64
-			Local sLen:Int
-?
+			Local sLen:Size_T
+
 			Local result:Int = pcre2_substring_get_bynumber_16(matchPtr, matchNumber, Varptr sPtr, Varptr sLen)
 
 			If Not result Then
@@ -527,12 +615,10 @@ Type TRegExMatch
 	to return the start position of the matched string.
 	End Rem
 	Method SubStart:Int(matchNumber:Int = 0)
-		If matchNumber >= 0 And matchNumber <  pcre2_get_ovector_count_16(matchPtr) Then
-?ptr64
-			Local offsets:Long Ptr = pcre2_get_ovector_pointer_16(matchPtr)
-?Not ptr64
-			Local offsets:Int Ptr = pcre2_get_ovector_pointer_16(matchPtr)
-?
+		If matchNumber >= 0 And matchNumber <  count Then
+
+			Local offsets:Size_T Ptr = pcre2_get_ovector_pointer_16(matchPtr)
+
 			Return offsets[matchNumber]
 		End If
 		Return -1
@@ -545,12 +631,10 @@ Type TRegExMatch
 	to return the end position of the matched string.
 	End Rem
 	Method SubEnd:Int(matchNumber:Int = 0)
-		If matchNumber >= 0 And matchNumber <  pcre2_get_ovector_count_16(matchPtr) Then
-?ptr64
-			Local offsets:Long Ptr = pcre2_get_ovector_pointer_16(matchPtr)
-?Not ptr64
-			Local offsets:Int Ptr = pcre2_get_ovector_pointer_16(matchPtr)
-?
+		If matchNumber >= 0 And matchNumber <  count Then
+
+			Local offsets:Size_T Ptr = pcre2_get_ovector_pointer_16(matchPtr)
+
 			Return offsets[matchNumber + 1] - 1
 		End If
 		Return -1
@@ -558,17 +642,23 @@ Type TRegExMatch
 	
 	Rem
 	bbdoc: Returns the subexpression for the given @name.
+	returns: The matched string, the subexpression string, or "" if @matchNumber is out of range.
+	End Rem
+	Method SubExp:String(name:String)
+		Return SubExpByName(name)
+	End Method
+
+	Rem
+	bbdoc: Returns the subexpression for the given @name.
+	returns: The matched string, the subexpression string, or "" if @matchNumber is out of range.
 	End Rem
 	Method SubExpByName:String(name:String)
 		Local _subExpr:String
 
 		If name Then
 			Local sPtr:Short Ptr
-?ptr64
-			Local sLen:Long
-?Not ptr64
-			Local sLen:Int
-?
+			Local sLen:Size_T
+
 			Local n:Short Ptr = name.ToWString()
 			Local result:Int = pcre2_substring_get_byname_16(matchPtr, n, Varptr sPtr, Varptr sLen)
 			MemFree(n)
@@ -582,6 +672,13 @@ Type TRegExMatch
 		End If
 		
 		Return _subExpr
+	End Method
+
+	Rem
+	bbdoc: Returns the index of the subexpression for the given @name.
+	End Rem
+	Method SubIndex:Int(name:String)
+		Return SubIndexByName(name)
 	End Method
 
 	Rem
@@ -603,6 +700,13 @@ Type TRegExMatch
 	Rem
 	bbdoc: Returns the start position of the subexpression for the given @name.
 	End Rem
+	Method SubStart:Int(name:String)
+		Return SubStartByName(name)
+	End Method
+
+	Rem
+	bbdoc: Returns the start position of the subexpression for the given @name.
+	End Rem
 	Method SubStartByName:Int(name:String)
 		If name Then
 			Local n:Short Ptr = name.ToWString()
@@ -615,6 +719,13 @@ Type TRegExMatch
 			End If
 		End If
 		Return -1
+	End Method
+
+	Rem
+	bbdoc: Returns the end position of the subexpression for the given @name.
+	End Rem
+	Method SubEnd:Int(name:String)
+		Return SubEndByName(name)
 	End Method
 
 	Rem
@@ -640,6 +751,11 @@ Rem
 bbdoc: Specifies options used when performing searches.
 End Rem
 Type TRegExOptions
+
+	Rem
+	bbdoc: Ignore other options and use only the pattern's options, like case sensitivity, etc.
+	End Rem
+	Field onlyPatternOptions:Int = False
 
 	Rem
 	bbdoc: Whether matches are case sensitive.
