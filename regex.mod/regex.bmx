@@ -132,6 +132,10 @@ Type TRegEx
 			pcre2_match_data_free_16(matchPtr)
 		End If
 		
+		If pcre
+			MemFree(pcre)
+		EndIf
+		
 	End Method
 
 	Rem
@@ -414,6 +418,10 @@ Type TRegEx
 		MemFree(pat)
 		
 		If bptr Then
+			If pcre
+				MemFree(pcre)
+			EndIf
+			
 			pcre = bptr
 		Else
 			Local buffer:Short[256]
