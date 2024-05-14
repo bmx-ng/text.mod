@@ -107,7 +107,7 @@ Type TRegEx
 	' the length of the target string
 	Field targLength:Size_T
 	
-	Field lastEndPos:Int
+	Field lastEndPos:Size_T
 	
 	' pointer to the compiled expression
 	Field pcre:Byte Ptr
@@ -242,7 +242,7 @@ Type TRegEx
 			sizeOffsets = pcre2_get_ovector_count_16(matchPtr)
 			offsets = pcre2_get_ovector_pointer_16(matchPtr)
 
-			Local replaceStr:String = replaceWith 
+			Local replaceStr:String = replaceWith
 			Local ofs:Size_T Ptr = offsets
 			For Local i:Int = 0 Until result
 				Local idx:Int = i * 2
@@ -622,7 +622,7 @@ Type TRegExMatch
 	about: For expressions with no subpattern groups, this method can be used without a parameter
 	to return the start position of the matched string.
 	End Rem
-	Method SubStart:Int(matchNumber:Int = 0)
+	Method SubStart:Size_T(matchNumber:Int = 0)
 		If matchNumber >= 0 And matchNumber <  count Then
 
 			Local offsets:Size_T Ptr = pcre2_get_ovector_pointer_16(matchPtr)
@@ -638,7 +638,7 @@ Type TRegExMatch
 	about: For expressions with no subpattern groups, this method can be used without a parameter
 	to return the end position of the matched string.
 	End Rem
-	Method SubEnd:Int(matchNumber:Int = 0)
+	Method SubEnd:Size_T(matchNumber:Int = 0)
 		If matchNumber >= 0 And matchNumber <  count Then
 
 			Local offsets:Size_T Ptr = pcre2_get_ovector_pointer_16(matchPtr)
@@ -708,21 +708,21 @@ Type TRegExMatch
 	Rem
 	bbdoc: Returns the start position of the subexpression for the given @name.
 	End Rem
-	Method SubStart:Int(name:String)
+	Method SubStart:Size_T(name:String)
 		Return SubStartByName(name)
 	End Method
 
 	Rem
 	bbdoc: Returns the start position of the subexpression for the given @name.
 	End Rem
-	Method SubStartByName:Int(name:String)
+	Method SubStartByName:Size_T(name:String)
 		If name Then
 			Local n:Short Ptr = name.ToWString()
 			Local index:Int = pcre2_substring_number_from_name_16(pcre, n)
 			MemFree(n)
 			
 			If index >= 0 Then
-				Local offsets:Int Ptr = pcre2_get_ovector_pointer_16(matchPtr)
+				Local offsets:Size_T Ptr = pcre2_get_ovector_pointer_16(matchPtr)
 				Return offsets[index]
 			End If
 		End If
@@ -732,21 +732,21 @@ Type TRegExMatch
 	Rem
 	bbdoc: Returns the end position of the subexpression for the given @name.
 	End Rem
-	Method SubEnd:Int(name:String)
+	Method SubEnd:Size_T(name:String)
 		Return SubEndByName(name)
 	End Method
 
 	Rem
 	bbdoc: Returns the end position of the subexpression for the given @name.
 	End Rem
-	Method SubEndByName:Int(name:String)
+	Method SubEndByName:Size_T(name:String)
 		If name Then
 			Local n:Short Ptr = name.ToWString()
 			Local index:Int = pcre2_substring_number_from_name_16(pcre, n)
 			MemFree(n)
 			
 			If index >= 0 Then
-				Local offsets:Int Ptr = pcre2_get_ovector_pointer_16(matchPtr)
+				Local offsets:Size_T Ptr = pcre2_get_ovector_pointer_16(matchPtr)
 				Return offsets[index + 1] - 1
 			End If
 		End If
