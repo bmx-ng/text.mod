@@ -243,7 +243,7 @@ Type TRegEx
 			offsets = pcre2_get_ovector_pointer_16(matchPtr)
 
 			Local replaceStr:String = replaceWith 
-			Local ofs:Long Ptr = offsets
+			Local ofs:Size_T Ptr = offsets
 			For Local i:Int = 0 Until result
 				Local idx:Int = i * 2
 				replaceStr = replaceStr.Replace( "\" + i, lastTarget[ofs[idx]..ofs[idx+1]])
