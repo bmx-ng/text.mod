@@ -622,7 +622,7 @@ Type TRegExMatch
 	about: For expressions with no subpattern groups, this method can be used without a parameter
 	to return the start position of the matched string.
 	End Rem
-	Method SubStart:Size_T(matchNumber:Int = 0)
+	Method SubStart:Int(matchNumber:Int = 0)
 		If matchNumber >= 0 And matchNumber <  count Then
 
 			Local offsets:Size_T Ptr = pcre2_get_ovector_pointer_16(matchPtr)
@@ -638,7 +638,7 @@ Type TRegExMatch
 	about: For expressions with no subpattern groups, this method can be used without a parameter
 	to return the end position of the matched string.
 	End Rem
-	Method SubEnd:Size_T(matchNumber:Int = 0)
+	Method SubEnd:Int(matchNumber:Int = 0)
 		If matchNumber >= 0 And matchNumber <  count Then
 
 			Local offsets:Size_T Ptr = pcre2_get_ovector_pointer_16(matchPtr)
@@ -708,14 +708,14 @@ Type TRegExMatch
 	Rem
 	bbdoc: Returns the start position of the subexpression for the given @name.
 	End Rem
-	Method SubStart:Size_T(name:String)
+	Method SubStart:Int(name:String)
 		Return SubStartByName(name)
 	End Method
 
 	Rem
 	bbdoc: Returns the start position of the subexpression for the given @name.
 	End Rem
-	Method SubStartByName:Size_T(name:String)
+	Method SubStartByName:Int(name:String)
 		If name Then
 			Local n:Short Ptr = name.ToWString()
 			Local index:Int = pcre2_substring_number_from_name_16(pcre, n)
