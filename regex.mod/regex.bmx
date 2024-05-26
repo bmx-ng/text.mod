@@ -732,14 +732,14 @@ Type TRegExMatch
 	Rem
 	bbdoc: Returns the end position of the subexpression for the given @name.
 	End Rem
-	Method SubEnd:Size_T(name:String)
+	Method SubEnd:Int(name:String)
 		Return SubEndByName(name)
 	End Method
 
 	Rem
 	bbdoc: Returns the end position of the subexpression for the given @name.
 	End Rem
-	Method SubEndByName:Size_T(name:String)
+	Method SubEndByName:Int(name:String)
 		If name Then
 			Local n:Short Ptr = name.ToWString()
 			Local index:Int = pcre2_substring_number_from_name_16(pcre, n)
