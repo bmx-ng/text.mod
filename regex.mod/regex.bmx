@@ -107,7 +107,7 @@ Type TRegEx
 	' the length of the target string
 	Field targLength:Size_T
 	
-	Field lastEndPos:Int
+	Field lastEndPos:Size_T
 	
 	' pointer to the compiled expression
 	Field pcre:Byte Ptr
@@ -131,6 +131,10 @@ Type TRegEx
 		If matchPtr Then
 			pcre2_match_data_free_16(matchPtr)
 		End If
+		
+		If pcre
+			MemFree(pcre)
+		EndIf
 		
 	End Method
 
@@ -238,8 +242,8 @@ Type TRegEx
 			sizeOffsets = pcre2_get_ovector_count_16(matchPtr)
 			offsets = pcre2_get_ovector_pointer_16(matchPtr)
 
-			Local replaceStr:String = replaceWith 
-			Local ofs:Int Ptr = offsets
+			Local replaceStr:String = replaceWith
+			Local ofs:Size_T Ptr = offsets
 			For Local i:Int = 0 Until result
 				Local idx:Int = i * 2
 				replaceStr = replaceStr.Replace( "\" + i, lastTarget[ofs[idx]..ofs[idx+1]])
@@ -414,6 +418,10 @@ Type TRegEx
 		MemFree(pat)
 		
 		If bptr Then
+			If pcre
+				MemFree(pcre)
+			EndIf
+			
 			pcre = bptr
 		Else
 			Local buffer:Short[256]
@@ -714,7 +722,7 @@ Type TRegExMatch
 			MemFree(n)
 			
 			If index >= 0 Then
-				Local offsets:Int Ptr = pcre2_get_ovector_pointer_16(matchPtr)
+				Local offsets:Size_T Ptr = pcre2_get_ovector_pointer_16(matchPtr)
 				Return offsets[index]
 			End If
 		End If
@@ -738,7 +746,7 @@ Type TRegExMatch
 			MemFree(n)
 			
 			If index >= 0 Then
-				Local offsets:Int Ptr = pcre2_get_ovector_pointer_16(matchPtr)
+				Local offsets:Size_T Ptr = pcre2_get_ovector_pointer_16(matchPtr)
 				Return offsets[index + 1] - 1
 			End If
 		End If
