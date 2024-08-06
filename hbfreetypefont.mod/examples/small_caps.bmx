@@ -9,7 +9,7 @@ Local font:TImageFont = LoadImageFont( "fonts/Vollkorn-Regular.otf", 72, SMOOTHF
 Local linfont:TImageFont = LoadImageFont( "fonts/Vollkorn-Regular.otf", 72, SMOOTHFONT | LININGFIGURESFONT )
 Local scfont:TImageFont = LoadImageFont( "fonts/Vollkorn-Regular.otf", 72, SMOOTHFONT | SMALLCAPSFONT )
 Local kfont:TImageFont = LoadImageFont( "fonts/Vollkorn-Regular.otf", 72, SMOOTHFONT | KERNFONT )
-Local kscfont:TImageFont = LoadImageFont( "fonts/Vollkorn-Regular.otf", 72, SMOOTHFONT | KERNFONT | SMALLCAPSFONT | ZEROFONT | BOLDFONT )
+Local kscfont:TImageFont = LoadImageFont( "fonts/Vollkorn-Regular.otf", 72, SMOOTHFONT | KERNFONT | SMALLCAPSFONT | ZEROFONT )
 
 While Not KeyDown( Key_Escape )
 
