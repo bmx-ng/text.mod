@@ -136,6 +136,7 @@ void bmx_hb_features_destroy(hb_feature_t * features) {
 
 void bmx_hb_buffer_calc_glyph_info(hb_font_t * font, hb_buffer_t * buffer, hb_feature_t * features, int featuresLength, int character, MaxGlyphInfo * glyphInfo) {
     hb_buffer_clear_contents(buffer);
+    hb_buffer_set_content_type(buffer, HB_BUFFER_CONTENT_TYPE_UNICODE);
     hb_buffer_add(buffer, character, 0);
     hb_buffer_guess_segment_properties(buffer);
 
@@ -153,6 +154,7 @@ void bmx_hb_buffer_calc_glyph_info(hb_font_t * font, hb_buffer_t * buffer, hb_fe
 
 MaxGlyphInfo * bmx_hb_buffer_calc_glyphs_info(hb_font_t * font, hb_buffer_t * buffer, hb_feature_t * features, int featuresLength, BBString * text, int * length) {
     hb_buffer_clear_contents(buffer);
+    hb_buffer_set_content_type(buffer, HB_BUFFER_CONTENT_TYPE_UNICODE);
     hb_buffer_add_utf16(buffer, text->buf, text->length, 0, text->length);
     hb_buffer_guess_segment_properties(buffer);
 
