@@ -1,0 +1,10 @@
++++ libchardet/src/chardet.h	Sat Feb 24 14:04:21 2024
+@@ -64,6 +64,8 @@
+ 	#endif
+ #endif
+ 
++#define CHARDET_API
++
+ #include <version.h>
+ 
+ #include <stdio.h>
