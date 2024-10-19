@@ -1,4 +1,4 @@
-' Copyright (c) 2022-2023 Bruce A Henderson
+' Copyright (c) 2022-2024 Bruce A Henderson
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,14 @@ bbdoc: A CSV parser.
 End Rem
 Module Text.CSV
 
-ModuleInfo "Version: 1.04"
+ModuleInfo "Version: 1.05"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
 ModuleInfo "zsv - Copyright (c) 2021 Guarnerix Inc dba Liquidaty"
-ModuleInfo "Copyright: 2022-2023 Bruce A Henderson"
+ModuleInfo "Copyright: 2022-2024 Bruce A Henderson"
 
+ModuleInfo "History: 1.05"
+ModuleInfo "History: Updated to zsv 0.3.9.e64543a"
 ModuleInfo "History: 1.04"
 ModuleInfo "History: Updated to zsv 0.3.8.93d349e"
 ModuleInfo "History: 1.03"
