@@ -37,6 +37,12 @@ ifneq ($(ZSV_CACHE_PREFIX),)
   CFLAGS+= -DZSV_CACHE_PREFIX='${ZSV_CACHE_PREFIX}'
 endif
 
+CFLAGS+=-fsigned-char
+ifneq ($(WIN),)
+  CFLAGS+= -Wno-incompatible-pointer-types
+  LIBS+=-lShlwapi
+endif
+
 ifneq ($(ZSV_IS_PROP_FILE_HANDLER),)
 	CFLAGS+=-DZSV_IS_PROP_FILE_HANDLER=${ZSV_IS_PROP_FILE_HANDLER}
 endif
@@ -76,6 +82,11 @@ ifeq ($(NO_STDIN),1)
 endif
 
 CFLAGS+= ${CFLAGS_PIC}
+
+CONFIGURE_HOST=
+ifneq ($(HOST),)
+  CONFIGURE_HOST=$(HOST)
+endif
 ifeq ($(WIN),0)
   BUILD_SUBDIR=$(shell uname)/${DBG_SUBDIR}
   EXE=
@@ -90,13 +101,18 @@ ifeq ($(WIN),0)
       CFLAGS_EXE+= -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=2 -s PTHREAD_POOL_SIZE=8
     endif
   endif
-  CONFIGURE_HOST=
 else
   BUILD_SUBDIR=win/${DBG_SUBDIR}
   EXE=.exe
-  CFLAGS+= -D__USE_MINGW_ANSI_STDIO -D_ISOC99_SOURCE
+  CFLAGS+= -D__USE_MINGW_ANSI_STDIO -D_ISOC99_SOURCE -D_GNU_SOURCE
   CFLAGS+= -Wl,--strip-all
-  CONFIGURE_HOST=--host=x86_64-w64-mingw32
+  CONFIGURE_HOST=x86_64-w64-mingw32
+  CFLAGS+=-Dsetenv\(a,b,c\)=_putenv_s\(a,b\)
+endif
+
+JQ_CONFIGURE_HOST=
+ifneq ($(CONFIGURE_HOST),)
+  JQ_CONFIGURE_HOST=--host=$(CONFIGURE_HOST)
 endif
 
 CFLAGS+=-std=gnu11
@@ -163,18 +179,31 @@ OBJECTS=${UTILS}
 ifeq ($(NO_MEMMEM),1)
   OBJECTS+= ${BUILD_DIR}/objs/utils/memmem.o
   CFLAGS+=-DNO_MEMMEM
+  UTIL_A_OBJ_WIN=memmem
 endif
 
 ZSV=$(BINDIR)/zsv${EXE}
 
-SOURCES= echo paste count count-pull select select-pull 2tsv 2json serialize flatten pretty stack desc sql 2db compare prop rm mv jq
+SOURCES=echo paste count count-pull select select-pull 2tsv 2json serialize flatten pretty stack desc sql 2db compare prop rm mv jq
 CLI_SOURCES=echo select desc count paste 2tsv pretty sql flatten 2json serialize stack 2db compare prop rm mv jq
+
+ifeq ($(ZSVSHEET_BUILD),1)
+  SOURCES+=sheet
+  CLI_SOURCES+=sheet
+  CFLAGS+=-DZSVSHEET_BUILD
+  CFLAGS+=${CFLAGS_NCURSES}
+  LDFLAGS+=${LDFLAGS_NCURSES}
+endif
 
 CFLAGS+= -DUSE_JQ
 
 STATIC_LIB_FLAGS=
-ifneq ($(STATIC_LIBS),)
-  STATIC_LIB_FLAGS=-static ${STATIC_LIBS}
+ifeq ($(STATIC_BUILD),1)
+  STATIC_LIB_FLAGS=${LDFLAGS_STATIC}
+else
+  ifneq ($(STATIC_LIBS),)
+    STATIC_LIB_FLAGS=${LDFLAGS_STATIC}
+  endif
 endif
 
 STANDALONE_PFX=${BUILD_DIR}/bin/zsv_
@@ -211,12 +240,12 @@ YAJL_OBJ=$(addprefix ${BUILD_DIR}-external/yajl/,$(addsuffix .o,${YAJL_OBJ1}))
 YAJL_INCLUDE=-I${YAJL_SRC_DIR}/build/yajl-2.1.1/include
 
 YAJL_HELPER_OBJ=${BUILD_DIR}-external/yajl_helper/yajl_helper.o
-# YAJL_HELPER_INCLUDE=-I${THIS_MAKEFILE_DIR}/external/yajl_helper
-YAJL_HELPER_INCLUDE=-I${THIS_MAKEFILE_DIR}/external
+YAJL_HELPER_INCLUDE=-I${THIS_MAKEFILE_DIR}/external/yajl_helper
+# YAJL_HELPER_INCLUDE=-I${THIS_MAKEFILE_DIR}/external
 CFLAGS+=${YAJL_HELPER_INCLUDE} ${YAJL_INCLUDE}
 
 # jq
-JQ_TARBALL=${THIS_MAKEFILE_DIR}/external/jq-1.6.tar.bz2
+JQ_TARBALL=${THIS_MAKEFILE_DIR}/external/jq-1.6.tar.gz
 JQ_SRC=${BUILD_DIR}/external/jq-src
 
 JQ_PREFIX ?=
@@ -252,9 +281,10 @@ MORE_SOURCE+= ${YAJL_INCLUDE} ${YAJL_HELPER_INCLUDE} -I${JQ_INCLUDE_DIR}
 MORE_LIBS+=${JQ_LIB} ${LDFLAGS_JQ}
 
 help:
-	@echo "To build: ${MAKE} [DEBUG=1] [clean] [clean-all] [BINDIR=${BINDIR}] [JQ_PREFIX=/usr/local] <install|all|test>"
+	@echo "To build: ${MAKE} [DEBUG=1] [STATIC_BUILD=1] [clean] [clean-all] [BINDIR=${BINDIR}] [JQ_PREFIX=/usr/local] <install|all|install-util-lib|test>"
 	@echo
 	@echo "If JQ_PREFIX is not defined, libjq will be built in the build dir"
+	@echo "If STATIC_BUILD is set to 1, will build with -static flag, if the compiler supports it"
 	@echo
 	@echo "To build and test individual apps, run:"
 	@echo "  ${MAKE} test"
@@ -276,7 +306,7 @@ ${ZSV_UTIL_A}: ${BUILD_DIR}/objs/utils/util.a
 	@mkdir -p `dirname $@`
 	cp -p $< $@
 
-UTIL_A_OBJ:=writer file dirs-no-jq os
+UTIL_A_OBJ:=writer file dirs-no-jq os ${UTIL_A_OBJ_WIN}
 UTIL_A_OBJ:=$(addprefix ${BUILD_DIR}/objs/utils/,$(addsuffix .o,${UTIL_A_OBJ}))
 
 ${BUILD_DIR}/objs/utils/util.a: ${UTIL_A_OBJ}
@@ -388,8 +418,8 @@ ${JQ_BUNDLE_LIB}: ${JQ_SRC} # -D_REENTRANT needed for clang to not break
 	    --disable-docs \
 	    --disable-shared \
 	    --enable-static \
-	    ${CONFIGURE_HOST} \
-	&& ${MAKE} install
+	    ${JQ_CONFIGURE_HOST} \
+	&& (${MAKE} install -k)
 
 ${JSONWRITER_OBJECT}: ${JSONWRITER_SRC}/jsonwriter.c
 	@mkdir -p `dirname "$@"`
@@ -407,7 +437,7 @@ ${STANDALONE_PFX}sql${EXE} ${CLI_OBJ_PFX}sql.o ${STANDALONE_PFX}2db${EXE} ${CLI_
 # 2json, desc, compare use jsonwriter
 ${CLI} ${STANDALONE_PFX}2json${EXE} ${STANDALONE_PFX}desc${EXE} ${STANDALONE_PFX}compare${EXE}: ${JSONWRITER_OBJECT}
 ${CLI} ${STANDALONE_PFX}2json${EXE} ${STANDALONE_PFX}desc${EXE} ${STANDALONE_PFX}compare${EXE}: MORE_OBJECTS+= ${JSONWRITER_OBJECT}
-${STANDALONE_PFX}2json${EXE} ${CLI_OBJ_PFX}2json.o ${STANDALONE_PFX}desc${EXE} ${CLI_OBJ_PFX}desc.o ${STANDALONE_PFX}compare${EXE} ${CLI_OBJ_PFX}compare.o: MORE_SOURCE+= ${JSONWRITER_INCLUDE}
+${STANDALONE_PFX}2json${EXE} ${CLI_OBJ_PFX}2json.o ${STANDALONE_PFX}desc${EXE} ${CLI_OBJ_PFX}desc.o ${STANDALONE_PFX}compare${EXE} ${CLI_OBJ_PFX}compare.o: MORE_SOURCE+=${JSONWRITER_INCLUDE} ${SQLITE_EXT_INCLUDE}
 
 # utils/db uses jsonwriter
 ${BUILD_DIR}/objs/utils/db.o : MORE_SOURCE+= ${JSONWRITER_INCLUDE} ${SQLITE_EXT_INCLUDE}
@@ -440,7 +470,7 @@ check test:	test-standalone test-cli
 test-standalone:
 	@${MAKE} -C test test QUIET=1 LEAKS=${LEAKS} CONFIGFILE=${CONFIGFILEPATH} DEBUG=${DEBUG}
 
-test-cli:  ${CLI}
+test-cli: ${CLI}
 	@${MAKE} -C test $@ QUIET=1 LEAKS=${LEAKS} CONFIGFILE=${CONFIGFILEPATH} DEBUG=${DEBUG} CLI=${CLI}
 
 clean-all: clean clean-external clean-obj clean-lib clean-util-lib
@@ -454,13 +484,16 @@ clean-util-lib:
 clean-lib:
 	@rm -rf ${BUILD_DIR}-external
 
-clean: clean-obj
+clean: clean-obj clean-internal
 	rm -rf ${BUILD_DIR}
 	${MAKE} -C test clean CONFIGFILE=${CONFIGFILEPATH} DEBUG=${DEBUG}
 
 clean-obj:
 	rm -rf ${BUILD_DIR}/bin ${INIH_OBJECT} ${JSONWRITER_OBJECT} ${UTF8PROC_OBJECT}
 	rm -rf external/utf8proc-2.6.1
+
+clean-internal:
+	$(RM) cli_internal.c.in cli_internal.h.in
 
 ${UTF8PROC_SRC}/utf8proc.c ${UTF8PROC_SRC}/utf8proc.h: ${THIS_MAKEFILE_DIR}/external/utf8proc-2.6.1.tar.gz
 	@cd external && tar xf $< && chown -R `whoami` utf8proc-2.6.1

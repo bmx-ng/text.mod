@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <zsv/ext/implementation.h>
+// #include <zsv/ext/sheet.h>
+#include "../../include/zsv/ext/sheet.h"
 #include <zsv/utils/writer.h>
 
 /**
@@ -44,7 +46,7 @@
 /**
  * *Required*: define our extension id, which must be two characters in length
  */
-const char *zsv_ext_id() {
+const char *zsv_ext_id(void) {
   return "my";
 }
 
@@ -61,8 +63,45 @@ static struct zsv_ext_callbacks zsv_cb;
  * but with an additional preceding zsv_execution_context parameter.
  * Here, we just declare the functions; we fully define them further below
  */
-enum zsv_ext_status count_main(zsv_execution_context ctx, int argc, const char *argv[]);
-static enum zsv_ext_status echo_main(zsv_execution_context ctx, int argc, const char *argv[]);
+enum zsv_ext_status count_main(zsv_execution_context ctx, int argc, const char *argv[], struct zsv_opts *opts,
+                               const char *opts_used);
+static enum zsv_ext_status echo_main(zsv_execution_context ctx, int argc, const char *argv[], struct zsv_opts *opts,
+                                     const char *opts_used);
+
+/**
+ * Here we define a custom command for the zsv `sheet` feature
+ */
+zsvsheet_handler_status my_sheet_subcommand_handler(zsvsheet_subcommand_handler_context_t ctx) {
+  int ch = zsv_cb.ext_sheet_handler_key(ctx);
+  zsv_cb.ext_sheet_subcommand_prompt(ctx, "You pressed %c. Now enter something here", (char)ch);
+  return zsvsheet_handler_status_ok;
+}
+
+zsvsheet_handler_status my_sheet_handler(zsvsheet_handler_context_t ctx) {
+  const char *temp_filename = "/tmp/zsvsheet_extension_example.csv";
+  FILE *f = fopen(temp_filename, "wb");
+  if (!f)
+    zsv_cb.ext_sheet_handler_set_status(ctx, "Unable to open for write: %s", temp_filename);
+  else {
+    fprintf(f, "buffer #,file name\n");
+    // get a count of open buffers
+    int i = 0;
+    for (zsvsheet_handler_buffer_t buff = zsv_cb.ext_sheet_handler_buffer_current(ctx); buff;
+         buff = zsv_cb.ext_sheet_handler_buffer_prior(buff), i++)
+      ;
+
+    // print a list of open buffers and filenames
+    for (zsvsheet_handler_buffer_t buff = zsv_cb.ext_sheet_handler_buffer_current(ctx); buff;
+         buff = zsv_cb.ext_sheet_handler_buffer_prior(buff), i--) {
+      const char *buff_filename = zsv_cb.ext_sheet_handler_buffer_filename(buff);
+      if (buff_filename)
+        fprintf(f, "%i,%s\n", i, buff_filename); // assumes no need for quoting or escaping buff_filename...
+    }
+    fclose(f);
+    return zsv_cb.ext_sheet_handler_open_file(ctx, temp_filename, NULL);
+  }
+  return zsvsheet_handler_status_ok;
+}
 
 /**
  * *Required*. Initialization is called when our extension is loaded. Our
@@ -79,19 +118,19 @@ static enum zsv_ext_status echo_main(zsv_execution_context ctx, int argc, const 
 enum zsv_ext_status zsv_ext_init(struct zsv_ext_callbacks *cb, zsv_execution_context ctx) {
   zsv_cb = *cb;
   zsv_cb.ext_set_help(ctx, "Sample zsv extension");
-  zsv_cb.ext_set_license(ctx, "Unlicense. See https://github.com/spdx/license-list-data/blob/master/text/Unlicense.txt");
+  zsv_cb.ext_set_license(ctx,
+                         "Unlicense. See https://github.com/spdx/license-list-data/blob/master/text/Unlicense.txt");
   /**
    * In the common case where your extension uses third-party software, you can add
    * the related licenses and acknowledgements here, which `zsv` will display whenever
    * `zsv thirdparty` is invoked
    */
-  const char *third_party_licenses[] = {
-    "If we used any third-party software, we would list each license here",
-    NULL
-  };
+  const char *third_party_licenses[] = {"If we used any third-party software, we would list each license here", NULL};
   zsv_cb.ext_set_thirdparty(ctx, third_party_licenses);
   zsv_cb.ext_add_command(ctx, "count", "print the number of rows", count_main);
   zsv_cb.ext_add_command(ctx, "echo", "print the input data back to stdout", echo_main);
+
+  zsv_cb.ext_sheet_register_command('t', "my-test-command", my_sheet_subcommand_handler, my_sheet_handler);
   return zsv_ext_status_ok;
 }
 
@@ -99,8 +138,8 @@ enum zsv_ext_status zsv_ext_init(struct zsv_ext_callbacks *cb, zsv_execution_con
  * exit: called once by zsv before the library is unloaded, if `zsv_ext_init()` was
  * previously called
  */
-enum zsv_ext_status zsv_ext_exit() {
-  fprintf(stderr, "Exiting dl example!\n");
+enum zsv_ext_status zsv_ext_exit(void) {
+  fprintf(stderr, "Exiting extension example!\n");
   return zsv_ext_status_ok;
 }
 /**
@@ -149,14 +188,14 @@ static void echo_rowhandler(void *ctx) {
    */
   zsv_parser parser = zsv_cb.ext_get_parser(ctx);
   unsigned j = zsv_cb.cell_count(parser);
-  for(unsigned i = 0; i < j; i++) {
+  for (unsigned i = 0; i < j; i++) {
     struct zsv_cell c = zsv_cb.get_cell(parser, i);
 
-     /**
-      * get_cell() returns a zsv_cell structure that holds a pointer to the text,
-      * the length (in bytes) of the data,
-      * and other parser-generated info (e.g. QUOTED flags)
-      */
+    /**
+     * get_cell() returns a zsv_cell structure that holds a pointer to the text,
+     * the length (in bytes) of the data,
+     * and other parser-generated info (e.g. QUOTED flags)
+     */
     /* write the cell contents to csv output */
     zsv_writer_cell(data->csv_writer, i == 0, c.str, c.len, c.quoted);
   }
@@ -168,9 +207,12 @@ static void echo_rowhandler(void *ctx) {
  * `ext_xxx` functions. All we do here is initialize our data, call the parser, and
  * perform any final steps after all data has been processed
  */
-static enum zsv_ext_status echo_main(zsv_execution_context ctx, int argc, const char *argv[]) {
+static enum zsv_ext_status echo_main(zsv_execution_context ctx, int argc, const char *argv[], struct zsv_opts *optsp,
+                                     const char *opts_used) {
   (void)(argc);
   (void)(argv);
+  (void)(optsp);
+  (void)(opts_used);
   /* initialize private data */
   struct my_data data;
   memset(&data, 0, sizeof(data));
@@ -183,7 +225,7 @@ static enum zsv_ext_status echo_main(zsv_execution_context ctx, int argc, const 
    * it accepts a 'quoted' flag that, if zero, tells it to not bother
    * checking for quote requirements and to just output the contents 'raw'
    */
-  if(!(data.csv_writer = zsv_writer_new(NULL)))
+  if (!(data.csv_writer = zsv_writer_new(NULL)))
     return zsv_ext_status_memory;
   zsv_writer_set_temp_buff(data.csv_writer, writer_buff, sizeof(writer_buff));
 
@@ -234,24 +276,25 @@ static enum zsv_ext_status echo_main(zsv_execution_context ctx, int argc, const 
  * Our main routine for counting is just like the one for echo, but even simpler
  * since we need not bother with a csv writer
  */
-static const char *count_help =
-  "count: print the number of rows in a CSV data file\n"
-  "\n"
-  "usage: count [-h,--help] [filename]\n"
-  ;
+static const char *count_help = "count: print the number of rows in a CSV data file\n"
+                                "\n"
+                                "usage: count [-h,--help] [filename]\n";
 
-enum zsv_ext_status count_main(zsv_execution_context ctx, int argc, const char *argv[]) {
+enum zsv_ext_status count_main(zsv_execution_context ctx, int argc, const char *argv[], struct zsv_opts *optsp,
+                               const char *opts_used) {
+  (void)(optsp);
+  (void)(opts_used);
   /* help */
-  if(argc > 1 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))) {
+  if (argc > 1 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))) {
     printf("%s", count_help);
     return zsv_ext_status_ok;
   }
 
   /* initialize private data. see above for details */
-  struct my_data data = { 0 };
+  struct my_data data = {0};
   struct zsv_opts opts = zsv_cb.ext_parser_opts(ctx);
 
-  if(argc > 1 && !(opts.stream = fopen(argv[1], "rb"))) {
+  if (argc > 1 && !(opts.stream = fopen(argv[1], "rb"))) {
     fprintf(stderr, "Unable to open for reading: %s\n", argv[1]);
     return 1;
   }
@@ -260,7 +303,7 @@ enum zsv_ext_status count_main(zsv_execution_context ctx, int argc, const char *
   enum zsv_ext_status stat = zsv_cb.ext_parse_all(ctx, &data, count_rowhandler, &opts);
 
   /* finish up */
-  if(stat == zsv_ext_status_ok)
+  if (stat == zsv_ext_status_ok)
     printf("Rows: %zu\n", data.rows > 0 ? data.rows - 1 : 0);
 
   return stat;

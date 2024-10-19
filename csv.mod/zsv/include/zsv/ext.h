@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "common.h"
+#include "ext/sheet.h"
 
 /**
  * @file ext.h
@@ -52,12 +53,13 @@ enum zsv_ext_status {
  *   `set_ext_context()`
  *   `get_ext_context()`
  */
-typedef void * zsv_execution_context;
+typedef void *zsv_execution_context;
 
 /**
  * Signature of the function called for each implemented sub-command
  */
-typedef enum zsv_ext_status (*zsv_ext_main)(zsv_execution_context ctx, int argc, const char *argv[]);
+typedef enum zsv_ext_status (*zsv_ext_main)(zsv_execution_context ctx, int argc, const char *argv[],
+                                            struct zsv_opts *opts, const char *opts_used);
 
 /**
  * ZSV callbacks structure
@@ -94,8 +96,7 @@ struct zsv_ext_callbacks {
    * To add an extension command, invoke `ext_add_command`, passing it your command's
    * handler function as a callback with a `zsv_ext_main` signature
    */
-  enum zsv_ext_status (*ext_add_command)(zsv_execution_context ctx,
-                                         const char *id, const char *help,
+  enum zsv_ext_status (*ext_add_command)(zsv_execution_context ctx, const char *id, const char *help,
                                          zsv_ext_main main);
   void (*ext_set_help)(zsv_execution_context ctx, const char *help);
   void (*ext_set_license)(zsv_execution_context ctx, const char *license);
@@ -118,12 +119,15 @@ struct zsv_ext_callbacks {
   struct zsv_opts (*ext_parser_opts)(zsv_execution_context ctx);
 
   /**
+   * fetch options_used from execution context
+   */
+  const char *(*ext_opts_used)(zsv_execution_context ctx);
+
+  /**
    * convenience function that calls ext_args_to_opts, allocates parser,
    * sets custom ctx, runs parser, and de-allocates parser
    */
-  enum zsv_ext_status (*ext_parse_all)(zsv_execution_context ctx,
-                                       void *user_context,
-                                       void (*row_handler)(void *ctx),
+  enum zsv_ext_status (*ext_parse_all)(zsv_execution_context ctx, void *user_context, void (*row_handler)(void *ctx),
                                        struct zsv_opts *const custom);
   /**
    * As an alternative to `ext_parse_all()`, for more granular control:
@@ -143,6 +147,57 @@ struct zsv_ext_callbacks {
    * }
    * ```
    */
+
+  /****************************************
+   * Registering a custom `sheet` command *
+   ****************************************/
+  zsvsheet_handler_status (*ext_sheet_register_command)(
+    int ch,               // keyboard shortcut
+    const char *longname, // long name that can be used via run-cmd to invoke
+    zsvsheet_handler_status (*subcommand_handler)(zsvsheet_subcommand_handler_context_t),
+    zsvsheet_handler_status (*handler)(zsvsheet_handler_context_t ctx));
+
+  /*** Custom command prompt ***/
+  /**
+   * Set the prompt for entering a subcommand
+   * @param  s text to set the subcommand prompt to. must be < 256 bytes in length
+   * returns zsvsheet_status_ok on success
+   */
+  zsvsheet_handler_status (*ext_sheet_subcommand_prompt)(zsvsheet_subcommand_handler_context_t ctx, const char *fmt,
+                                                         ...);
+
+  /*** Custom command handling ***/
+  /**
+   * Set a status message
+   */
+  zsvsheet_handler_status (*ext_sheet_handler_set_status)(zsvsheet_handler_context_t, const char *fmt, ...);
+
+  /**
+   * Get the key press that triggered this subcommand handler
+   */
+  int (*ext_sheet_handler_key)(zsvsheet_subcommand_handler_context_t ctx);
+
+  /****** Managing buffers ******/
+  /**
+   * Get the current buffer
+   */
+  zsvsheet_handler_buffer_t (*ext_sheet_handler_buffer_current)(zsvsheet_handler_context_t);
+
+  /**
+   * Get the prior buffer
+   */
+  zsvsheet_handler_buffer_t (*ext_sheet_handler_buffer_prior)(zsvsheet_handler_buffer_t b);
+
+  /**
+   * Get the filename associated with a buffer
+   */
+  const char *(*ext_sheet_handler_buffer_filename)(zsvsheet_handler_buffer_t);
+
+  /**
+   * Open a tabular file as a new buffer
+   */
+  zsvsheet_handler_status (*ext_sheet_handler_open_file)(zsvsheet_handler_context_t, const char *filepath,
+                                                         struct zsv_opts *zopts);
 };
 
 /** @} */
