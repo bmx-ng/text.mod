@@ -174,16 +174,11 @@ int bmx_mxmlSaveStdout(mxml_node_t * node, int format) {
 void bmx_mxmlSetContent(mxml_node_t * node, BBString * content) {
 	mxml_node_t * child = mxmlGetFirstChild(node);
 	while (child != NULL) {
-		mxml_node_t * txt = NULL;
-		if (mxmlGetType(child) == MXML_TEXT) {
-			txt = child;
-		}
-		child = mxmlGetNextSibling(child);
-		if (txt) {
-			mxmlDelete(txt);
-		}
+		mxml_node_t * next = mxmlGetNextSibling(child);
+		mxmlDelete(child);
+		child = next;
 	}
-	char * c = bbStringToUTF8String(content);
+	char * c = (char*)bbStringToUTF8String(content);
 	mxmlNewText(node, 0, c);
 	bbMemFree(c);
 }
