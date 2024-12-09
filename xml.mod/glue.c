@@ -172,15 +172,22 @@ int bmx_mxmlSaveStdout(mxml_node_t * node, int format) {
 }
 
 void bmx_mxmlSetContent(mxml_node_t * node, BBString * content) {
-	mxml_node_t * child = mxmlGetFirstChild(node);
-	while (child != NULL) {
-		mxml_node_t * next = mxmlGetNextSibling(child);
-		mxmlDelete(child);
-		child = next;
-	}
-	char * c = (char*)bbStringToUTF8String(content);
-	mxmlNewText(node, 0, c);
-	bbMemFree(c);
+    mxml_node_t * child = mxmlGetFirstChild(node);
+
+    while (child != NULL) {
+        mxml_node_t * next = mxmlGetNextSibling(child);
+
+        mxml_type_t type = mxmlGetType(child);
+        if (type == MXML_TEXT || type == MXML_INTEGER || type == MXML_OPAQUE || type == MXML_REAL || type == MXML_CUSTOM) {
+            mxmlDelete(child);
+        }
+
+        child = next;
+    }
+
+    char * c = bbStringToUTF8String(content);
+    mxmlNewText(node, 0, c);
+    bbMemFree(c);
 }
 
 BBString * bmx_mxmlSaveString(mxml_node_t * node, int format) {
