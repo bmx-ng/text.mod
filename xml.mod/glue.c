@@ -186,7 +186,7 @@ void bmx_mxmlSetContent(mxml_node_t * node, BBString * content) {
     }
 
     char * c = bbStringToUTF8String(content);
-    mxmlNewText(node, 0, c);
+    mxmlNewOpaque(node, c);
     bbMemFree(c);
 }
 
