@@ -99,7 +99,7 @@ static void squarify(size_t n, double *area, rectangle *recs, size_t nadded, dou
  *  fillred - rectangle to be filled
  *  return array of rectangles 
  */
-rectangle* tree_map(size_t n, double *area, rectangle fillrec){
+rectangle* gv_tree_map(size_t n, double *area, rectangle fillrec){
   /* fill a rectangle rec with n items, each item i has area[i] area. */
   double total = 0, minarea = 1., maxarea = 0., asp = 1, totalarea = 0;
 

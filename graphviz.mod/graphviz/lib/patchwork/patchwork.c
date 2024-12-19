@@ -164,7 +164,7 @@ static void layoutTree(treenode_t * tree)
 	areas_sorted[i] = nodes[i]->area;
     }
     if (tree->area == tree->child_area)
-	recs = tree_map(nc, areas_sorted, tree->r);
+	recs = gv_tree_map(nc, areas_sorted, tree->r);
     else {
 	rectangle crec;
 	double disc, delta, m, h = tree->r.size[1], w = tree->r.size[0];
@@ -175,7 +175,7 @@ static void layoutTree(treenode_t * tree)
 	m = (h + w - disc)/2.0;
 	crec.size[0] = w - m;
 	crec.size[1] = h - m;
-	recs = tree_map(nc, areas_sorted, crec);
+	recs = gv_tree_map(nc, areas_sorted, crec);
     }
     if (Verbose)
 	fprintf (stderr, "rec %f %f %f %f\n", tree->r.x[0], tree->r.x[1], tree->r.size[0], tree->r.size[1]);

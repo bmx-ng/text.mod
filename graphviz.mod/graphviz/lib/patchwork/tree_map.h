@@ -18,4 +18,4 @@ typedef struct {
   double size[2]; /* total width/height*/
 } rectangle;
 
-extern rectangle* tree_map(size_t n, double *area, rectangle fillrec);
+extern rectangle* gv_tree_map(size_t n, double *area, rectangle fillrec);

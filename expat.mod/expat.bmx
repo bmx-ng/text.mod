@@ -25,3 +25,7 @@ Module Text.Expat
 ModuleInfo "CC_OPTS: -std=c99"
 
 Import "common.bmx"
+
+'
+' Tweaked expat_config.h for win32.
+'

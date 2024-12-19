@@ -15,6 +15,10 @@ ModuleInfo "History: Graphviz 12.2.1"
 
 Import "common.bmx"
 
+'
+' Renamed tree_map() to gv_tree_map() to avoid conflict with BlitzMax's tree_map() function.
+'
+
 Rem
 bbdoc: A Graphviz context.
 about: 

@@ -14,7 +14,9 @@
 /* #undef HAVE_ARC4RANDOM */
 
 /* Define to 1 if you have the `arc4random_buf' function. */
+#ifndef __WIN32__
 #define HAVE_ARC4RANDOM_BUF 1
+#endif
 
 /* define if the compiler supports basic C++11 syntax */
 #define HAVE_CXX11 1
@@ -29,7 +31,9 @@
 #define HAVE_GETPAGESIZE 1
 
 /* Define to 1 if you have the `getrandom' function. */
+#ifndef __WIN32__
 #define HAVE_GETRANDOM 1
+#endif
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -56,7 +60,9 @@
 #define HAVE_STRING_H 1
 
 /* Define to 1 if you have `syscall' and `SYS_getrandom'. */
+#ifndef __WIN32__
 #define HAVE_SYSCALL_GETRANDOM 1
+#endif
 
 /* Define to 1 if you have the <sys/param.h> header file. */
 #define HAVE_SYS_PARAM_H 1

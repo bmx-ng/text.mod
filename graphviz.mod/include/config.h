@@ -87,7 +87,9 @@
 /* #undef HAVE_DL_ITERATE_PHDR */
 
 /* Define to 1 if you have the `drand48' function. */
+#ifndef __WIN32__
 #define HAVE_DRAND48 1
+#endif
 
 /* Define if you have the _dyld_func_lookup function. */
 /* #undef HAVE_DYLD */
@@ -204,7 +206,9 @@
 #define HAVE_SELECT 1
 
 /* Define to 1 if you have the `setenv' function. */
+#ifndef __WIN32__
 #define HAVE_SETENV 1
+#endif
 
 /* Define to 1 if you have the `setmode' function. */
 #define HAVE_SETMODE 1
@@ -213,7 +217,9 @@
 /* #undef HAVE_SHL_LOAD */
 
 /* Define to 1 if you have the `srand48' function. */
+#ifndef __WIN32__
 #define HAVE_SRAND48 1
+#endif
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -246,7 +252,9 @@
 #define HAVE_SYS_IOCTL_H 1
 
 /* Define to 1 if you have the <sys/mman.h> header file. */
+#ifndef __WIN32__
 #define HAVE_SYS_MMAN_H 1
+#endif
 
 /* Define to 1 if you have the <sys/select.h> header file. */
 #define HAVE_SYS_SELECT_H 1
