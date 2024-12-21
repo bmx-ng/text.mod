@@ -216,3 +216,31 @@ MD_ATTRIBUTE bmx_md_spanimg_title(MD_SPAN_IMG_DETAIL * detail) {
 MD_ATTRIBUTE bmx_md_spanwikilink_target(MD_SPAN_WIKILINK_DETAIL * detail) {
     return detail->target;
 }
+
+BBArray * bmx_md_attribute_substostringarray(MD_ATTRIBUTE * attr) {
+
+    if (attr->size == 0) {
+        return &bbEmptyArray;
+    }
+
+    int n = 0;
+    while (attr->substr_offsets[n+1] != attr->size) {
+        n++;
+    }
+    n++;
+
+    BBArray *p = bbArrayNew1D("$", n);
+    BBString **s = (BBString**)BBARRAYDATA(p, p->dims);
+
+    for (int i = 0; i < n; i++) {
+        int start_offset = attr->substr_offsets[i];
+        int end_offset = attr->substr_offsets[i+1];
+        int substr_length = end_offset - start_offset;
+
+        const MD_CHAR *substr_start = attr->text + start_offset;
+
+        s[i] = bbStringFromUTF8Bytes((const unsigned char*)substr_start, substr_length);
+    }
+
+    return p;
+}

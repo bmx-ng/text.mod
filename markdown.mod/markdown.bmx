@@ -59,6 +59,7 @@ Type TMDHtmlCodeHighlighter Abstract
 	Field _codeblock:TStringBuilder
 	Field _output:TStringBuilder
 	Field _lang:String
+	Field _info:String[]
 
 	Method _EnterCodeBlock:Int(block:TMDBlockCode)
 		_codeblock = New TStringBuilder
@@ -66,11 +67,17 @@ Type TMDHtmlCodeHighlighter Abstract
 		If lang.size > 0 Then
 			_lang = String.FromUTF8Bytes(lang.text, lang.size)
 		End If
+		
+		local info:SMDAttribute = block.Info()
+		If info.size > 0 Then
+			_info = info.SubsToStringArray()
+		End If
+
 		Return 0
 	End Method
 
 	Method _LeaveCodeBlock:Int(block:TMDBlockCode)
-		Local processed:Int = Text(_lang, _codeblock.ToString(), _output)
+		Local processed:Int = Text(_lang, _info, _codeblock.ToString(), _output)
 		If Not processed Then
 			_output.Append("<pre><code")
 			If _lang Then
@@ -93,7 +100,7 @@ Type TMDHtmlCodeHighlighter Abstract
 	returns: #True if the code was processed, #False if the default code block rendering should be used.
 	about: If the code is processed, the output should be appended to @output.
 	End Rem
-	Method Text:Int(lang:String, text:String, output:TStringBuilder) Abstract
+	Method Text:Int(lang:String, info:String[], text:String, output:TStringBuilder) Abstract
 
 End Type
 
@@ -768,6 +775,10 @@ Struct SMDAttribute
 	Field size:UInt
 	Field substrTypes:EMDTextType Ptr
 	Field substrOffsets:UInt Ptr
+
+	Method SubsToStringArray:String[]()
+		Return bmx_md_attribute_substostringarray(Self)
+	End Method
 End Struct
 
 Private
@@ -809,4 +820,5 @@ Extern
 
 	Function bmx_md_spanwikilink_target:SMDAttribute(detail:Byte Ptr)
 
+	Function bmx_md_attribute_substostringarray:String[](attr:SMDAttribute Var)
 End Extern
