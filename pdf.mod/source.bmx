@@ -19,7 +19,7 @@
 SuperStrict
 
 Import "libharu/include/*.h"
-
+Import "../../archive.mod/zlib.mod/zlib/*.h"
 
 Import "libharu/src/hpdf_annotation.c"
 Import "libharu/src/hpdf_array.c"
