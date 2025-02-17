@@ -1,4 +1,4 @@
-' Copyright (c) 2007-2024 Bruce A Henderson
+' Copyright (c) 2007-2025 Bruce A Henderson
 ' All rights reserved.
 '
 ' Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,14 @@ bbdoc: Regular Expressions
 End Rem
 Module Text.RegEx
 
-ModuleInfo "Version: 1.12"
+ModuleInfo "Version: 1.13"
 ModuleInfo "Author: PCRE - Philip Hazel"
 ModuleInfo "License: BSD"
 ModuleInfo "Copyright: PCRE - 1997-2021 University of Cambridge"
-ModuleInfo "Copyright: Wrapper - 2007-2024 Bruce A Henderson"
+ModuleInfo "Copyright: Wrapper - 2007-2025 Bruce A Henderson"
 
+ModuleInfo "History: 1.13"
+ModuleInfo "History: Fixed free of pcre pointer."
 ModuleInfo "History: 1.12"
 ModuleInfo "History: Updated to PCRE 10.43"
 ModuleInfo "History: Options are now configured per search. Default options are used if none provided."
@@ -126,14 +128,17 @@ Type TRegEx
 		
 		If TArg Then
 			MemFree(TArg)
+			TArg = Null
 		End If
 		
 		If matchPtr Then
 			pcre2_match_data_free_16(matchPtr)
+			matchPtr = Null
 		End If
 		
 		If pcre
-			MemFree(pcre)
+			pcre2_code_free_16(pcre)
+			pcre = Null
 		EndIf
 		
 	End Method
@@ -419,7 +424,7 @@ Type TRegEx
 		
 		If bptr Then
 			If pcre
-				MemFree(pcre)
+				pcre2_code_free_16(pcre)
 			EndIf
 			
 			pcre = bptr

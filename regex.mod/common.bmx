@@ -1,4 +1,4 @@
-' Copyright (c) 2007-2024 Bruce A Henderson
+' Copyright (c) 2007-2025 Bruce A Henderson
 ' All rights reserved.
 '
 ' Redistribution and use in source and binary forms, with or without
@@ -385,6 +385,7 @@ Extern
 
 	Function pcre2_compile_16:Byte Ptr(pattern:Short Ptr, patternLength:Size_T, options:Int, errorcodeptr:Int Ptr, ..
 		erroffset:Size_T Ptr, contextptr:Byte Ptr)
+	Function pcre2_code_free_16(code:Byte Ptr)
 	Function pcre2_match_16:Int(pattern:Byte Ptr, subject:Byte Ptr, subjectLength:Size_T, startOffset:Size_T, ..
 		options:Int, matchPtr:Byte Ptr, context:Byte Ptr)
 	Function pcre2_substring_get_bynumber_16:Int(matchPtr:Byte Ptr, stringnumber:Int, ..
