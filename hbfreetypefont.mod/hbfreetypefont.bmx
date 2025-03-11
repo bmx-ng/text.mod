@@ -202,7 +202,7 @@ Type THBFreeTypeFont Extends BRL.Font.TFont
 		Return glyphs
 	End Method
 
-	Function Load:THBFreeTypeFont( src:Object,size:Int,style:Int )
+	Function Load:THBFreeTypeFont( src:Object,size:Float,style:Int )
 
 		Local buf:Byte[]
 
@@ -233,7 +233,7 @@ End Type
 
 Type THBFreeTypeFontLoader Extends TFontLoader
 
-	Method LoadFont:THBFreeTypeFont( url:Object,size:Int,style:Int ) Override
+	Method LoadFont:THBFreeTypeFont( url:Object,size:Float,style:Int ) Override
 	
 		Return THBFreeTypeFont.Load( url,size,style )
 	
