@@ -104,7 +104,7 @@ Type THBFreeTypeFont Extends BRL.Font.TFont
 		glyph=New TFreeTypeGlyph
 		_glyphs[index]=glyph
 
-		If FT_Load_Glyph( _ft_face,index,FT_LOAD_RENDER ) Return glyph
+		If FT_Load_Glyph( _ft_face,UInt(index),FT_LOAD_RENDER ) Return glyph
 
 		Local info:SGlyphPosition
 		_positionMap.TryGetValue(index, info)
@@ -185,7 +185,7 @@ Type THBFreeTypeFont Extends BRL.Font.TFont
 
 			glyphs[i] = glyph
 
-			If FT_Load_Glyph( _ft_face,index,FT_LOAD_RENDER ) Continue
+			If FT_Load_Glyph( _ft_face,UInt(index),FT_LOAD_RENDER ) Continue
 
 			BuildGlyph(glyph, infos[i])
 
