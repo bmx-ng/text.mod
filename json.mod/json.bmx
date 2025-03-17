@@ -113,8 +113,12 @@ Type TJSON
 		Local err:TJSONError
 		
 		If String(data) Then
+			Local buf:Byte Ptr = String(data).ToUTF8String()
+			
 			' load as text
-			err = TJSONError(bmx_json_loads(String(data), flags))
+			err = TJSONError(bmx_json_loads(buf, flags))
+			
+			MemFree(buf)
 			
 		Else If TStream(data) Then
 			' load as stream

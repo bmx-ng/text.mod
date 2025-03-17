@@ -32,7 +32,7 @@ Extern
 	
 	Function bmx_json_decref(handle:Byte Ptr)
 
-	Function bmx_json_string_nocheck:Byte Ptr(Text:String)
+	Function bmx_json_string_nocheck:Byte Ptr(text:String)
 	Function bmx_json_string_value:String(handle:Byte Ptr)
 	
 	Function bmx_json_array_get:Object(handle:Byte Ptr, index:Int)
@@ -51,7 +51,7 @@ Extern
 	Function bmx_json_dump_callback:Int(handle:Byte Ptr, callback:Int(buffer:Byte Ptr, size:Int, data:TStream), stream:TStream, flags:Int, indent:Int, precision:Int)
 	Function bmx_json_load_callback:Object(callback:Int(buffer:Byte Ptr, size:Int, data:TStream), Text:TStream, flags:Int)
 ?
-	Function bmx_json_loads:Object(Text:String, flags:Int)
+	Function bmx_json_loads:Object(text:Byte Ptr, flags:Int)
 	
 	Function bmx_json_integer:Byte Ptr(v:Long)
 	Function bmx_json_integer_value(handle:Byte Ptr, v:Long Ptr)

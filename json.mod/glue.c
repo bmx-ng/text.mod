@@ -47,7 +47,7 @@ int bmx_json_array_insert(json_t * handle, int index, json_t * value);
 
 BBString * bmx_json_dumps(json_t * handle, int flags, int indent, int precision);
 int bmx_json_dump_callback(json_t * handle, json_dump_callback_t callback, BBObject * stream, int flags, int indent, int precision);
-BBObject * bmx_json_loads(BBString * text, int flags);
+BBObject * bmx_json_loads(char * t, int flags);
 BBObject * bmx_json_load_callback(json_load_callback_t callback, BBObject * stream, int flags);
 
 json_t * bmx_json_integer(BBInt64 v);
@@ -121,12 +121,9 @@ int bmx_json_dump_callback(json_t * handle, json_dump_callback_t callback, BBObj
 	return json_dump_callback(handle, callback, (void *)stream, flags | JSON_INDENT(indent) | JSON_REAL_PRECISION(precision));
 }
 
-BBObject * bmx_json_loads(BBString * text, int flags) {
-	char * t = bbStringToUTF8String(text);
-	
+BBObject * bmx_json_loads(char * t, int flags) {
 	json_error_t error;
 	json_t * js = json_loads(t, flags, &error);
-	free(t);
 	
 	if (!js) {
 		int errorCode = json_error_code(&error);
