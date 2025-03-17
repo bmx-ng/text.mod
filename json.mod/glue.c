@@ -126,7 +126,7 @@ BBObject * bmx_json_loads(BBString * text, int flags) {
 	
 	json_error_t error;
 	json_t * js = json_loads(t, flags, &error);
-	free(t);
+	bbMemFree(t);
 	
 	if (!js) {
 		int errorCode = json_error_code(&error);
