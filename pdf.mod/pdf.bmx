@@ -64,7 +64,22 @@ Type TPDFDoc
 	Function GetLastError:TPDFException()
 		Return lastError
 	End Function
-
+	
+	Rem
+	bbdoc: Load TrueType font from external .ttf file and register it in the document object.
+	about:
+	<a href="../examples/load_font.bmx">Example source</a>
+	EndRem
+	Method LoadTTFontFromFile:String(path:String, embedding:Int=True)
+		Local pb:Byte Ptr = path.ToCString()
+		Local fb:Byte Ptr = HPDF_LoadTTFontFromFile(docPtr, pb, embedding)
+		MemFree(pb)
+		
+		Local f:String = String.FromCString(fb)
+		
+		Return f
+	EndMethod
+	
 	Rem
 	bbdoc: Gets the requested font object.
 	returns: Returns the handle of a font object. Otherwise, it returns #Null and error-handler is called.
@@ -387,6 +402,15 @@ An application can change the setting of a pages tree by invoking #SetPagesConfi
 	Method UseCNTFonts:Int()
 		Return HPDF_UseCNTFonts(docPtr)
 	End Method
+	
+	Rem
+	bbdoc: Enables UTF support for better text rendering when using non-ascii characters.
+	about:
+	<a href="../examples/utf.bmx">Example source</a>
+	EndRem
+	Method UseUTFEncodings()
+		HPDF_UseUTFEncodings(docPtr)
+	EndMethod
 
 	Rem
 	bbdoc: Sets the text of an info dictionary attribute, using current encoding of the document.
