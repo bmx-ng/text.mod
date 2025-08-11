@@ -605,7 +605,7 @@ Type TJConvSerializer
 				Local f:TField = typeId.FindField(j.key)
 				
 				If Not f Then
-					For Local namedField:TField = EachIn typeId.Fields().Values()
+					For Local namedField:TField = EachIn typeId.Fields()
 						Local meta:String = namedField.Metadata("serializedName")
 						If meta = j.key Then
 							f = namedField
@@ -746,7 +746,7 @@ Type TJConvSerializer
 		Local size:Int = jsonArray.Size()
 
 		If Not size Then
-			Return typeId.NullArray()
+			Return typeId.NewArray()
 		End If
 
 		Local elementType:TTypeId = typeId.ElementType()
