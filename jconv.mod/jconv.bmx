@@ -1,4 +1,4 @@
-' Copyright (c) 2019-2020 Bruce A Henderson
+' Copyright (c) 2019-2025 Bruce A Henderson
 '
 ' This software is provided 'as-is', without any express or implied
 ' warranty. In no event will the authors be held liable for any damages
@@ -26,11 +26,13 @@ bbdoc: JSON Object de/serializer.
 End Rem
 Module Text.JConv
 
-ModuleInfo "Version: 1.06"
+ModuleInfo "Version: 1.07"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: zlib/png"
-ModuleInfo "Copyright: 2019-2020 Bruce A Henderson"
+ModuleInfo "Copyright: 2019-2025 Bruce A Henderson"
 
+ModuleInfo "History: 1.07"
+ModuleInfo "History: Added support for LongInt and ULongInt types."
 ModuleInfo "History: 1.06"
 ModuleInfo "History: Added support for transient, noSerialize and noDeserialize field metadata."
 ModuleInfo "History: 1.05"
@@ -103,6 +105,8 @@ Type TJConvBuilder
 		RegisterSerializer("TULong", New TULongSerializer)
 		RegisterSerializer("TFloat", New TFloatSerializer)
 		RegisterSerializer("TDouble", New TDoubleSerializer)
+		RegisterSerializer("TLongInt", New TLongIntSerializer)
+		RegisterSerializer("TULongInt", New TULongIntSerializer)
 		Return Self
 	End Method
 
@@ -198,6 +202,10 @@ Type TJConv
 		Local error:TJSONError
 		Local json:TJSON = TJSON.Load(txt, 0, error)
 
+		If error Then
+			Throw TJconvJsonException.Create(error)
+		End If
+
 		Return FromJson(json, typeId, obj)
 	End Method
 
@@ -213,6 +221,10 @@ Type TJConv
 	Method FromJson:Object(stream:TStream, typeId:TTypeId, obj:Object)
 		Local error:TJSONError
 		Local json:TJSON = TJSON.Load(stream, 0, error)
+
+		If error Then
+			Throw TJconvJsonException.Create(error)
+		End If
 
 		Return FromJson(json, typeId, obj)
 	End Method
@@ -378,7 +390,13 @@ Type TJConv
 
 				Case DoubleTypeId
 					j = serializer.Serialize(f.GetDouble(obj), fieldType.Name())
-					
+
+				Case LongIntTypeId
+					j = serializer.Serialize(f.GetLongInt(obj), fieldType.Name())
+
+				Case ULongIntTypeId
+					j = serializer.Serialize(f.GetULongInt(obj), fieldType.Name())
+
 				Case StringTypeId
 					Local s:String = f.GetString(obj)
 					If s Then
@@ -425,6 +443,11 @@ Type TJConv
 	End Method
 	
 	Method ProcessArrayToJson(json:TJSONArray, typeId:TTypeId, array:Object)
+
+		If IsEmptyArray(array) Then
+			Return
+		End If
+
 		Local dims:Int
 		Try
 			dims = typeId.ArrayDimensions(array)
@@ -585,6 +608,14 @@ Type TJConvSerializer
 		Return New TJSONReal.Create(source)
 	End Method
 
+	Method Serialize:TJSON(source:LongInt, sourceType:String)
+		Return New TJSONInteger.Create(source)
+	End Method
+
+	Method Serialize:TJSON(source:ULongInt, sourceType:String)
+		Return New TJSONInteger.Create(source)
+	End Method
+
 	Method Serialize:TJSON(source:String, sourceType:String)
 		Return New TJSONString.Create(source)
 	End Method
@@ -597,6 +628,12 @@ Type TJConvSerializer
 	
 	Method Deserialize:Object(json:TJSON, typeId:TTypeId, obj:Object)
 		If TJSONObject(json) Then
+
+			' we don't deserialize objects to String type
+			If typeId = StringTypeId Then
+				Throw TJconvDeserializeException.Create("Deserializing String but found Object type.")
+			End If
+
 			If Not obj Then
 				obj = typeId.NewObject()
 			End If
@@ -692,14 +729,20 @@ Type TJConvSerializer
 								Continue
 						End Select
 						
-						If fieldType.ExtendsType(ArrayTypeId) Or fieldType.ExtendsType(ObjectTypeId) Then
+						If fieldType.ExtendsType(ArrayTypeId)
+
+							Throw TJconvDeserializeException.Create("Deserializing String but found Array type '" + fieldType.Name() + "' : " + j.key)
 						
+						End If
+
+						If fieldType.ExtendsType(ObjectTypeId) Then
+
 							Local fobj:Object = jconv.FromJson(j, fieldType, Null)
 						
 							If fobj Then
 								f.Set(obj, fobj)
 							End If
-						
+
 						End If
 
 						Continue
@@ -746,7 +789,7 @@ Type TJConvSerializer
 		Local size:Int = jsonArray.Size()
 
 		If Not size Then
-			Return typeId.NewArray()
+			Return typeId.NullValue()
 		End If
 
 		Local elementType:TTypeId = typeId.ElementType()
@@ -928,6 +971,27 @@ Type TDouble
 	End Method
 
 End Type
+
+Type TLongInt
+
+	Field value:LongInt
+
+	Method New(value:LongInt)
+		Self.value = value
+	End Method
+
+End Type
+
+Type TULongInt
+
+	Field value:ULongInt
+
+	Method New(value:ULongInt)
+		Self.value = value
+	End Method
+
+End Type
+
 
 Type TBoolSerializer Extends TJConvSerializer
 
@@ -1138,4 +1202,76 @@ Type TDoubleSerializer Extends TJConvSerializer
 		Return obj
 	End Method
 	
+End Type
+
+Type TLongIntSerializer Extends TJConvSerializer
+
+	Method Serialize:TJSON(source:Object, sourceType:String) Override
+		Local value:TLongInt = TLongInt(source)
+		If value Then
+			Return New TJSONInteger.Create(value.value)
+		End If
+	End Method
+
+	Method Deserialize:Object(json:TJSON, typeId:TTypeId, obj:Object) Override
+		If TJSONInteger(json) Then
+			If Not obj Then
+				obj = New TLongInt(LongInt(TJSONInteger(json).Value()))
+			End If
+		End If
+		
+		Return obj
+	End Method
+	
+End Type
+
+Type TULongIntSerializer Extends TJConvSerializer
+
+	Method Serialize:TJSON(source:Object, sourceType:String) Override
+		Local value:TULongInt = TULongInt(source)
+		If value Then
+			Return New TJSONInteger.Create(value.value)
+		End If
+	End Method
+
+	Method Deserialize:Object(json:TJSON, typeId:TTypeId, obj:Object) Override
+		If TJSONInteger(json) Then
+			If Not obj Then
+				obj = New TULongInt(ULongInt(TJSONInteger(json).Value()))
+			End If
+		End If
+		
+		Return obj
+	End Method
+	
+End Type
+
+Type TJconvJsonException Extends TBlitzException
+	Field error:TJSONError
+
+	Function Create:TJconvJsonException(error:TJSONError)
+		Local ex:TJconvJsonException = New TJconvJsonException
+		ex.error = error
+		Return ex
+	End Function
+
+	Method ToString:String()
+		If error Then
+			Return error.text
+		End If
+	End Method
+End Type
+
+Type TJconvDeserializeException Extends TBlitzException
+	Field error:String
+
+	Function Create:TJconvDeserializeException(error:String)
+		Local ex:TJconvDeserializeException = New TJconvDeserializeException
+		ex.error = error
+		Return ex
+	End Function
+
+	Method ToString:String()
+		Return error
+	End Method
 End Type
