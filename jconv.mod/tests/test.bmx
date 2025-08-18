@@ -40,13 +40,15 @@ Type TArrayTest Extends TJConvTest
 	Const JSON_BOX_SIZE_T:String = "{~qb8~q: 100}"
 	Const JSON_BOX_FLOAT:String = "{~qb9~q: 7.5}"
 	Const JSON_BOX_DOUBLE:String = "{~qb10~q: 68.418}"
-	Const JSON_PREC:String = "{~qp1~q: 5.352, ~qp2~q: 65.698}"
+	Const JSON_PREC:String = "{~qp1~q: 5.352, ~qp2~q: 65.7}"
 	Const JSON_SER_NAME_COMPACT:String = "{~qname~q:~qone~q,~qname1~q:~qtwo~q,~qc~q:~qthree~q}"
 	Const JSON_SER_NAME_PRETTY:String = "{~n  ~qname~q: ~qone~q,~n  ~qname1~q: ~qtwo~q,~n  ~qc~q: ~qthree~q~n}"
 	Const JSON_TRANS_NO_B:String = "{~qa~q: ~qone~q, ~qc~q: ~qthree~q}"
 	Const JSON_TRANS:String = "{~qa~q: ~qone~q, ~qb~q: ~qtwo~q, ~qc~q: ~qthree~q}"
 	Const JSON_IGNORE_SER:String = "{~qa~q: ~qone~q, ~qc~q: ~qthree~q}"
 	Const JSON_IGNORE:String = "{~qa~q: ~qone~q, ~qb~q: ~qtwo~q, ~qc~q: ~qthree~q, ~qd~q: ~qfour~q}"
+	Const JSON_STRING_ARRAY:String = "{~qvalues~q: [~qOne~q, ~qTwo~q, ~qThree~q], ~qother_values~q: []}"
+	Const JSON_STRING:String = "~qHello world~q"
 
 	Method testEmptyObject() { test }
 		Local obj:Object
@@ -317,7 +319,7 @@ Type TArrayTest Extends TJConvTest
 
 		Local prec:TPrec = New TPrec(5.3521, 65.6982902)
 
-		jconv = New TJConvBuilder.WithPrecision(3).Build()
+		jconv = New TJConvBuilder.WithPrecision(4).Build()
 		
 		assertEquals(JSON_PREC, jconv.ToJson(prec))
 
@@ -388,6 +390,29 @@ Type TArrayTest Extends TJConvTest
 		assertEquals("two", ignored.b)
 		assertNull(ignored.c)
 		assertNull(ignored.d)
+	End Method
+
+	Method testStringArray() { test }
+		
+		Local array:TStringArray = New TStringArray
+		array.values = ["One", "Two", "Three"]
+		
+		assertEquals(JSON_STRING_ARRAY, jconv.ToJson(array))
+		
+		array = TStringArray(jconv.FromJson(JSON_STRING_ARRAY, "TStringArray"))
+		assertEquals(3, array.values.length)
+		assertEquals("One", array.values[0])
+		assertEquals("Two", array.values[1])
+		assertEquals("Three", array.values[2])
+	End Method
+
+	Method testString() { test }
+		
+		Local str:String = String(jconv.FromJson(JSON_STRING, "String"))
+		
+		assertEquals("Hello world", str)
+		
+		assertEquals(JSON_STRING, jconv.ToJson(str))
 	End Method
 
 End Type
@@ -579,4 +604,9 @@ Type TIgnored
 	Field b:String { noSerialize }
 	Field c:String { noDeserialize }
 	Field d:String { noSerialize noDeserialize }
+End Type
+
+Type TStringArray
+	Field values:String[]
+	Field other_values:String[]
 End Type
