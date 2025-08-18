@@ -200,7 +200,11 @@ Type TJConv
 
 	Method FromJson:Object(txt:String, typeId:TTypeId, obj:Object)
 		Local error:TJSONError
-		Local json:TJSON = TJSON.Load(txt, 0, error)
+		Local flags:Int = 0
+		If typeId = StringTypeId Then
+			flags :| JSON_DECODE_ANY
+		End If
+		Local json:TJSON = TJSON.Load(txt, flags, error)
 
 		If error Then
 			Throw TJconvJsonException.Create(error)
@@ -245,6 +249,11 @@ Type TJConv
 	End Rem
 	Method ToJson:String(obj:Object)
 		If Not obj Then
+
+			If ObjectIsString(obj) Then
+				Return "~q~q"
+			End If
+
 			If IsEmptyArray(obj) Then
 				Return "[]"
 			End If
@@ -253,6 +262,12 @@ Type TJConv
 		End If
 		
 		Local typeId:TTypeId = TTypeId.ForObject(obj)
+
+		If typeId = StringTypeId Then
+			Local json:TJSONString = New TJSONString.Create(String(obj))
+
+			Return json.SaveString(flags | JSON_ENCODE_ANY, 0, precision)
+		End If
 		
 		If typeId.ExtendsType(ArrayTypeId) Then
 			Local json:TJSONArray = New TJSONArray.Create()
@@ -634,6 +649,11 @@ Type TJConvSerializer
 				Throw TJconvDeserializeException.Create("Deserializing String but found Object type.")
 			End If
 
+			' we don't deserialize objects to Array type
+			IF typeId.ExtendsType(ArrayTypeId) Then
+				Throw TJconvDeserializeException.Create("Deserializing Array but found Object type.")
+			End If
+
 			If Not obj Then
 				obj = typeId.NewObject()
 			End If
@@ -772,6 +792,10 @@ Type TJConvSerializer
 				End If
 			Next
 		Else If TJSONArray(json) Then
+
+			If typeId = StringTypeId Then
+				Throw TJconvDeserializeException.Create("Deserializing String but found Array type.")
+			End If
 			
 			obj = Deserialize(TJSONArray(json), typeId, obj)
 		

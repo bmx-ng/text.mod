@@ -48,6 +48,7 @@ Type TArrayTest Extends TJConvTest
 	Const JSON_IGNORE_SER:String = "{~qa~q: ~qone~q, ~qc~q: ~qthree~q}"
 	Const JSON_IGNORE:String = "{~qa~q: ~qone~q, ~qb~q: ~qtwo~q, ~qc~q: ~qthree~q, ~qd~q: ~qfour~q}"
 	Const JSON_STRING_ARRAY:String = "{~qvalues~q: [~qOne~q, ~qTwo~q, ~qThree~q], ~qother_values~q: []}"
+	Const JSON_STRING:String = "~qHello world~q"
 
 	Method testEmptyObject() { test }
 		Local obj:Object
@@ -403,6 +404,15 @@ Type TArrayTest Extends TJConvTest
 		assertEquals("One", array.values[0])
 		assertEquals("Two", array.values[1])
 		assertEquals("Three", array.values[2])
+	End Method
+
+	Method testString() { test }
+		
+		Local str:String = String(jconv.FromJson(JSON_STRING, "String"))
+		
+		assertEquals("Hello world", str)
+		
+		assertEquals(JSON_STRING, jconv.ToJson(str))
 	End Method
 
 End Type
