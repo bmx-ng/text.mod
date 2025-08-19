@@ -158,6 +158,10 @@ Type TJConv
 	End Rem
 	Method FromJson:Object(json:String, typeName:String)
 		Local typeId:TTypeId = TTypeId.ForName(typeName)
+
+		If Not typeId Then
+			Throw TJconvDeserializeException.Create("Unknown type: " + typeName)
+		End If
 		
 		Return FromJson(json, typeId, Null)
 	End Method
@@ -171,7 +175,11 @@ Type TJConv
 		End If
 		
 		Local typeId:TTypeId = TTypeId.ForObject(obj)
-		
+
+		If Not typeId Then
+			Throw TJconvDeserializeException.Create("Unable to determine type from object.")
+		End If
+
 		Return FromJson(json, typeId, obj)
 	End Method
 
@@ -184,7 +192,11 @@ Type TJConv
 		End If
 		
 		Local typeId:TTypeId = TTypeId.ForObject(obj)
-		
+
+		If Not typeId Then
+			Throw TJconvDeserializeException.Create("Unable to determine type from object.")
+		End If
+
 		Return FromJson(json, typeId, obj)
 	End Method
 
@@ -194,6 +206,10 @@ Type TJConv
 	End Rem
 	Method FromJsonInstance:Object(json:TJSON, typeName:String)
 		Local typeId:TTypeId = TTypeId.ForName(typeName)
+
+		If Not typeId Then
+			Throw TJconvDeserializeException.Create("Unknown type: " + typeName)
+		End If
 		
 		Return FromJson(json, typeId, Null)
 	End Method
@@ -218,7 +234,11 @@ Type TJConv
 	End Rem
 	Method FromJson:Object(stream:TStream, typeName:String)
 		Local typeId:TTypeId = TTypeId.ForName(typeName)
-		
+
+		If Not typeId Then
+			Throw TJconvDeserializeException.Create("Unknown type: " + typeName)
+		End If
+
 		Return FromJson(stream, typeId, Null)
 	End Method
 	
@@ -234,6 +254,10 @@ Type TJConv
 	End Method
 
 	Method FromJson:Object(json:TJSON, typeId:TTypeId, obj:Object)
+
+		If Not typeId Then
+			Throw TJconvDeserializeException.Create("Missing typeId")
+		End If
 
 		Local serializer:TJConvSerializer = TJConvSerializer(options.serializers.ValueForKey(typeId.Name()))
 		If Not serializer Then
@@ -461,6 +485,10 @@ Type TJConv
 
 		If IsEmptyArray(array) Then
 			Return
+		End If
+
+		If Not typeId Then
+			Throw TJconvDeserializeException.Create("Missing typeId")
 		End If
 
 		Local dims:Int
