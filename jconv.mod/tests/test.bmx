@@ -415,6 +415,18 @@ Type TArrayTest Extends TJConvTest
 		assertEquals(JSON_STRING, jconv.ToJson(str))
 	End Method
 
+	Method testUnknownTypeThrows() { test }
+		Local json:String = "{ ~qunknownField~q: 123 }"
+		Local typeName:String = "TUnknown"
+
+		Try
+			Local obj:Object = jconv.FromJson(json, typeName)
+			Fail("Expected an exception for unknown type '" + typeName + "'")
+		Catch e:TBlitzException
+			assertTrue(e.ToString().Contains("TUnknown"))
+		End Try
+	End Method
+
 End Type
 
 Type TData
