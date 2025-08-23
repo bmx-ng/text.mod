@@ -259,7 +259,18 @@ Type TxmlNode Extends TxmlBase
 	End Rem
 	Method getContent:String()
 		Local sb:TStringBuilder = New TStringBuilder()
-		
+		Return getContent(sb).ToString()
+	End Method
+
+	Rem
+	bbdoc: Reads the value of a node, optionally appending to an existing #TStringBuilder.
+	returns: The node content as a #TStringBuilder.
+	End Rem
+	Method getContent:TStringBuilder(sb:TStringBuilder)
+		If Not sb Then
+			sb = New TStringBuilder()
+		End If
+
 		Local n:Byte Ptr = bmx_mxmlWalkNext(nodePtr, nodePtr, MXML_DESCEND)
 		
 		While n
@@ -275,7 +286,7 @@ Type TxmlNode Extends TxmlBase
 			n = bmx_mxmlWalkNext(n, nodePtr, MXML_DESCEND)
 		Wend
 		
-		Return sb.ToString()
+		Return sb
 	End Method
 	
 	Rem
