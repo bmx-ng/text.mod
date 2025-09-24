@@ -258,6 +258,68 @@ Type TIniTest Extends TTest
 
 	End Method
 
+	Method TestHas() { test }
+
+		Local ini:TIni = New TIni
+
+		Local s1:TIniSection = ini.AddSection("section1")
+		Local p1:TIniProperty = s1.AddProperty("key1","value1")
+		Local p2:TIniProperty = s1.AddProperty("key2","value2")
+
+		assertTrue( ini.Has("section1", "key1") )
+		assertTrue( ini.Has("section1", "key2") )
+		assertFalse( ini.Has("section1", "key3") )
+
+		assertTrue( s1.Has("key1") )
+		assertTrue( s1.Has("key2") )
+		assertFalse( s1.Has("key3") )
+
+	End Method
+
+	Method TestTryGet() { test }
+
+		Local ini:TIni = New TIni
+
+		Local s1:TIniSection = ini.AddSection("section1")
+		Local p1:TIniProperty = s1.AddProperty("key1","value1")
+		Local p2:TIniProperty = s1.AddProperty("key2","value2")
+		Local p3:TIniProperty = s1.AddProperty("key4","")
+
+		Local value:String
+
+		assertTrue( ini.TryGet("section1", "key1", value) )
+		assertEquals( "value1", value )
+
+		value = ""
+		assertTrue( ini.TryGet("section1", "key2", value) )
+		assertEquals( "value2", value )
+
+		value = ""
+		assertFalse( ini.TryGet("section1", "key3", value) )
+		assertEquals( "", value )
+
+		value = ""
+		assertTrue( ini.TryGet("section1", "key4", value) )
+		assertEquals( "", value )
+
+		value = ""
+		assertTrue( s1.TryGet("key1", value) )
+		assertEquals( "value1", value )
+
+		value = ""
+		assertTrue( s1.TryGet("key2", value) )
+		assertEquals( "value2", value )
+
+		value = ""
+		assertFalse( s1.TryGet("key3", value) )
+		assertEquals( "", value )
+
+		value = ""
+		assertTrue( s1.TryGet("key4", value) )
+		assertEquals( "", value )
+		
+	End Method
+
 End Type
 
 

@@ -1,4 +1,4 @@
-' Copyright (c) 2022-2023 Bruce A Henderson
+' Copyright (c) 2022-2025 Bruce A Henderson
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,14 @@ bbdoc: An INI reader/writer.
 End Rem
 Module Text.Ini
 
-ModuleInfo "Version: 1.02"
+ModuleInfo "Version: 1.03"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
 ModuleInfo "ini.h - Copyright (c) 2015 Mattias Gustavsson"
-ModuleInfo "Copyright: 2022-2023 Bruce A Henderson"
+ModuleInfo "Copyright: 2022-2025 Bruce A Henderson"
 
+ModuleInfo "History: 1.03"
+ModuleInfo "History: Added Has and TryGet methods"
 ModuleInfo "History: 1.02"
 ModuleInfo "History: Fixed SetName update the name copy"
 ModuleInfo "History: Added some helper methods"
@@ -292,6 +294,61 @@ Type TIni
 	End Method
 
 	Rem
+	bbdoc: Attempts to get the property value with the given @section and @name.
+	returns: #True if the property was found and has a value, otherwise #False.
+	End Rem
+	Method TryGet:Int(section:String, name:String, value:String Var)
+		Local s:TIniSection
+		If section = Null Then
+			s = GetSection(INI_GLOBAL_SECTION)
+		Else
+			s = FindSection(section)
+		End If
+
+		If s Then
+			Local p:TIniProperty = s.FindProperty(name)
+			If p Then
+				value = p.GetValue()
+				Return 1
+			End If
+		End If
+		Return 0
+	End Method
+
+	Rem
+	bbdoc: Attempts to get the property value with the given @name in the global section.
+	returns: #True if the property was found and has a value, otherwise #False.
+	End Rem
+	Method TryGet:Int(name:String, value:String Var)
+		Return TryGet(Null, name, value)
+	End Method
+
+	Rem
+	bbdoc: Returns #True if a property with the given @section and @name exists, otherwise #False.
+	End Rem
+	Method Has:Int(section:String, name:String)
+		Local s:TIniSection
+		If section = Null Then
+			s = GetSection(INI_GLOBAL_SECTION)
+		Else
+			s = FindSection(section)
+		End If
+
+		If s Then
+			Local p:TIniProperty = s.FindProperty(name)
+			Return p <> Null
+		End If
+		Return 0
+	End Method
+
+	Rem
+	bbdoc: Returns #True if a property with the given @name exists in the global section, otherwise #False.
+	End Rem
+	Method Has:Int(name:String)
+		Return Has(Null, name)
+	End Method
+
+	Rem
 	bbdoc: Frees instance and associated data.
 	End Rem
 	Method Free()
@@ -396,12 +453,34 @@ Type TIniSection
 
 	Rem
 	bbdoc: Returns the property value with the given @name, or #Null if not found.
+	about: IF the property contains an empty value, #null could be confused with the absence of the property.
+	In such cases, use #TryGet or #Has to check for the existence of the property first.
 	End Rem
 	Method Get:String(name:String)
 		Local p:TIniProperty = FindProperty(name)
 		If p Then
 			Return p.GetValue()
 		End If
+	End Method
+
+	Rem
+	bbdoc: Attempts to get the property value with the given @name.
+	returns: #True if the property was found and has a value, otherwise #False.
+	End Rem
+	Method TryGet:Int(name:String, value:String Var)
+		Local p:TIniProperty = FindProperty(name)
+		If p Then
+			value = p.GetValue()
+			Return 1
+		End If
+		Return 0
+	End Method
+
+	Rem
+	bbdoc: Returns #True if a property with the given @name exists in the section, otherwise #False.
+	End Rem
+	Method Has:Int(name:String)
+		Return FindProperty(name) <> Null
 	End Method
 
 	Rem
