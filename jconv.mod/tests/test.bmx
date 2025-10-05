@@ -49,6 +49,8 @@ Type TArrayTest Extends TJConvTest
 	Const JSON_IGNORE:String = "{~qa~q: ~qone~q, ~qb~q: ~qtwo~q, ~qc~q: ~qthree~q, ~qd~q: ~qfour~q}"
 	Const JSON_STRING_ARRAY:String = "{~qvalues~q: [~qOne~q, ~qTwo~q, ~qThree~q], ~qother_values~q: []}"
 	Const JSON_STRING:String = "~qHello world~q"
+	Const JSON_ENUM:String = "{~qbasic~q: ~qValue2~q}"
+	Const JSON_ENUM_FLAGS:String = "{~qflags~q: ~qFlag1|Flag3~q}"
 
 	Method testEmptyObject() { test }
 		Local obj:Object
@@ -427,6 +429,24 @@ Type TArrayTest Extends TJConvTest
 		End Try
 	End Method
 
+	Method testEnum() { test }
+		Local obj:TWithEnum = TWithEnum(jconv.FromJson(JSON_ENUM, "TWithEnum"))
+		
+		assertNotNull(obj)
+		assertEquals(EBasicEnum.Value2.Ordinal(), obj.basic.Ordinal())
+		
+		assertEquals(JSON_ENUM, jconv.ToJson(obj))
+	End Method
+
+	Method testFlagsEnum() { test }
+		Local obj:TWithFlagsEnum = TWithFlagsEnum(jconv.FromJson(JSON_ENUM_FLAGS, "TWithFlagsEnum"))
+		
+		assertNotNull(obj)
+		assertEquals(EFlagsEnum.Flag1.Ordinal() | EFlagsEnum.Flag3.Ordinal(), obj.flags.Ordinal())
+		
+		assertEquals(JSON_ENUM_FLAGS, jconv.ToJson(obj))
+	End Method
+
 End Type
 
 Type TData
@@ -622,3 +642,24 @@ Type TStringArray
 	Field values:String[]
 	Field other_values:String[]
 End Type
+
+Type TWithEnum
+	Field basic:EBasicEnum
+End Type
+
+Type TWithFlagsEnum
+	Field flags:EFlagsEnum
+End Type
+
+Enum EBasicEnum
+	Value1
+	Value2
+	Value3
+End Enum
+
+Enum EFlagsEnum Flags
+	Flag1 = 1
+	Flag2 = 2
+	Flag3 = 4
+	Flag4 = 8
+End Enum
