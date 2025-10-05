@@ -445,6 +445,15 @@ Type TJConv
 					End If
 					Continue
 			End Select
+
+			If Not j And fieldType.IsEnum() Then
+				Try
+					Local s:String = f.GetEnumAsString(obj)
+					j = serializer.Serialize(s, fieldType.Name())
+				Catch e:String
+					Throw TJconvDeserializeException.Create("Serializing Enum '" + fieldType.Name() + "' : " + e)
+				End Try
+			End If
 			
 			If Not j And fieldType.ExtendsType(ArrayTypeId) Then
 				Local array:Object = f.Get(obj)
@@ -781,6 +790,15 @@ Type TJConvSerializer
 
 							Throw TJconvDeserializeException.Create("Deserializing String but found Array type '" + fieldType.Name() + "' : " + j.key)
 						
+						End If
+
+						If fieldType.IsEnum() Then
+							Try
+								f.SetEnum(obj, TJSONString(j).Value())
+							Catch e:String
+								Throw TJconvDeserializeException.Create("Deserializing Enum '" + fieldType.Name() + "' : " + e)
+							End Try
+							Continue
 						End If
 
 						If fieldType.ExtendsType(ObjectTypeId) Then
