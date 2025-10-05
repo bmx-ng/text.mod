@@ -50,6 +50,7 @@ Type TArrayTest Extends TJConvTest
 	Const JSON_STRING_ARRAY:String = "{~qvalues~q: [~qOne~q, ~qTwo~q, ~qThree~q], ~qother_values~q: []}"
 	Const JSON_STRING:String = "~qHello world~q"
 	Const JSON_ENUM:String = "{~qbasic~q: ~qValue2~q}"
+	Const JSON_ENUM_INVALID:String = "{~qbasic~q: ~qBob~q}"
 	Const JSON_ENUM_FLAGS:String = "{~qflags~q: ~qFlag1|Flag3~q}"
 
 	Method testEmptyObject() { test }
@@ -436,6 +437,13 @@ Type TArrayTest Extends TJConvTest
 		assertEquals(EBasicEnum.Value2.Ordinal(), obj.basic.Ordinal())
 		
 		assertEquals(JSON_ENUM, jconv.ToJson(obj))
+
+		Try
+			obj = TWithEnum(jconv.FromJson(JSON_ENUM_INVALID, "TWithEnum"))
+			Fail("Expected an exception for invalid enum value")
+		Catch e:TBlitzException
+			assertTrue(e.ToString().Contains("Bob"))
+		End Try
 	End Method
 
 	Method testFlagsEnum() { test }
@@ -445,6 +453,11 @@ Type TArrayTest Extends TJConvTest
 		assertEquals(EFlagsEnum.Flag1.Ordinal() | EFlagsEnum.Flag3.Ordinal(), obj.flags.Ordinal())
 		
 		assertEquals(JSON_ENUM_FLAGS, jconv.ToJson(obj))
+
+		Local obj2:TWithFlagsEnum = New TWithFlagsEnum
+		obj2.flags = EFlagsEnum.None
+
+		assertEquals("{~qflags~q: ~qNone~q}", jconv.ToJson(obj2))
 	End Method
 
 End Type
@@ -658,6 +671,7 @@ Enum EBasicEnum
 End Enum
 
 Enum EFlagsEnum Flags
+	None = 0
 	Flag1 = 1
 	Flag2 = 2
 	Flag3 = 4
