@@ -26,11 +26,14 @@ bbdoc: JSON Object de/serializer.
 End Rem
 Module Text.JConv
 
-ModuleInfo "Version: 1.07"
+ModuleInfo "Version: 1.08"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: zlib/png"
 ModuleInfo "Copyright: 2019-2025 Bruce A Henderson"
 
+ModuleInfo "History: 1.08"
+ModuleInfo "History: Added support for enum fields and arrays."
+ModuleInfo "History: Added support for asBool serialization for numeric fields."
 ModuleInfo "History: 1.07"
 ModuleInfo "History: Added support for LongInt and ULongInt types."
 ModuleInfo "History: 1.06"
@@ -401,50 +404,88 @@ Type TJConv
 			If Not serializer Then
 				serializer = defaultSerializer
 			End If
-			
-			Select fieldType
+
+			If f.Metadata("asBool") Then
+				
+				Select fieldType
 				Case ByteTypeId
-					j = serializer.Serialize(f.GetByte(obj), fieldType.Name())
+					j = serializer.SerializeBool(f.GetByte(obj), fieldType.Name())
 
 				Case ShortTypeId
-					j = serializer.Serialize(f.GetShort(obj), fieldType.Name())
+					j = serializer.SerializeBool(f.GetShort(obj), fieldType.Name())
 
 				Case IntTypeId
-					j = serializer.Serialize(f.GetInt(obj), fieldType.Name())
+					j = serializer.SerializeBool(f.GetInt(obj), fieldType.Name())
 
 				Case UIntTypeId
-					j = serializer.Serialize(f.GetUInt(obj), fieldType.Name())
+					j = serializer.SerializeBool(f.GetUInt(obj), fieldType.Name())
 
 				Case LongTypeId
-					j = serializer.Serialize(f.GetLong(obj), fieldType.Name())
+					j = serializer.SerializeBool(f.GetLong(obj), fieldType.Name())
 
 				Case ULongTypeId
-					j = serializer.Serialize(f.GetULong(obj), fieldType.Name())
+					j = serializer.SerializeBool(f.GetULong(obj), fieldType.Name())
 
 				Case SizetTypeId
-					j = serializer.Serialize(f.GetSizeT(obj), fieldType.Name())
-					
-				Case FloatTypeId
-					j = serializer.Serialize(f.GetFloat(obj), fieldType.Name())
-
-				Case DoubleTypeId
-					j = serializer.Serialize(f.GetDouble(obj), fieldType.Name())
+					j = serializer.SerializeBool(f.GetSizeT(obj), fieldType.Name())
 
 				Case LongIntTypeId
-					j = serializer.Serialize(f.GetLongInt(obj), fieldType.Name())
+					j = serializer.SerializeBool(f.GetLongInt(obj), fieldType.Name())
 
 				Case ULongIntTypeId
-					j = serializer.Serialize(f.GetULongInt(obj), fieldType.Name())
+					j = serializer.SerializeBool(f.GetULongInt(obj), fieldType.Name())
 
-				Case StringTypeId
-					Local s:String = f.GetString(obj)
-					If s Then
-						j = serializer.Serialize(s, fieldType.Name())
+				Default
+					Throw TJconvDeserializeException.Create("Field '" + f.Name() + "' marked as 'asBool' but is not a supported type.")
+				
+				End Select
+
+			Else
+			
+				Select fieldType
+					Case ByteTypeId
+						j = serializer.Serialize(f.GetByte(obj), fieldType.Name())
+
+					Case ShortTypeId
+						j = serializer.Serialize(f.GetShort(obj), fieldType.Name())
+
+					Case IntTypeId
+						j = serializer.Serialize(f.GetInt(obj), fieldType.Name())
+
+					Case UIntTypeId
+						j = serializer.Serialize(f.GetUInt(obj), fieldType.Name())
+
+					Case LongTypeId
+						j = serializer.Serialize(f.GetLong(obj), fieldType.Name())
+
+					Case ULongTypeId
+						j = serializer.Serialize(f.GetULong(obj), fieldType.Name())
+
+					Case SizetTypeId
+						j = serializer.Serialize(f.GetSizeT(obj), fieldType.Name())
 						
-						json.Set(FieldName(f), j)
-					End If
-					Continue
-			End Select
+					Case FloatTypeId
+						j = serializer.Serialize(f.GetFloat(obj), fieldType.Name())
+
+					Case DoubleTypeId
+						j = serializer.Serialize(f.GetDouble(obj), fieldType.Name())
+
+					Case LongIntTypeId
+						j = serializer.Serialize(f.GetLongInt(obj), fieldType.Name())
+
+					Case ULongIntTypeId
+						j = serializer.Serialize(f.GetULongInt(obj), fieldType.Name())
+
+					Case StringTypeId
+						Local s:String = f.GetString(obj)
+						If s Then
+							j = serializer.Serialize(s, fieldType.Name())
+							
+							json.Set(FieldName(f), j)
+						End If
+						Continue
+				End Select
+			End If
 
 			If Not j And fieldType.IsEnum() Then
 				Try
@@ -555,6 +596,15 @@ Type TJConv
 				Case StringTypeId
 					element = serializer.Serialize(typeId.GetStringArrayElement(array, i), elementType.Name())
 			End Select
+
+			If Not element And elementType.IsEnum() Then
+				Try
+					Local s:String = typeId.GetEnumArrayElementAsString(array, i)
+					element = serializer.Serialize(s, StringTypeId.Name())
+				Catch e:String
+					Throw TJconvDeserializeException.Create("Serializing Enum '" + elementType.Name() + "' : " + e)
+				End Try
+			End If
 
 			If Not element And typeId.ExtendsType(ObjectTypeId) Then
 				Local o:Object = typeId.GetArrayElement(array, i)
@@ -677,6 +727,42 @@ Type TJConvSerializer
 		jconv.ToJson(json, source)
 		Return json
 	End Method
+
+	Method SerializeBool:TJSON(source:Byte, sourceType:String)
+		Return New TJSONBool.Create(source <> 0)
+	End Method
+
+	Method SerializeBool:TJSON(source:Short, sourceType:String)
+		Return New TJSONBool.Create(source <> 0)
+	End Method
+
+	Method SerializeBool:TJSON(source:Int, sourceType:String)
+		Return New TJSONBool.Create(source <> 0)
+	End Method
+
+	Method SerializeBool:TJSON(source:UInt, sourceType:String)
+		Return New TJSONBool.Create(source <> 0)
+	End Method
+
+	Method SerializeBool:TJSON(source:Long, sourceType:String)
+		Return New TJSONBool.Create(source <> 0)
+	End Method
+
+	Method SerializeBool:TJSON(source:ULong, sourceType:String)
+		Return New TJSONBool.Create(source <> 0)
+	End Method
+
+	Method SerializeBool:TJSON(source:Size_T, sourceType:String)
+		Return New TJSONBool.Create(source <> 0)
+	End Method
+
+	Method SerializeBool:TJSON(source:LongInt, sourceType:String)
+		Return New TJSONBool.Create(source <> 0)
+	End Method
+
+	Method SerializeBool:TJSON(source:ULongInt, sourceType:String)
+		Return New TJSONBool.Create(source <> 0)
+	End Method
 	
 	Method Deserialize:Object(json:TJSON, typeId:TTypeId, obj:Object)
 		If TJSONObject(json) Then
@@ -730,7 +816,7 @@ Type TJConvSerializer
 
 					If TJSONInteger(j) Then
 						Select fieldType
-							Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId
+							Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId,LongIntTypeId,ULongIntTypeId
 								f.SetLong(obj, TJSONInteger(j).Value())
 						End Select
 
@@ -747,7 +833,7 @@ Type TJConvSerializer
 
 					If TJSONBool(j) Then
 						Select fieldType
-							Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId
+							Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId,LongIntTypeId,ULongIntTypeId
 								f.SetInt(obj, TJSONBool(j).isTrue)
 						End Select
 
@@ -764,7 +850,7 @@ Type TJConvSerializer
 					
 					If TJSONReal(j) Then
 						Select fieldType
-							Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId
+							Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId,LongIntTypeId,ULongIntTypeId
 								f.SetDouble(obj, TJSONReal(j).Value())
 						End Select
 
@@ -781,7 +867,7 @@ Type TJConvSerializer
 					
 					If TJSONString(j) Then
 						Select fieldType
-							Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId
+							Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId,LongIntTypeId,ULongIntTypeId
 								f.SetString(obj, TJSONString(j).Value())
 								Continue
 						End Select
@@ -899,7 +985,7 @@ Type TJConvSerializer
 			
 			If TJSONInteger(jsonElement) Then
 				Select elementType
-					Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId
+					Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId,LongIntTypeId,ULongIntTypeId
 						typeId.SetLongArrayElement(arrayObj, i, TJSONInteger(jsonElement).Value())
 				End Select
 				Continue
@@ -907,7 +993,7 @@ Type TJConvSerializer
 
 			If TJSONReal(jsonElement) Then
 				Select elementType
-					Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId
+					Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId,LongIntTypeId,ULongIntTypeId
 						typeId.SetDoubleArrayElement(arrayObj, i, TJSONReal(jsonElement).Value())
 				End Select
 				Continue
@@ -915,7 +1001,7 @@ Type TJConvSerializer
 
 			If TJSONBool(jsonElement) Then
 				Select elementType
-					Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId
+					Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId,LongIntTypeId,ULongIntTypeId
 						typeId.SetIntArrayElement(arrayObj, i, TJSONBool(jsonElement).isTrue)
 				End Select
 				Continue
@@ -923,8 +1009,16 @@ Type TJConvSerializer
 			
 			If TJSONString(jsonElement) Then
 				Select elementType
-					Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId
+					Case ByteTypeId,ShortTypeId,IntTypeId,UIntTypeId,LongTypeId,ULongTypeId,SizetTypeId,FloatTypeId,DoubleTypeId,StringTypeId,LongIntTypeId,ULongIntTypeId
 						typeId.SetStringArrayElement(arrayObj, i, TJSONString(jsonElement).Value())
+					Default
+						If elementType.IsEnum() Then
+							Try
+								typeId.SetEnumArrayElement(arrayObj, i, TJSONString(jsonElement).Value())
+							Catch e:String
+								Throw TJconvDeserializeException.Create("Deserializing Enum '" + elementType.Name() + "' : " + e)
+							End Try
+						End If
 				End Select
 				Continue
 			End If

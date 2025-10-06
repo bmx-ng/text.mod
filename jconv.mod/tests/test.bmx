@@ -52,6 +52,9 @@ Type TArrayTest Extends TJConvTest
 	Const JSON_ENUM:String = "{~qbasic~q: ~qValue2~q}"
 	Const JSON_ENUM_INVALID:String = "{~qbasic~q: ~qBob~q}"
 	Const JSON_ENUM_FLAGS:String = "{~qflags~q: ~qFlag1|Flag3~q}"
+	Const JSON_AS_BOOL_ON:String = "{~qfromByte~q: true, ~qfromShort~q: true, ~qfromInt~q: true, ~qfromLong~q: true, ~qfromUInt~q: true, ~qfromULong~q: true, ~qfromSizeT~q: true, ~qfromLongInt~q: true, ~qfromULongInt~q: true}"
+	Const JSON_AS_BOOL_OFF:String = "{~qfromByte~q: false, ~qfromShort~q: false, ~qfromInt~q: false, ~qfromLong~q: false, ~qfromUInt~q: false, ~qfromULong~q: false, ~qfromSizeT~q: false, ~qfromLongInt~q: false, ~qfromULongInt~q: false}"
+	Const JSON_ENUM_ARRAYS:String = "{~qbasics~q: [~qValue1~q, ~qValue3~q], ~qflags~q: [~qFlag2~q, ~qFlag3|Flag4~q]}"
 
 	Method testEmptyObject() { test }
 		Local obj:Object
@@ -460,6 +463,69 @@ Type TArrayTest Extends TJConvTest
 		assertEquals("{~qflags~q: ~qNone~q}", jconv.ToJson(obj2))
 	End Method
 
+	Method testEnumArrays() { test }
+		Local obj:TEnumArrays = TEnumArrays(jconv.FromJson(JSON_ENUM_ARRAYS, "TEnumArrays"))
+		
+		assertNotNull(obj)
+		assertEquals(2, obj.basics.length)
+		assertEquals(EBasicEnum.Value1.Ordinal(), obj.basics[0].Ordinal())
+		assertEquals(EBasicEnum.Value3.Ordinal(), obj.basics[1].Ordinal())
+		
+		assertEquals(2, obj.flags.length)
+		assertEquals(EFlagsEnum.Flag2.Ordinal(), obj.flags[0].Ordinal())
+		assertEquals(EFlagsEnum.Flag3.Ordinal() | EFlagsEnum.Flag4.Ordinal(), obj.flags[1].Ordinal())
+		
+		assertEquals(JSON_ENUM_ARRAYS, jconv.ToJson(obj))
+	End Method
+
+	Method testAsBoolMetadataOn() { test }
+		Local obj:TBools = TBools(jconv.FromJson(JSON_AS_BOOL_ON, "TBools"))
+		
+		assertNotNull(obj)
+		assertEquals(True, obj.fromByte)
+		assertEquals(True, obj.fromShort)
+		assertEquals(True, obj.fromInt)
+		assertEquals(True, obj.fromLong)
+		assertEquals(True, obj.fromUInt)
+		assertEquals(True, obj.fromULong)
+		assertEquals(True, obj.fromSizeT)
+		assertEquals(True, obj.fromLongInt)
+		assertEquals(True, obj.fromULongInt)
+		
+		assertEquals(JSON_AS_BOOL_ON, jconv.ToJson(obj))
+	End Method
+
+	Method testAsBoolMetadataOff() { test }
+		Local obj:TBools = TBools(jconv.FromJson(JSON_AS_BOOL_OFF, "TBools"))
+		
+		assertNotNull(obj)
+		assertEquals(False, obj.fromByte)
+		assertEquals(False, obj.fromShort)
+		assertEquals(False, obj.fromInt)
+		assertEquals(False, obj.fromLong)
+		assertEquals(False, obj.fromUInt)
+		assertEquals(False, obj.fromULong)
+		assertEquals(False, obj.fromSizeT)
+		assertEquals(False, obj.fromLongInt)
+		assertEquals(False, obj.fromULongInt)
+		
+		assertEquals(JSON_AS_BOOL_OFF, jconv.ToJson(obj))
+	End Method
+
+	Method testAsBoolMetadataInvalid() { test }
+		Local obj:TInvalidBools = TInvalidBools(jconv.FromJson("{~qfromString~q: true}", "TInvalidBools"))
+		assertNotNull(obj)
+		assertEquals("1", obj.fromString)
+
+		' only throws on serialisation
+		Try
+			jconv.ToJson(obj)
+			Fail("Expected an exception for invalid asBool field")
+		Catch e:TBlitzException
+			assertTrue(e.ToString().Contains("asBool"))
+		End Try
+	End Method
+
 End Type
 
 Type TData
@@ -677,3 +743,24 @@ Enum EFlagsEnum Flags
 	Flag3 = 4
 	Flag4 = 8
 End Enum
+
+Type TBools
+	Field fromByte:Byte { asBool }
+	Field fromShort:Short { asBool }
+	Field fromInt:Int { asBool }
+	Field fromLong:Long { asBool }
+	Field fromUInt:UInt { asBool }
+	Field fromULong:ULong { asBool }
+	Field fromSizeT:Size_T { asBool }
+	Field fromLongInt:LongInt { asBool }
+	Field fromULongInt:ULongInt { asBool }
+End Type
+
+Type TInvalidBools
+	Field fromString:String { asBool }
+End Type
+
+Type TEnumArrays
+	Field basics:EBasicEnum[]
+	Field flags:EFlagsEnum[]
+End Type
