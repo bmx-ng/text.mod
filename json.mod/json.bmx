@@ -1,4 +1,4 @@
-' Copyright (c) 2014-2020 Bruce A Henderson
+' Copyright (c) 2014-2025 Bruce A Henderson
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -25,11 +25,13 @@ bbdoc: A JSON encoder/decoder.
 End Rem
 Module Text.Json
 
-ModuleInfo "Version: 1.04"
+ModuleInfo "Version: 1.05"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
-ModuleInfo "Copyright: 2014-2020 Bruce A Henderson"
+ModuleInfo "Copyright: 2014-2025 Bruce A Henderson"
 
+ModuleInfo "History: 1.05"
+ModuleInfo "History: Fixed _dumpCallback returning wrong values."
 ModuleInfo "History: 1.04"
 ModuleInfo "History: Added index operator overloading to TJSONArray."
 ModuleInfo "History: Added TJSONBool Create method."
@@ -134,20 +136,17 @@ Type TJSON
 		Return Null
 	End Function
 
-?bmxng
 	Function _loadCallback:Size_T(buffer:Byte Ptr, buflen:Size_T, data:TStream)
-?Not bmxng
-	Function _loadCallback:Int(buffer:Byte Ptr, buflen:Int, data:TStream)
-?
 		Return data.Read(buffer, buflen)
 	End Function
 
-?bmxng
-	Function _dumpCallback:Size_T(buffer:Byte Ptr, size:Size_T, data:TStream)
-?Not bmxng
-	Function _dumpCallback:Int(buffer:Byte Ptr, size:Int, data:TStream)
-?
-		Return data.Write(buffer, size)
+	Function _dumpCallback:Int(buffer:Byte Ptr, size:Size_T, data:TStream)
+		Try
+			data.Write(buffer, size)
+			Return 0
+		Catch e:Object
+			Return -1
+		End Try
 	End Function
 
 	Method Delete()

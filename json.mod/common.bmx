@@ -1,4 +1,4 @@
-' Copyright (c) 2014-2020 Bruce A Henderson
+' Copyright (c) 2014-2025 Bruce A Henderson
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -44,13 +44,10 @@ Extern
 	Function bmx_json_array_insert:Int(handle:Byte Ptr, index:Int, value:Byte Ptr)
 	
 	Function bmx_json_dumps:String(handle:Byte Ptr, flags:Int, indent:Int, precision:Int)
-?bmxng
-	Function bmx_json_dump_callback:Int(handle:Byte Ptr, callback:Size_T(buffer:Byte Ptr, size:Size_T, data:TStream), stream:TStream, flags:Int, indent:Int, precision:Int)
+
+	Function bmx_json_dump_callback:Int(handle:Byte Ptr, callback:Int(buffer:Byte Ptr, size:Size_T, data:TStream), stream:TStream, flags:Int, indent:Int, precision:Int)
 	Function bmx_json_load_callback:Object(callback:Size_T(buffer:Byte Ptr, size:Size_T, data:TStream), Text:TStream, flags:Int)
-?Not bmxng
-	Function bmx_json_dump_callback:Int(handle:Byte Ptr, callback:Int(buffer:Byte Ptr, size:Int, data:TStream), stream:TStream, flags:Int, indent:Int, precision:Int)
-	Function bmx_json_load_callback:Object(callback:Int(buffer:Byte Ptr, size:Int, data:TStream), Text:TStream, flags:Int)
-?
+
 	Function bmx_json_loads:Object(Text:String, flags:Int)
 	
 	Function bmx_json_integer:Byte Ptr(v:Long)
