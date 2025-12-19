@@ -2,12 +2,11 @@
 
 lib + CLI:
 [![ci](https://github.com/liquidaty/zsv/actions/workflows/ci.yml/badge.svg)](https://github.com/liquidaty/zsv/actions/workflows/ci.yml)
-![GitHub pre-release)](https://img.shields.io/github/v/release/liquidaty/zsv?include_prereleases&label=pre-release&logo=github&style=flat-square)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/liquidaty/zsv?logo=github&style=flat-square)
 ![GitHub all releases (downloads)](https://img.shields.io/github/downloads/liquidaty/zsv/total?logo=github&style=flat-square)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/liquidaty/zsv/blob/master/LICENSE)
 
-lib only:
+npm:
 [![NPM Version][npm-version-image]][npm-url]
 [![NPM Install Size][npm-install-size-image]][npm-install-size-url]
 
@@ -16,52 +15,97 @@ lib only:
 [npm-url]: https://npmjs.org/package/zsv-lib
 [npm-version-image]: https://badgen.net/npm/v/zsv-lib
 
-zsv+lib is a fast CSV parser library and extensible command-line utility. It
+Playground (without `sheet` viewer command): https://liquidaty.github.io/zsv
+
+zsv+lib is a [fast CSV parser](./app/benchmark/README.md) library and extensible command-line utility. It
 achieves high performance using SIMD operations, [efficient memory
 use](docs/memory.md) and other optimization techniques, and can also parse
-generic-delimited and fixed-width formats, as well as multi-row-span headers
+generic-delimited and fixed-width formats, as well as multi-row-span headers.
+
+## CLI
 
 The ZSV CLI can be compiled to virtually any target, including
-[WebAssembly](examples/js), and offers features including `select`, `count`,
+[WebAssembly](examples/js), and offers a variety of [commands](#batteries-included) including `select`, `count`,
 direct CSV `sql`, `flatten`, `serialize`, `2json` conversion, `2db` sqlite3
-conversion, `stack`, `pretty`, `2tsv`, `compare`, `paste` and more.
+conversion, `stack`, `pretty`, `2tsv`, `compare`, `paste`, `overwrite`,
+`check` and more.
 
-The ZSV CLI also includes `sheet`, an in-console interactive grid viewer (TO DO:
-that can be extended with your custom code for manipulating and) for viewing
-data:
+The ZSV CLI also includes [`sheet`](docs/sheet.md), an in-console interactive
+grid viewer that includes basic navigation, filtering, and pivot table with
+drill down, and that supports custom extensions:
 
 <img src="https://github.com/user-attachments/assets/c2ae32a3-48c4-499d-8ef7-7748687bd24f" width="50%">
 
-Pre-built CLI packages are available via `brew` and `nuget`.
+## Installation
 
-A pre-built library package is available for Node (`npm install zsv-lib`).
-Please note, this package is still in alpha and currently only exposes a small
-subset of the zsv library capabilities. More to come.
+- `brew` (MacOS, Linux):
+  - `brew install zsv`
+- `winget` (Windows):
+  - `winget.exe install zsv`
+- `npm` (parser only), `nuget`, `yum`, `apt`, `choco` and more
+  - See [INSTALL.md](INSTALL.md)
+- Download
+  - Pre-built binaries and packages for macOS, Windows, Linux and BSD can be
+    downloaded from the [Releases](https://github.com/liquidaty/zsv/releases)
+    page.
+- Build
+  - See [BUILD.md](BUILD.md) to build from source.
+
+## Playground
+
+An [online playground](https://liquidaty.github.io/zsv) is available as well
+(without the `sheet` feature due to browser limitations)
 
 If you like zsv+lib, do not forget to give it a star! 🌟
 
 ## Performance
 
-Preliminary performance results compare favorably vs other CSV utilities (`xsv`,
-`tsv-utils`, `csvkit`, `mlr` (miller) etc). Below were results on a pre-M1 macOS
-MBA; on most platforms zsvlib was 2x faster, though in some cases the advantage
-was smaller e.g. 15-25%) (below, mlr not shown as it was about 25x slower):
+Performance results compare favorably vs other CSV utilities (`xsv`,
+`tsv-utils`, `csvkit`, `mlr` (miller) etc).
 
-<img src="https://user-images.githubusercontent.com/26302468/146497899-48174114-3b18-49b0-97da-35754ab56e48.png" alt="count speed" height="150px"><img src="https://user-images.githubusercontent.com/26302468/146498211-afc77ce6-4229-4599-bf33-81bf00c725a8.png" alt="select speed" height="150px">
+See [benchmarks](./app/benchmark/README.md)
 
-** See 12/19 update re M1 processor at
-<https://github.com/liquidaty/zsv/blob/main/app/benchmark/README.md>
+## Which "CSV"
 
-### Which "CSV"
+"CSV" is an ambiguous term. This library uses, *by default*, the same definition
+as Excel (the library and app have various options to change this default
+behavior); a more accurate description of it would be "UTF8 delimited data
+parser" insofar as it requires UTF8 input and its options support customization
+of the delimiter and whether to allow quoting.
 
-"CSV" is an ambiguous term. This library uses the same definition as Excel. In
-addition, it provides a *row-level* (as well as cell-level) API and provides
+In addition, zsv provides a *row-level* (as well as cell-level) API and provides
 "normalized" CSV output (e.g. input of `this"iscell1,"thisis,"cell2` becomes
 `"this""iscell1","thisis,cell2"`). Each of these three objectives (Excel
 compatibility, row-level API and normalized output) has a measurable performance
 impact; conversely, it is possible to achieve-- which a number of other CSV
 parsers do-- much faster parsing speeds if any of these requirements (especially
 Excel compatibility) are dropped.
+
+### Examples of input that does not comply with RFC 4180
+
+The following is a comprehensive list of all input patterns that are
+non-compliant with RFC 4180, and how zsv (by default) parses each:
+
+|Input Description|Parser treatment|Example input|How example input is parsed|
+|--|--|--|--|
+|Non-ASCII input, UTF8 BOM| BOM at start of the stream is ignored|(0xEF BB BF)|Ignored|
+|Non-ASCII input, valid UTF8|Parsed as UTF8|你,好|cell1 = 你, cell2 = 好|
+|Non-ASCII input, invalid UTF8|Parsed as UTF8; any non-compliant bytes are retained, or replaced with specified char|aaa,bXb,ccc where Y is malformed UTF8|cell1 = aaa, cell2 = bXb, cell3 = ccc|
+|`\n`, `\r`, or `\r\n` newlines|Any non-quote-captured occurrence of `\n`, `\r`, `\r\n` or `\n\r` is parsed as a row end|`1a,1b,1c\n`<br>`2a,2b,2c\r`<br>`3a,3b,3c\n\r`<br>`4a,4b,4c\r\n`<br>`5a,"5\nb",5c\n`<br>`6a,"6b\r","6c"\n`<br>`7a,7b,7c`|Parsed as 7 rows each with 3 cells|
+|Unquoted quote|Treated like any other non-delmiter|`aaa,b"bb,ccc`|Cell 2 value is `b"bb`, output as CSV `"b""bb"`|
+|Closing quote followed by character other than delimiter (comma) or row end|Treated like any other non-delmiter|`"aa"a,"bb"bb"b,ccc`|Cell 1 value is `aaa`, cell2 value is `bbbb"b`, output as CSV `aaa` and `"bbbb""b"`|
+|Missing final CRLF|Ignored; end-of-stream is considered end-of-row if not preceded by explicit row terminator|`aaa,bbb,ccc<EOF>`|Row with 3 cells, same as if input ended with row terminator preceding `EOF`|
+|Row and header contain different number of columns (cells)|Number of cells in each row is independent of other rows|`aaa,bbb\n`<br>`aaa,bbb,ccc`|Row 1 = 2 cells; Row 2 = 3 cells|
+|Header row contains duplicate cells or embedded newlines|Header rows are parsed the same was as other rows (see NOTE below)|`<BOF>"a\na","a\na"`|Two cells of `a\na`|
+
+The above behavior can be altered with various optional flags:
+* Header rows can be treated differently if options are used to skip rows
+and/or use multi-row header span -- see documentation for further detail.
+* Quote support can be turned off, to treat quotes just like any other non-
+  delimiter character
+* Cell delimiter can be a character other than comma
+* Row delimiter can be specfied as CRLF only, in which case a standalone CR
+  or LF is simply part of the cell value, even without quoting
 
 ## Built-in and extensible features
 
@@ -87,167 +131,30 @@ that implements the expected
   "dirty".
 - Runs on macOS (tested on clang/gcc), Linux (gcc), Windows (mingw), BSD
   (gcc-only) and in-browser (emscripten/wasm)
-- Fastest (at least, vs all alternatives and on all platforms we've benchmarked
-  where 256-bit SIMD operations are available). See
+- High performance (fastest vs all alternatives we've benchmarked)
   [app/benchmark/README.md](app/benchmark/README.md)
-- Low memory usage (regardless of how big your data is) and size footprint for
-  both lib (~20k) and CLI executable (< 1MB)
-- Handles general delimited data (e.g. pipe-delimited) and fixed-with input
-  (with specified widths or auto-detected widths)
+- Lightweight: low memory usage (regardless of input data size) and binary size for
+  both lib (~30k) and CLI (< 3MB)
+- Handles general delimited data (e.g. pipe-delimited) and fixed-width input
+  (with specified widths or auto-detected widths), as well as CRLF-only row delims
+  with unquoted embedded LF
 - Handles multi-row headers
 - Handles input from any stream, including caller-defined streams accessed via a
   single caller-defined `fread`-like function
 - Easy to use as a library in a few lines of code, via either pull or push
   parsing
 - Includes the `zsv` CLI with the following built-in commands:
-  - `sheet`, an in-console interactive and extendable grid viewer
+  - [`sheet`](docs/sheet.md), an in-console interactive and extendable grid viewer
   - `select`, `count`, `sql` query, `desc`ribe, `flatten`, `serialize`, `2json`,
-    `2db`, `stack`, `pretty`, `2tsv`, `paste`, `compare`, `jq`, `prop`, `rm`
+    `2db`, `stack`, `pretty`, `2tsv`, `paste`, `check`, `compare`, `overwrite`,
+    `jq`
   - easily [convert between CSV/JSON/sqlite3](docs/csv_json_sqlite.md)
   - [compare multiple files](docs/compare.md)
+  - [overwrite cells in files](docs/overwrite.md)
+  - [and more](#batteries-included)
 - CLI is easy to extend/customize with a few lines of code via modular plug-in
   framework. Just write a few custom functions and compile into a distributable
   DLL that any existing zsv installation can use.
-
-## Installing
-
-### Packages
-
-Download pre-built binaries and packages for macOS, Windows, Linux and BSD from
-the [Releases](https://github.com/liquidaty/zsv/releases) page.
-
-You can also download pre-built binaries and packages from
-[Actions](https://github.com/liquidaty/zsv/actions) for the latest commits and
-PRs but these are retained only for limited days.
-
-> [!IMPORTANT]
->
-> For [musl libc](https://www.musl-libc.org/) static build, the dynamic
-> extensions are not supported!
-
-> [!NOTE]
->
-> After `v0.3.9-alpha`, all package artifacts will be properly
-> [attested](https://github.blog/news-insights/product-news/introducing-artifact-attestations-now-in-public-beta/).
-> To verify, you can use [GitHub CLI](https://cli.github.com/) like this:
->
-> ```shell
-> gh attestation verify <downloaded-artifact> --repo liquidaty/zsv
-> ```
-
-#### macOS
-
-...via Homebrew:
-
-```shell
-brew tap liquidaty/zsv
-brew install zsv
-```
-
-...via MacPorts:
-
-```shell
-sudo port install zsv
-```
-
-#### Linux
-
-For Linux (Debian/Ubuntu - `*.deb`):
-
-```shell
-# Install
-sudo apt install ./zsv-amd64-linux-gcc.deb
-
-# Uninstall
-sudo apt remove zsv
-```
-
-For Linux (RHEL/CentOS - `*.rpm`):
-
-```shell
-# Install
-sudo yum install ./zsv-amd64-linux-gcc.rpm
-
-# Uninstall
-sudo yum remove zsv
-```
-
-#### Windows
-
-For Windows (`*.nupkg`), install with `nuget.exe`:
-
-```shell
-# Install via nuget custom feed (requires absolutes paths)
-md nuget-feed
-nuget.exe add zsv .\<path>\zsv-amd64-windows-mingw.nupkg -source <path>/nuget-feed
-nuget.exe install zsv -version <version> -source <path>/nuget-feed
-
-# Uninstall
-nuget.exe delete zsv <version> -source <path>/nuget-feed
-```
-
-For Windows (`*.nupkg`), install with `choco.exe`:
-
-```shell
-# Install
-choco.exe install zsv --pre -source <directory containing .nupkg file>
-
-# Uninstall
-choco.exe uninstall zsv
-```
-
-#### Node
-
-The zsv parser library is available for node:
-
-```shell
-npm install zsv-lib
-```
-
-Please note:
-
-- This package is still in alpha and currently only exposes a small subset of
-  the zsv library capabilities. More to come!
-- The CLI is not yet available as a Node package
-- If you'd like to use additional parser features, or use the CLI as a Node
-  package, please feel free to post a request in an issue here.
-
-#### GHCR (GitHub Container Registry)
-
-`zsv` CLI is also available as a container image from
-[Packages](https://github.com/liquidaty?tab=packages).
-
-The container image is published on every release. In addition to the specific
-release tag, the image is also tagged as `latest` i.e. `zsv:latest` always
-points the latest released version.
-
-Example:
-
-```shell
-$ docker pull ghcr.io/liquidaty/zsv
-# ...
-$ cat worldcitiespop_mil.csv | docker run -i ghcr.io/liquidaty/zsv count
-1000000
-```
-
-For image details, see [Dockerfile](./Dockerfile). You may use this as a
-baseline for your own use cases as needed.
-
-#### GitHub Actions
-
-In a GitHub Actions workflow, you can use [`zsv/setup-action`](./setup-action)
-to set up zsv+zsvlib:
-
-```yml
-- name: Set up zsv+zsvlib
-  uses: liquidaty/zsv/setup-action@main
-```
-
-See [zsv/setup-action/README](./setup-action/README.md) for more details.
-
-### From source
-
-See [BUILD.md](BUILD.md) for more details.
 
 ## Why another CSV parser/utility?
 
@@ -289,85 +196,90 @@ needs.
 
 `zsv` comes with several built-in commands:
 
-- `sheet`: an in-console, interactive grid viewer
+- [`sheet`](docs/sheet.md): an in-console, interactive grid viewer
 - `echo`: read CSV from stdin and write it back out to stdout. This is mostly
   useful for demonstrating how to use the API and also how to create a plug-in,
   and has several uses beyond that including adding/removing BOM, cleaning up
   bad UTF8, whitespace or blank column trimming, limiting output to a contiguous
   data block, skipping leading garbage, and even proving substitution values
   without modifying the underlying source
+- `check`: scan for anomolies such as rows with a different number of cells
+  than the header row or invalid utf8
+- `count`: print the number of rows
 - `select`: re-shape CSV by skipping leading garbage, combining header rows into
   a single header, selecting or excluding specified columns, removing duplicate
   columns, sampling, converting from fixed-width input, searching and more
-- `sql`: treat one or more CSV files like database tables and query with SQL
 - `desc`: provide a quick description of your table data
+- `sql`: treat one or more CSV files like database tables and query with SQL
 - `pretty`: format for console (fixed-width) display, or convert to markdown
   format
-- `2json`: convert CSV to JSON. Optionally, output in
-  [database schema](docs/db.schema.json)
-- `2tsv`: convert to TSV (tab-delimited) format
-- `compare`: compare two or more tables of data and output the differences
-- `paste` (alpha): horizontally paste two tables together (given inputs X and Y,
-   output 1...N rows where each row all columns of X in row N, followed by all
-   columns of Y in row N)
 - `serialize` (inverse of flatten): convert an NxM table to a single 3x (Nx(M-1))
   table with columns: Row, Column Name, Column Value
 - `flatten` (inverse of serialize): flatten a table by combining rows that share
   a common value in a specified identifier column
+- `2json`: convert CSV to JSON. Optionally, output in
+  [database schema](docs/db.schema.json)
+- `2tsv`: convert to TSV (tab-delimited) format
 - `stack`: merge CSV files vertically
+- `paste`: horizontally paste two tables together (given inputs X and Y,
+   output 1...N rows where each row contains the entire corresponding
+   row in X followed by the entire corresponding row in Y)
+- `compare`: compare two or more tables of data and output the differences
+- `overwrite`: overwrite a cell value; changes will be reflected in any zsv
+  command when the --apply-overwrites option is specified
 - `jq`: run a `jq` filter
 - `2db`: [convert from JSON to sqlite3 db](docs/csv_json_sqlite.md)
 - `prop`: view or save parsing options associated with a file, such as initial
   rows to ignore, or header row span. Saved options are be applied by default
   when processing that file.
 
-Each of these can also be built as an independent executable named `zsv_xxx`
+Most of these can also be built as an independent executable named `zsv_xxx`
 where `xxx` is the command name.
 
 ## Running the CLI
 
 After installing, run `zsv help` to see usage details. The typical syntax is
-`zsv <command> <parameters>` e.g.
+`zsv <command> <parameters>` e.g.:
 
 ```shell
 zsv sql my_population_data.csv "select * from data where population > 100000"
 ```
 
-### Using the API
+## Using the API
 
 Simple API usage examples include:
 
-Pull parsing:
+### Pull parsing
 
 ```c
-zsv_parser parser = zsv_new(...);
+zsv_parser parser = zsv_new(NULL);
 while (zsv_next_row(parser) == zsv_status_row) { // for each row
   // ...
-  size_t cell_count = zsv_cell_count(parser);
+  const size_t cell_count = zsv_cell_count(parser);
   for (size_t i = 0; i < cell_count; i++) { // for each cell
-    struct zsv_cell c = zsv_get_cell(parser, i);
-    fprintf(stderr, "Cell: %.*s\n", c.len, c.str);
+    struct zsv_cell cell = zsv_get_cell(parser, i);
+    printf("cell: %.*s\n", cell.len, cell.str);
     // ...
   }
 }
 ```
 
-Push parsing:
+### Push parsing
 
 ```c
 static void my_row_handler(void *ctx) {
-  zsv_parser p = ctx;
-  size_t cell_count = zsv_cell_count(p);
-  for (size_t i = 0, j = zsv_cell_count(p); i < j; i++) {
+  zsv_parser parser = ctx;
+  const size_t cell_count = zsv_cell_count(parser);
+  for (size_t i = 0; i < cell_count; i++) {
     // ...
   }
 }
 
 int main() {
-  zsv_parser p = zsv_new(NULL);
-  zsv_set_row_handler(p, my_row_handler);
-  zsv_set_context(p, p);
-  while (zsv_parse_more(data.parser) == zsv_status_ok);
+  zsv_parser parser = zsv_new(NULL);
+  zsv_set_row_handler(parser, my_row_handler);
+  zsv_set_context(parser, parser);
+  while (zsv_parse_more(parser) == zsv_status_ok);
   return 0;
 }
 ```
@@ -382,7 +294,7 @@ For more sophisticated (but at this time, only sporadically
 commented/documented) use cases, see the various CLI C source files in the `app`
 directory such as `app/serialize.c`.
 
-### Creating your own extension
+## Creating your own extension
 
 You can extend `zsv` by providing a pre-compiled shared or static library that
 defines the functions specified in `extension_template.h` and which `zsv` loads
@@ -394,7 +306,7 @@ in one of three ways:
 - as a dynamic library that is located in the same folder as the `zsv`
   executable and loaded at runtime if/as/when the custom mode is invoked
 
-#### Example and template
+### Example and template
 
 You can build and run a sample extension by running `make test` from
 `app/ext_example`.
@@ -402,15 +314,8 @@ You can build and run a sample extension by running `make test` from
 The easiest way to implement your own extension is to copy and customize the
 template files in [app/ext_template](app/ext_template/README.md)
 
-## Current release limitations
+## Possible enhancements and related developments
 
-This release does not yet implement the full range of core features that are
-planned for implementation prior to beta release. If you are interested in
-helping, please post an issue.
-
-### Possible enhancements and related developments
-
-- online "playground" (soon to be released)
 - optimize search; add search with hyperscan or re2 regex matching, possibly
   parallelize?
 - optional OpenMP or other multi-threading for row processing
@@ -434,3 +339,6 @@ helping, please post an issue.
 ## License
 
 [MIT](https://github.com/liquidaty/zsv/blob/master/LICENSE)
+
+The zsv CLI uses some permissively-licensed third-party libraries.
+See [misc/THIRDPARTY.md](misc/THIRDPARTY.md) for details.

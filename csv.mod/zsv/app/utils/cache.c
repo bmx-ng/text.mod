@@ -19,9 +19,11 @@
 static const char *zsv_cache_type_name(enum zsv_cache_type t) {
   switch (t) {
   case zsv_cache_type_property:
-    return ZSV_CACHE_PROPERTIES_NAME;
+    return ZSV_CACHE_PROPERTIES_NAME ".json";
   case zsv_cache_type_tag:
-    return "tag";
+    return "tag.json";
+  case zsv_cache_type_overwrite:
+    return "overwrite.sqlite3";
   default:
     return NULL;
   }
@@ -39,7 +41,7 @@ unsigned char *zsv_cache_filepath(const unsigned char *data_filepath, enum zsv_c
   }
 
   unsigned char *cache_filename;
-  asprintf((char **)&cache_filename, "%s.json%s", cache_filename_base, temp_file ? ZSV_TEMPFILE_SUFFIX : "");
+  asprintf((char **)&cache_filename, "%s%s", cache_filename_base, temp_file ? ZSV_TEMPFILE_SUFFIX : "");
 
   unsigned char *s = cache_filename ? zsv_cache_path(data_filepath, cache_filename, 0) : NULL;
   if (s && create_dir) {
@@ -124,7 +126,7 @@ int zsv_modify_cache_file(const unsigned char *filepath, enum zsv_cache_type cty
   if (!(cache_fn && cache_tmp_fn))
     return zsv_printerr(ENOMEM, "Out of memory!");
 
-  cache_data = fopen((void *)cache_fn, "rb");
+  cache_data = zsv_fopen((void *)cache_fn, "rb");
   int err = 0;
   if (!cache_data) {
     err = errno;
@@ -147,7 +149,7 @@ int zsv_modify_cache_file(const unsigned char *filepath, enum zsv_cache_type cty
   }
 
   // jq filter to apply to [current_properties, id, value]
-  FILE *tmp = fopen((const char *)cache_tmp_fn, "wb");
+  FILE *tmp = zsv_fopen((const char *)cache_tmp_fn, "wb");
   if (!tmp) {
     if (!(err = errno))
       err = 1;

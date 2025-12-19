@@ -6,6 +6,8 @@
  * https://opensource.org/licenses/MIT
  */
 
+#include <stdio.h>
+
 static int main_help(int argc, const char *argv[]) {
   (void)(argc);
   (void)(argv);
@@ -29,9 +31,11 @@ static int main_help(int argc, const char *argv[]) {
 #endif
     "  zsv help [<command>]",
     "  zsv <command> <options> <arguments>  : run a command on data (see below for details)",
+#ifndef __EMSCRIPTEN__
     "  zsv <id>-<cmd> <options> <arguments> : invoke command 'cmd' of extension 'id'",
-    "  zsv thirdparty                       : view third-party licenses & acknowledgements",
     "  zsv license [<extension_id>]",
+#endif
+    "  zsv thirdparty                       : view third-party licenses & acknowledgements",
     "",
     "Options common to all commands except `prop`, `rm` and `jq`:",
 #ifdef ZSV_EXTRAS
@@ -50,22 +54,32 @@ static int main_help(int argc, const char *argv[]) {
     "  -S,--keep-blank-headers  : disable default behavior of ignoring leading blank rows",
     "  -0,--header-row <header> : insert the provided CSV as the first row (in position 0)",
     "                             e.g. --header-row 'col1,col2,\"my col 3\"'",
+#ifndef ZSV_NO_ONLY_CRLF
+    "  --only-crlf              : only treat CRLF as row delimiter",
+    "                             CR or LF alone are treated as normal chars that do not require quotes",
+#endif
+#ifdef ZSV_EXTRAS
+    "  -1,--apply-overwrites    : automatically apply overwrites saved via `overwrite` command",
+#endif
     "  -v,--verbose             : verbose output",
     "",
     "Commands that parse CSV or other tabular data:",
-    "  select   : extract rows/columns by name or position and perform other basic and 'cleanup' operations",
     "  echo     : write tabular input to stdout with optional cell overwrites",
-    "  sql      : run ad-hoc SQL",
+    "  check    : check for anolomolies (column counts, utf8 encoding etc)",
     "  count    : print the number of rows",
+    "  select   : extract rows/columns by name or position and perform other basic and 'cleanup' operations",
     "  desc     : describe each column",
+    "  sql      : run ad-hoc SQL on one or more CSV files",
     "  pretty   : pretty print for console display",
+    "  serialize: convert into 3-column format (id, column name, cell value)",
     "  flatten  : flatten a table consisting of N groups of data, each with 1 or",
     "             more rows in the table, into a table of N rows",
     "  2json    : convert CSV or sqlite3 db table to json",
     "  2tsv     : convert to tab-delimited text",
-    "  serialize: convert into 3-column format (id, column name, cell value)",
     "  stack    : stack tables vertically, aligning columns with common names",
+    "  paste    : horizontally paste two tables together: given inputs X, Y, ... of N rows",
     "  compare  : compare two or more tables and output differences",
+    "  overwrite: save, modify or apply overwrites",
     "",
     "Other commands:",
     "  2db      : convert json to sqlite3 db",
@@ -82,6 +96,7 @@ static int main_help(int argc, const char *argv[]) {
   for (size_t i = 0; usage[i]; i++)
     fprintf(f, "%s\n", usage[i]);
 
+#ifndef __EMSCRIPTEN__
   char printed_init = 0;
   struct cli_config config;
   if (!config_init(&config, 1, 1, 0)) {
@@ -102,6 +117,7 @@ static int main_help(int argc, const char *argv[]) {
   }
   if (!printed_init)
     fprintf(f, "\n(No extended commands)\n");
+#endif
 
   return 0;
 }

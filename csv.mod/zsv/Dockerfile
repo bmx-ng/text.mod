@@ -1,20 +1,22 @@
 FROM alpine:latest AS build
 
 LABEL maintainer="Liquidaty"
-LABEL description="zsv: tabular data swiss-army knife CLI + world's fastest (simd) CSV parser"
 LABEL url="https://github.com/liquidaty/zsv"
+LABEL org.opencontainers.image.description="zsv: tabular data swiss-army knife CLI + world's fastest (simd) CSV parser"
 
-RUN apk add --no-cache gcc make musl-dev perl
+RUN apk add bash gcc make musl-dev ncurses-dev ncurses-static tmux file sqlite curl zip
 
 WORKDIR /zsv
 COPY . .
+
+RUN mkdir /usr/local/etc
 
 RUN \
     PREFIX=amd64-linux-musl \
     CC=gcc \
     MAKE=make \
     ARTIFACT_DIR=artifacts \
-    RUN_TESTS=false \
+    RUN_TESTS=true \
     STATIC_BUILD=1 \
     SKIP_ZIP_ARCHIVE=true \
     SKIP_TAR_ARCHIVE=true \

@@ -9,9 +9,16 @@
 #ifndef ZSV_EXT_H
 #define ZSV_EXT_H
 
+#define ZSV_EXTENSION_ID_MIN_LEN 2
+#define ZSV_EXTENSION_ID_MAX_LEN 8
+
 #include <stdio.h>
+#include <stdint.h>
 #include "common.h"
 #include "ext/sheet.h"
+#include "utils/sql.h"
+#include "utils/prop.h"
+#include "utils/writer.h"
 
 /**
  * @file ext.h
@@ -42,6 +49,12 @@ enum zsv_ext_status {
   zsv_ext_status_error,
 
   /**
+   * operation not permitted, such as an extension attempting
+   * to modify a buffer that is owned by a different extension
+   */
+  zsv_ext_status_not_permitted,
+
+  /**
    * zsv_ext_status_other is treated as a silent error by ZSV, e.g. if you have
    * already handled your error and do not want any further error message displayed
    */
@@ -59,7 +72,7 @@ typedef void *zsv_execution_context;
  * Signature of the function called for each implemented sub-command
  */
 typedef enum zsv_ext_status (*zsv_ext_main)(zsv_execution_context ctx, int argc, const char *argv[],
-                                            struct zsv_opts *opts, const char *opts_used);
+                                            struct zsv_opts *opts);
 
 /**
  * ZSV callbacks structure
@@ -73,6 +86,17 @@ typedef enum zsv_ext_status (*zsv_ext_main)(zsv_execution_context ctx, int argc,
  * For a description of each callback, see the corresponding zsv_-prefixed
  * function in zsv.h
  */
+struct zsvsheet_buffer_data {
+  unsigned char has_row_num : 1;
+  unsigned char _ : 7;
+};
+
+typedef uint32_t zsvsheet_cell_attr_t;
+enum zsvsheet_cell_profile_t {
+  zsvsheet_cell_attr_profile_none = 0,
+  zsvsheet_cell_attr_profile_link,
+};
+
 struct zsv_ext_callbacks {
   void (*set_row_handler)(zsv_parser handle, void (*row)(void *ctx));
   void (*set_context)(zsv_parser handle, void *ctx);
@@ -119,11 +143,6 @@ struct zsv_ext_callbacks {
   struct zsv_opts (*ext_parser_opts)(zsv_execution_context ctx);
 
   /**
-   * fetch options_used from execution context
-   */
-  const char *(*ext_opts_used)(zsv_execution_context ctx);
-
-  /**
    * convenience function that calls ext_args_to_opts, allocates parser,
    * sets custom ctx, runs parser, and de-allocates parser
    */
@@ -151,11 +170,17 @@ struct zsv_ext_callbacks {
   /****************************************
    * Registering a custom `sheet` command *
    ****************************************/
-  zsvsheet_handler_status (*ext_sheet_register_command)(
-    int ch,               // keyboard shortcut
-    const char *longname, // long name that can be used via run-cmd to invoke
-    zsvsheet_handler_status (*subcommand_handler)(zsvsheet_subcommand_handler_context_t),
-    zsvsheet_handler_status (*handler)(zsvsheet_handler_context_t ctx));
+  zsvsheet_proc_id_t (*ext_sheet_register_proc)(const char *name, const char *description,
+                                                zsvsheet_status (*handler)(zsvsheet_proc_context_t ctx));
+
+  /**
+   * Bind a command to a key binding
+   * TO DO: allow binding of key that already exists; in which case
+   * allow handler to act as middleware that can cancel or allow other handlers to be executed
+   *
+   * @return 0 on success, else error
+   */
+  int (*ext_sheet_register_proc_key_binding)(char ch, zsvsheet_proc_id_t proc_id);
 
   /*** Custom command prompt ***/
   /**
@@ -163,41 +188,140 @@ struct zsv_ext_callbacks {
    * @param  s text to set the subcommand prompt to. must be < 256 bytes in length
    * returns zsvsheet_status_ok on success
    */
-  zsvsheet_handler_status (*ext_sheet_subcommand_prompt)(zsvsheet_subcommand_handler_context_t ctx, const char *fmt,
-                                                         ...);
+  zsvsheet_status (*ext_sheet_prompt)(zsvsheet_proc_context_t ctx, char *buffer, size_t bufsz, const char *fmt, ...);
 
   /*** Custom command handling ***/
   /**
    * Set a status message
    */
-  zsvsheet_handler_status (*ext_sheet_handler_set_status)(zsvsheet_handler_context_t, const char *fmt, ...);
+  zsvsheet_status (*ext_sheet_set_status)(zsvsheet_proc_context_t ctx, const char *fmt, ...);
 
   /**
    * Get the key press that triggered this subcommand handler
    */
-  int (*ext_sheet_handler_key)(zsvsheet_subcommand_handler_context_t ctx);
+  int (*ext_sheet_keypress)(zsvsheet_proc_context_t ctx);
 
   /****** Managing buffers ******/
   /**
    * Get the current buffer
    */
-  zsvsheet_handler_buffer_t (*ext_sheet_handler_buffer_current)(zsvsheet_handler_context_t);
+  zsvsheet_buffer_t (*ext_sheet_buffer_current)(zsvsheet_proc_context_t ctx);
 
   /**
    * Get the prior buffer
    */
-  zsvsheet_handler_buffer_t (*ext_sheet_handler_buffer_prior)(zsvsheet_handler_buffer_t b);
+  zsvsheet_buffer_t (*ext_sheet_buffer_prior)(zsvsheet_buffer_t b);
+
+  /**
+   * Get info about a buffer
+   */
+  struct zsvsheet_buffer_data (*ext_sheet_buffer_info)(zsvsheet_buffer_t);
 
   /**
    * Get the filename associated with a buffer
    */
-  const char *(*ext_sheet_handler_buffer_filename)(zsvsheet_handler_buffer_t);
+  const char *(*ext_sheet_buffer_filename)(zsvsheet_buffer_t);
+
+  /**
+   * Get the data file associated with a buffer. This might not be the same as the filename,
+   * such as when the data has been filtered
+   */
+  const char *(*ext_sheet_buffer_data_filename)(zsvsheet_buffer_t);
+
+  /**
+   * Get the currently-selected cell
+   */
+  zsvsheet_status (*ext_sheet_buffer_get_selected_cell)(zsvsheet_buffer_t, struct zsvsheet_rowcol *);
 
   /**
    * Open a tabular file as a new buffer
    */
-  zsvsheet_handler_status (*ext_sheet_handler_open_file)(zsvsheet_handler_context_t, const char *filepath,
-                                                         struct zsv_opts *zopts);
+  zsvsheet_status (*ext_sheet_open_file)(zsvsheet_proc_context_t, const char *filepath, struct zsv_opts *zopts);
+
+  /**
+   * Set custom context
+   * @param on_close optional callback to invoke when the buffer is closed
+   *
+   * @return zsv_ext_status_ok on success, else zsv_ext_status error code
+   */
+  enum zsv_ext_status (*ext_sheet_buffer_set_ctx)(zsvsheet_buffer_t h, void *ctx, void (*on_close)(void *));
+
+  /**
+   * Get custom context previously set via zsvsheet_buffer_set_ctx()
+   * @param ctx_out result will be written to this address
+   *
+   * @return zsv_ext_status_ok on success, else zsv_ext_status error code
+   */
+  enum zsv_ext_status (*ext_sheet_buffer_get_ctx)(zsvsheet_buffer_t h, void **ctx_out);
+
+  /**
+   *
+   */
+  zsvsheet_cell_attr_t (*ext_sheet_cell_profile_attrs)(enum zsvsheet_cell_profile_t);
+
+  /**
+   * Set custom cell attributes
+   */
+  void (*ext_sheet_buffer_set_cell_attrs)(zsvsheet_buffer_t h,
+                                          enum zsv_ext_status (*get_cell_attrs)(void *pdh, zsvsheet_cell_attr_t *attrs,
+                                                                                size_t start_row, size_t row_count,
+                                                                                size_t cols));
+
+  /**
+   * Set custom handler on Enter key press
+   *
+   * @return zsv_ext_status_ok on success, else zsv_ext_status error code
+   */
+  enum zsv_ext_status (*ext_sheet_buffer_on_newline)(zsvsheet_buffer_t h,
+                                                     zsvsheet_status (*on_newline)(zsvsheet_proc_context_t));
+
+  /**
+   * Get zsv_opts used to open the buffer's data file
+   */
+  struct zsv_opts (*ext_sheet_buffer_get_zsv_opts)(zsvsheet_buffer_t h);
+
+  /**
+   * SQLITE3 helpers
+   */
+  int (*ext_sqlite3_add_csv)(struct zsv_sqlite3_db *zdb, const char *csv_filename, struct zsv_opts *opts,
+                             struct zsv_prop_handler *custom_prop_handler);
+  void (*ext_sqlite3_db_delete)(zsv_sqlite3_db_t);
+  zsv_sqlite3_db_t (*ext_sqlite3_db_new)(struct zsv_sqlite3_dbopts *dbopts);
+
+  /**
+   * Create a new buffer from the current one using a transformation
+   * and make the new buffer the current one
+   *
+   * Note that the transformation is performed in a seperate thread so the user_context
+   * must not be a stack variable
+   *
+   * See struct zsvsheet_buffer_transformation_opts in zsv/ext/sheet.h
+   */
+  zsvsheet_status (*ext_sheet_push_transformation)(zsvsheet_proc_context_t ctx,
+                                                   struct zsvsheet_buffer_transformation_opts opts);
+
+  /**
+   * Get the writer associated with a transformation.
+   *
+   * The transformation itself is passed as the context variable to the row handler
+   */
+  zsv_csv_writer (*ext_sheet_transformation_writer)(zsvsheet_transformation trn);
+
+  /**
+   * Get the user provided context from the context provided to a transformation row handler
+   */
+  void *(*ext_sheet_transformation_user_context)(zsvsheet_transformation trn);
+
+  /**
+   * Get the parser from the context provided to a transformation row handler
+   */
+  zsv_parser (*ext_sheet_transformation_parser)(zsvsheet_transformation trn);
+
+  /**
+   * Get the filename that the transformation writer outputs to from the context provided to a transformation row
+   * handler.
+   */
+  const char *(*ext_sheet_transformation_filename)(zsvsheet_transformation trn);
 };
 
 /** @} */
