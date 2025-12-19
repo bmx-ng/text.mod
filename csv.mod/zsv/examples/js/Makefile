@@ -25,7 +25,8 @@ ZSVSRC=$(addprefix ${ZSVSRCDIR}/,${ZSVSRC1})
 
 INCLUDE_DIR=${THIS_MAKEFILE_DIR}/../../include
 
-CFLAGS+= -I../../app/external/utf8proc-2.6.1 # for app/utils/string.c
+CFLAGS += -I../../app/external/utf8proc-2.6.1 # for app/utils/string.c
+CFLAGS += -I../../app/external/sqlite3
 
 ifeq ($(DEBUG),1)
   DBG_SUBDIR+=dbg
@@ -60,12 +61,11 @@ COLOR_RED=\033[1;31m
 COLOR_BLUE=\033[1;34m
 COLOR_PINK=\033[1;35m
 
-TEST_PASS=echo "${COLOR_BLUE}$@: ${COLOR_GREEN}Passed${COLOR_NONE}"
-TEST_FAIL=(echo "${COLOR_BLUE}$@: ${COLOR_RED}Failed!${COLOR_NONE}" && exit 1)
+TEST_PASS=printf "${COLOR_BLUE}$@: ${COLOR_GREEN}Passed${COLOR_NONE}\n"
+TEST_FAIL=(printf "${COLOR_BLUE}$@: ${COLOR_RED}Failed!${COLOR_NONE}\n" && exit 1)
 #####
 
 .PHONY: help all run clean prep node setup benchmark count_compare select_compare node_ok
-
 
 help:
 	@echo "make [build|run|node|test|clean] [NODE=/path/to/node]" # e.g. NODE=/usr/local/Cellar/node/19.1.0/bin/node
@@ -83,9 +83,12 @@ run: ${BROWSER_JS} ${STATIC}
 clean:
 	rm -rf build node
 
-prep: ../../app/external/utf8proc-2.6.1/utf8proc.h
+prep: utf8proc.h zsv.h
 
-../../app/external/utf8proc-2.6.1/utf8proc.h:
+zsv.h:
+	make -C ../../src ../include/zsv.h
+
+utf8proc.h:
 	make -C ../../app ./external/utf8proc-2.6.1/utf8proc.h THIS_MAKEFILE_DIR=.
 
 test: node_ok npm/test/select_all.js node

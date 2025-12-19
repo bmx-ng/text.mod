@@ -54,12 +54,13 @@ struct zsv_cell {
   /**
    * bitfield values for `quoted` flags
    */
-#define ZSV_PARSER_QUOTE_NONE 0     /* content does not need to be quoted */
-#define ZSV_PARSER_QUOTE_UNCLOSED 1 /* only used internally by parser */
-#define ZSV_PARSER_QUOTE_CLOSED 2   /* value was quoted */
-#define ZSV_PARSER_QUOTE_NEEDED 4   /* value contains delimiter or dbl-quote */
-#define ZSV_PARSER_QUOTE_EMBEDDED 8 /* value contains dbl-quote */
-#define ZSV_PARSER_QUOTE_PENDING 16 /* only used internally by parser */
+#define ZSV_PARSER_QUOTE_NONE 0        /* content does not need to be quoted */
+#define ZSV_PARSER_QUOTE_UNCLOSED 1    /* only used internally by parser */
+#define ZSV_PARSER_QUOTE_CLOSED 2      /* value was quoted */
+#define ZSV_PARSER_QUOTE_NEEDED 4      /* value contains delimiter or dbl-quote */
+#define ZSV_PARSER_QUOTE_EMBEDDED 8    /* value contains dbl-quote */
+#define ZSV_PARSER_QUOTE_PENDING 16    /* only used internally by parser */
+#define ZSV_PARSER_QUOTE_PENDING_LF 32 /* only used internally by parser */
   /**
    * quoted flags enable additional efficiency, in particular when input data will
    * be output as text (csv, json etc), by indicating whether the cell contents may
@@ -73,6 +74,10 @@ struct zsv_cell {
 
 typedef size_t (*zsv_generic_write)(const void *restrict, size_t, size_t, void *restrict);
 typedef size_t (*zsv_generic_read)(void *restrict, size_t n, size_t size, void *restrict);
+typedef int (*zsv_generic_seek)(void *, long, int);
+
+#define zsv_generic_fprintf (int (*)(void *, const char *, ...)) fprintf;
+#define zsv_generic_fclose (int (*)(void *)) fclose;
 
 #ifdef ZSV_EXTRAS
 /**
@@ -91,21 +96,26 @@ typedef int (*zsv_progress_callback)(void *ctx, size_t cumulative_row_count);
 typedef void (*zsv_completed_callback)(void *ctx, int code);
 
 /**
- * Data can be "overwritten" on-the-fly by providing a source for
- *   (row, column, value) tuples
- * Supported source formats are CSV and SQLITE3
+ * Data can be "overwritten" on-the-fly by providing custom callbacks
+ * data from the calling code is passed to the zsv library
+ * via the `zsv_overwrite_data` structure
  */
-enum zsv_overwrite_type {
-  zsv_overwrite_type_unknown = 0, // do not change
-  zsv_overwrite_type_none = 1,    // do not change
-  zsv_overwrite_type_csv
-  // to do: zsv_overwrite_type_sqlite3
+struct zsv_overwrite_data {
+  size_t row_ix; // 0-based
+  size_t col_ix; // 0-based
+  size_t timestamp;
+  struct zsv_cell val;
+  struct zsv_cell author;
+  struct zsv_cell old_value;
+  char have; // 1 = we have unprocessed overwrites
 };
 
 struct zsv_opt_overwrite {
-  enum zsv_overwrite_type type;
   void *ctx;
-  int (*close_ctx)(void *);
+  enum zsv_status (*open)(void *ctx);
+  enum zsv_status (*next)(void *ctx, struct zsv_overwrite_data *odata);
+  enum zsv_status (*close)(void *ctx);
+  char cancel; // explicitly cancel application of overwrites
 };
 
 #endif
@@ -152,6 +162,12 @@ struct zsv_opts {
    * If not specified, the default value is `fread()`
    */
   zsv_generic_read read;
+
+  /**
+   * Caller can specify its own seek function for setting the file position
+   * with zsv_index_seek. If not specified, the default value is `fseek()`
+   */
+  zsv_generic_seek seek;
 
   /**
    * Caller can specify its own stream that is passed to the read function
@@ -209,6 +225,14 @@ struct zsv_opts {
    */
   char no_quotes;
 
+#ifndef ZSV_NO_ONLY_CRLF
+  /**
+   * only_crlf_rowend: if non-zero, *only* accept CRLF as row end
+   *
+   * cli option: --only-crlf
+   */
+  char only_crlf_rowend;
+#endif
   /**
    * flag to print more verbose messages to the console
    * cli option: -v,--verbose
@@ -252,6 +276,30 @@ struct zsv_opts {
 #define ZSV_MALFORMED_UTF8_REMOVE -1
   char malformed_utf8_replace;
 
+  /**
+   * `overrides` is a bitfield that indicates what ZSV options, if any, were
+   * specifically set in the command invocation and is used to ensure
+   * that option values set in the command invocation take priority over
+   * default values, or values saved in related property values such as
+   * .zsv/data/<filename>/props.json
+   *
+   * For example, if a file has a saved header row span of 2, but the
+   * command-line arguments explicitly included `--header-row-span 3`,
+   * then setting header_span to 3 and setting overrides.header_row_span
+   * ensures that the value of 3 is used
+   */
+  struct {
+    unsigned char header_row_span : 1;
+    unsigned char skip_head : 1;
+    unsigned char max_column_count : 1;
+    unsigned char malformed_utf8_replacement : 1;
+    unsigned char _ : 4;
+  } option_overrides;
+
+  int (*errprintf)(void *ctx, const char *format, ...);
+  void *errf;
+  int (*errclose)(void *ctx);
+
 #ifdef ZSV_EXTRAS
   struct {
     /**
@@ -292,11 +340,22 @@ struct zsv_opts {
   size_t max_rows;
 
   /**
+   * If non-zero, automatically apply overwrites located in
+   * /path/to/.zsv/data/my-data.csv/overwrite.sqlite3 for a given
+   * input /path/to/my-data.csv
+   *
+   * This flag is only used by zsv_new_with_properties()
+   * if using zsv_new(), this flag is ignored (use the `overwrite` structure instead)
+   */
+  char overwrite_auto;
+
+  /**
    * Optional cell-level values that overwrite data returned to the caller by the API
+   * Use when not using overwrite_auto together with zsv_new_with_properties()
    */
   struct zsv_opt_overwrite overwrite;
 
-#endif
+#endif /* ZSV_EXTRAS */
 };
 
 #endif

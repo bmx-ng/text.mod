@@ -405,8 +405,10 @@ static void zsv_desc_row(void *ctx) {
       col->unique_values_ci.max_count = data->max_enum;
     }
 
-    if (data->header_only)
+    if (data->header_only) {
       data->done = 1;
+      zsv_abort(data->parser);
+    }
   } else {
     if (data->row_count % 50000 == 0 && data->opts->verbose)
       fprintf(stderr, "%zu rows read\n", data->row_count);
@@ -423,7 +425,7 @@ const char *zsv_desc_usage_msg[] = {
   "",
   "Options:",
   "  -b,--with-bom            : output with BOM",
-  "  -C <max_num_of_columns>  : maximum number of columns (default: 1024)",
+  "  -C <max_num_of_columns>  : maximum number of columns (default: " ZSV_DESC_MAX_COLS_DEFAULT_S ")",
   "  -H                       : output header names only",
   "  -q,--quick               : minimize example counts",
   "  -a,--all                 : calculate all metadata (for now, this only adds uniqueness info)",
@@ -431,7 +433,7 @@ const char *zsv_desc_usage_msg[] = {
   NULL,
 };
 
-static int zsv_desc_usage() {
+static int zsv_desc_usage(void) {
   for (size_t i = 0; zsv_desc_usage_msg[i]; i++)
     fprintf(stdout, "%s\n", zsv_desc_usage_msg[i]);
   return 0;
@@ -464,14 +466,14 @@ static void zsv_desc_cleanup(struct zsv_desc_data *data) {
 #define ZSV_DESC_TMPFN_TEMPLATE "zsv_desc_XXXXXXXXXXXX"
 
 static void zsv_desc_execute(struct zsv_desc_data *data, struct zsv_prop_handler *custom_prop_handler,
-                             const char *input_path, const char *opts_used) {
+                             const char *input_path) {
   data->opts->cell_handler = zsv_desc_cell;
   data->opts->row_handler = zsv_desc_row;
   data->opts->ctx = data;
 
   if (!data->max_enum)
     data->max_enum = ZSV_DESC_MAX_ENUM_DEFAULT;
-  if (zsv_new_with_properties(data->opts, custom_prop_handler, input_path, opts_used, &data->parser) == zsv_status_ok) {
+  if (zsv_new_with_properties(data->opts, custom_prop_handler, input_path, &data->parser) == zsv_status_ok) {
     FILE *input_temp_file = NULL;
     enum zsv_status status;
     if (input_temp_file)
@@ -487,7 +489,7 @@ static void zsv_desc_execute(struct zsv_desc_data *data, struct zsv_prop_handler
 }
 
 int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *opts,
-                               struct zsv_prop_handler *custom_prop_handler, const char *opts_used) {
+                               struct zsv_prop_handler *custom_prop_handler) {
   if (argc < 1)
     zsv_desc_usage();
   else if (argc > 1 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")))
@@ -505,15 +507,12 @@ int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *op
 
     struct zsv_csv_writer_options writer_opts = zsv_writer_get_default_opts();
 
-    for (int arg_i = 1; !data.err && arg_i < argc; arg_i++) {
+    for (int arg_i = 1; !err && !data.err && arg_i < argc; arg_i++) {
       if (!strcmp(argv[arg_i], "-b") || !strcmp(argv[arg_i], "--with-bom"))
         writer_opts.with_bom = 1;
-      else if (!strcmp(argv[arg_i], "-o") || !strcmp(argv[arg_i], "--output")) {
-        if (++arg_i >= argc)
-          data.err = zsv_printerr(zsv_desc_status_error, "%s option requires a filename", argv[arg_i - 1]);
-        else if (!(writer_opts.stream = fopen(argv[arg_i], "wb")))
-          data.err = zsv_printerr(zsv_desc_status_error, "Unable to open for write: %s", argv[arg_i]);
-      } else if (!strcmp(argv[arg_i], "-a") || !strcmp(argv[arg_i], "--all"))
+      else if (!strcmp(argv[arg_i], "-o") || !strcmp(argv[arg_i], "--output"))
+        writer_opts.output_path = zsv_next_arg(++arg_i, argc, argv, (int *)&data.err);
+      else if (!strcmp(argv[arg_i], "-a") || !strcmp(argv[arg_i], "--all"))
         data.flags = 0xff;
       else if (!strcmp(argv[arg_i], "-q") || !strcmp(argv[arg_i], "--quick"))
         data.quick = 1;
@@ -561,7 +560,7 @@ int ZSV_MAIN_FUNC(ZSV_COMMAND)(int argc, const char *argv[], struct zsv_opts *op
       return 1;
     }
 
-    zsv_desc_execute(&data, custom_prop_handler, input_path, opts_used);
+    zsv_desc_execute(&data, custom_prop_handler, input_path);
     zsv_desc_finalize(&data);
     zsv_desc_print(&data);
     zsv_desc_cleanup(&data);
