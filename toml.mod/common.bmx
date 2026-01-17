@@ -20,7 +20,7 @@
 ' 
 SuperStrict
 
-Import BRL.Map
+Import Collections.StringMap
 Import BRL.TextStream
 Import BRL.StringBuilder
 
