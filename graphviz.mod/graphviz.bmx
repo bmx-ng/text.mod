@@ -1,7 +1,7 @@
 SuperStrict
 
 Rem
-bbdoc: Text / Graphviz
+bbdoc: Text/Graphviz
 End Rem
 Module Text.Graphviz
 
