@@ -1,4 +1,4 @@
-' Copyright (c) 2008-2022 Bruce A Henderson
+' Copyright (c) 2008-2026 Bruce A Henderson
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -26,11 +26,13 @@ about: An XML-based object-persistence framework.
 End Rem
 Module Text.PersistenceXml
 
-ModuleInfo "Version: 1.06"
+ModuleInfo "Version: 1.07"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
-ModuleInfo "Copyright: 2008-2022 Bruce A Henderson"
+ModuleInfo "Copyright: 2008-2026 Bruce A Henderson"
 
+ModuleInfo "History: 1.07"
+ModuleInfo "History: Collections refactoring."
 ModuleInfo "History: 1.06"
 ModuleInfo "History: Updated to use Text.XML."
 ModuleInfo "History: 1.05"
@@ -51,6 +53,7 @@ ModuleInfo "History: Initial Release"
 Import Text.XML
 Import BRL.Reflection
 Import BRL.Map
+Import Collections.IntMap
 Import BRL.Stream
 
 Import "glue.c"
@@ -1105,9 +1108,9 @@ Type TIntMapXMLSerializer Extends TXMLSerializer
 	
 	Method Serialize(tid:TTypeId, obj:Object, node:TxmlNode)
 		Local map:TIntMap = TIntMap(obj)
-		
+
 		If map Then
-			For Local mapNode:TIntNode = EachIn map
+			For Local mapNode:TIntKeyValue = EachIn map
 				Local v:TxmlNode = node.addChild("e")
 				If mapNode.Value() Then
 					SerializeReferencedObject(mapNode.Value(), v)
@@ -1146,7 +1149,7 @@ Type TStringMapXMLSerializer Extends TXMLSerializer
 		Local map:TStringMap = TStringMap(obj)
 		
 		If map Then
-			For Local mapNode:TStringNode = EachIn map
+			For Local mapNode:TStringKeyValue = EachIn map
 				Local n:TxmlNode = node.addChild("n")
 				SerializeReferencedObject(mapNode.Key(), n.addChild("k"))
 				SerializeReferencedObject(mapNode.Value(), n.addChild("v"))
