@@ -27,7 +27,7 @@ ModuleInfo "History: 1.00"
 ModuleInfo "History: Initial Release."
 
 Import "common.bmx"
-Import Brl.ObjectList
+Import Collections.ObjectList
 
 ' disable wrapping
 bmx_mxmlSetWrapMargin(0)
