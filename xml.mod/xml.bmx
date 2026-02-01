@@ -27,6 +27,7 @@ ModuleInfo "History: 1.00"
 ModuleInfo "History: Initial Release."
 
 Import "common.bmx"
+Import Collections.ObjectList
 
 ' disable wrapping
 bmx_mxmlSetWrapMargin(0)
@@ -167,16 +168,35 @@ Type TxmlNode Extends TxmlBase
 	Rem
 	bbdoc: Provides the value of the attribute with the specified qualified name.
 	End Rem
-	Method getAttribute:String(name:String)
-		Return bmx_mxmlElementGetAttr(nodePtr, name)
+	Method getAttribute:String(name:String, caseInsensitive:Int = False)
+		Local found:Int
+		If Not caseInsensitive
+			Return bmx_mxmlElementGetAttr(nodePtr, name, found)
+		Else
+			Return bmx_mxmlElementGetAttrCaseInsensitive(nodePtr, name, found)
+		EndIf
+	End Method
+
+	Rem
+	bbdoc: Provides the value of the attribute with the specified qualified name.
+	returns: True if the attribute exists
+	End Rem
+	Method tryGetAttribute:Int(name:String, value:String var, caseInsensitive:Int = False)
+		Local found:Int
+		If Not caseInsensitive
+			value = bmx_mxmlElementGetAttr(nodePtr, name, found)
+		Else
+			value = bmx_mxmlElementGetAttrCaseInsensitive(nodePtr, name, found)
+		EndIf
+		Return found
 	End Method
 	
 	Rem
 	bbdoc: Returns the list of node attributes.
 	returns: The list of attributes.
 	End Rem
-	Method getAttributeList:TList()
-		Local list:TList = New TList
+	Method getAttributeList:TObjectList()
+		Local list:TObjectList = New TObjectList
 		Local count:Int = bmx_mxmlElementGetAttrCount(nodePtr)
 		If count Then
 			For Local i:Int = 0 Until count
@@ -187,27 +207,62 @@ Type TxmlNode Extends TxmlBase
 		End If
 		Return list
 	End Method
+
+
+	Rem
+	bbdoc: Returns the count of node attributes.
+	returns: The count of attributes.
+	End Rem
+	Method getAttributeCount:Int()
+		Return bmx_mxmlElementGetAttrCount(nodePtr)
+	End Method
+
+
+	Rem
+	bbdoc: Returns the value of a node's attribute. Name of the attribute is written into "name" (or empty if not existing)
+	returns: The value of the attribute.
+	End Rem
+	Method getAttributeByIndex:String(index:Int, name:String var)
+		Return bmx_mxmlElementGetAttrByIndex(nodePtr, index, name)
+	End Method
+
+	Rem
+	bbdoc: Returns the value of a node's attribute. This variant avoids creation of a name-string
+	returns: The value of the attribute.
+	End Rem
+	Method getAttributeByIndex:String(index:Int)
+		Return bmx_mxmlElementGetAttrByIndexNoName(nodePtr, index)
+	End Method
+
 	
 	Rem
 	bbdoc: Remove an attribute carried by the node.
 	End Rem
-	Method unsetAttribute(name:String)
-		bmx_mxmlElementDeleteAttr(nodePtr, name)
+	Method unsetAttribute(name:String, caseInsensitive:Int = False)
+		If Not caseInsensitive
+			bmx_mxmlElementDeleteAttr(nodePtr, name)
+		Else
+			bmx_mxmlElementDeleteAttrCaseInsensitive(nodePtr, name)
+		EndIf
 	End Method
 	
 	Rem
 	bbdoc: Search an attribute associated to the node
 	returns: #True if the attribute exists, or #False otherwise.
 	End Rem
-	Method hasAttribute:Int(name:String)
-		Return bmx_mxmlElementHasAttr(nodePtr, name)
+	Method hasAttribute:Int(name:String, caseInsensitive:Int = False)
+		If Not caseInsensitive
+			Return bmx_mxmlElementHasAttr(nodePtr, name)
+		Else
+			Return bmx_mxmlElementHasAttrCaseInsensitive(nodePtr, name)
+		EndIf
 	End Method
 	
 	Rem
 	bbdoc: Returns a list of child nodes.
 	End Rem
-	Method getChildren:TList()
-		Local list:TList = New TList
+	Method getChildren:TObjectList()
+		Local list:TObjectList = New TObjectList
 		
 		Local n:Byte Ptr = bmx_mxmlWalkNext(nodePtr, nodePtr, MXML_DESCEND)
 		
@@ -293,8 +348,12 @@ Type TxmlNode Extends TxmlBase
 	bbdoc: Finds an element of the given @element name, attribute or attribute/value.
 	returns: A node or Null if no match was found.
 	End Rem
-	Method findElement:TxmlNode(element:String = "", attr:String = "", value:String = "", descend:Int=MXML_DESCEND)
-		Return TxmlNode._create(bmx_mxmlFindElement(nodePtr, element, attr, value, descend))
+	Method findElement:TxmlNode(element:String = "", attr:String = "", value:String = "", descend:Int=MXML_DESCEND, caseInsensitive:Int = False)
+		If Not caseInsensitive
+			Return TxmlNode._create(bmx_mxmlFindElement(nodePtr, element, attr, value, descend))
+		Else
+			Return TxmlNode._create(bmx_mxmlFindElementCaseInsensitive(nodePtr, element, attr, value, descend))
+		EndIf
 	End Method
 
 	Rem
