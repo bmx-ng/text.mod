@@ -271,10 +271,10 @@ BBString * bmx_mxmlElementGetAttrByIndexNoName(mxml_node_t * node, int index) {
     }
 }
 
-BBString * bmx_mxmlElementGetAttrCaseInsensitive(mxml_node_t *node,
-                                                   BBString *attr,
-                                                   int *found) {
-    if (attr == &bbEmptyString) return &bbEmptyString;
+BBString * bmx_mxmlElementGetAttrCaseInsensitive(mxml_node_t *node, BBString *attr, int *found) {
+    if (attr == &bbEmptyString) {
+		return &bbEmptyString;
+	}
 
     char *a = bbStringToUTF8String(attr);
     const char *result = NULL;
@@ -289,8 +289,9 @@ BBString * bmx_mxmlElementGetAttrCaseInsensitive(mxml_node_t *node,
             const char *name = NULL;
             const char *val = mxmlElementGetAttrByIndex(node, i, &name);
 
-            if (!name) 
+            if (!name) {
                 continue;
+            }
 
             // different name?
             if (strcasecmp(name, a) != 0) {
@@ -542,8 +543,7 @@ mxml_node_t * bmx_mxmlFindElement(mxml_node_t * node, BBString * element, BBStri
 }
 
 
-mxml_node_t * bmx_mxmlFindElementCaseInsensitive(mxml_node_t * node,
-    BBString * element, BBString * attr, BBString * value, int descend) {
+mxml_node_t * bmx_mxmlFindElementCaseInsensitive(mxml_node_t * node, BBString * element, BBString * attr, BBString * value, int descend) {
     
     char * e = 0;
     char * a = 0;
@@ -562,14 +562,22 @@ mxml_node_t * bmx_mxmlFindElementCaseInsensitive(mxml_node_t * node,
     mxml_node_t * result = 0;
 
     for (mxml_node_t * cur = node; cur; cur = mxmlWalkNext(cur, node, descend)) {
-        if (mxmlGetType(cur) != MXML_ELEMENT) continue;
+        if (mxmlGetType(cur) != MXML_ELEMENT) {
+			continue;
+		}
 
-        if (e && strcasecmp(mxmlGetElement(cur), e) != 0) continue;
+        if (e && strcasecmp(mxmlGetElement(cur), e) != 0) {
+			continue;
+		}
 
         if (a) {
             const char *attrVal = mxmlElementGetAttr(cur, a);
-            if (!attrVal) continue;
-            if (v && strcasecmp(attrVal, v) != 0) continue;
+            if (!attrVal) {
+				continue;
+			}
+            if (v && strcasecmp(attrVal, v) != 0) {
+				continue;
+			}
         }
 
         result = cur;
