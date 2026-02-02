@@ -518,6 +518,15 @@ BBString * bmx_mxmlGetCDATA(mxml_node_t * node) {
 	return bbStringFromUTF8String(txt);
 }
 
+BBString * bmx_mxmlGetText(mxml_node_t * node) {
+	const char * txt = mxmlGetText(node, NULL);
+	
+	if (!txt || strlen(txt) == 0) {
+		return &bbEmptyString;
+	}
+	return bbStringFromUTF8String(txt);
+}
+
 mxml_node_t * bmx_mxmlFindElement(mxml_node_t * node, BBString * element, BBString * attr, BBString * value, int descend) {
 	char * e = 0;
 	char * a = 0;
