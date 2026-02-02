@@ -553,51 +553,54 @@ mxml_node_t * bmx_mxmlFindElement(mxml_node_t * node, BBString * element, BBStri
 
 
 mxml_node_t * bmx_mxmlFindElementCaseInsensitive(mxml_node_t * node, BBString * element, BBString * attr, BBString * value, int descend) {
-    
-    char * e = 0;
-    char * a = 0;
-    char * v = 0;
-    
-    if (element != &bbEmptyString) {
-        e = bbStringToUTF8String(element);
-    }
-    if (attr != &bbEmptyString) {
-        a = bbStringToUTF8String(attr);
-    }
-    if (value != &bbEmptyString) {
-        v = bbStringToUTF8String(value);
-    }
+	char *e = (element != &bbEmptyString) ? bbStringToUTF8String(element) : NULL;
+	char *a = (attr    != &bbEmptyString) ? bbStringToUTF8String(attr)    : NULL;
+	char *v = (value   != &bbEmptyString) ? bbStringToUTF8String(value)   : NULL;
 
-    mxml_node_t * result = 0;
+	mxml_node_t *cur = NULL;
 
-    for (mxml_node_t * cur = node; cur; cur = mxmlWalkNext(cur, node, descend)) {
-        if (mxmlGetType(cur) != MXML_ELEMENT) {
+	for (cur = node; cur; cur = mxmlWalkNext(cur, node, descend)) {
+
+		if (mxmlGetType(cur) != MXML_ELEMENT) {
 			continue;
 		}
 
-        if (e && strcasecmp(mxmlGetElement(cur), e) != 0) {
+		if (e && strcasecmp(mxmlGetElement(cur), e)) {
 			continue;
 		}
 
-        if (a) {
-            const char *attrVal = mxmlElementGetAttr(cur, a);
-            if (!attrVal) {
+		if (a) {
+			const char *attrName = NULL;
+			const char *attrVal  = NULL;
+
+			int count = mxmlElementGetAttrCount(cur);
+
+			for (int i = 0; i < count; ++i) {
+				mxmlElementGetAttrByIndex(cur, i, &attrName);
+
+				// found it?
+				if (attrName && !strcasecmp(attrName, a)) {
+					attrVal = mxmlElementGetAttr(cur, attrName);
+					break;
+				}
+			}
+
+			if (!attrVal) {
 				continue;
 			}
-            if (v && strcasecmp(attrVal, v) != 0) {
+			if (v && strcasecmp(attrVal, v)) {
 				continue;
 			}
-        }
+		}
 
-        result = cur;
-        break;
-    }
+		break;
+	}
 
-    bbMemFree(v);
-    bbMemFree(a);
-    bbMemFree(e);
+	bbMemFree(v);
+	bbMemFree(a);
+	bbMemFree(e);
 
-    return result;
+	return cur;
 }
 
 
