@@ -2,6 +2,7 @@ SuperStrict
 
 Framework brl.standardio
 Import Text.Ini
+Import BRL.ByteArrayStream
 Import BRL.MaxUnit
 
 New TTestSuite.run()
@@ -317,73 +318,6 @@ Type TIniTest Extends TTest
 		value = ""
 		assertTrue( s1.TryGet("key4", value) )
 		assertEquals( "", value )
-		
-	End Method
-
-End Type
-
-
-
-Type TByteArrayStream Extends TStream
-
-	Field _data:Byte[]
-	Field _pos:Int
-
-	Method New(txt:String)
-
-		Local t:Byte Ptr = txt.ToUTF8String()
-		_data = New Byte[txt.Length]
-		MemCopy( _data, t, Size_T(txt.Length) )
-		MemFree(t)
-
-	End Method
-
-	Method New(data:Byte[])
-
-		Self._data = data
-
-	End Method
-
-	Method Pos:Long() Override
-		Return _pos
-	End Method
-
-	Method Size:Long() Override
-		Return _data.Length
-	End Method
-
-	Method Seek:Long( pos:Long, whence:Int = SEEK_SET_ ) Override
-		_pos = pos
-		Return _pos
-	End Method
-
-	Method Read:Long( buf:Byte Ptr,count:Long ) Override
-		If _pos+count>_data.Length Then
-			count=_data.Length-_pos
-		End If
-
-		Local bptr:Byte Ptr = _data
-		MemCopy( buf, bptr + _pos, Size_T(count) )
-
-		_pos:+count
-		Return count
-	End Method
-
-	Method Write:Long( buf:Byte Ptr,count:Long ) Override
-
-		If _pos+count>_data.Length Then
-			_data = _data[0.._pos+count]
-		End If
-
-		Local bptr:Byte Ptr = _data
-		MemCopy( bptr + _pos, buf, Size_T(count) )
-
-		_pos:+count
-
-		Return count
-	End Method
-
-	Method Close()
 		
 	End Method
 

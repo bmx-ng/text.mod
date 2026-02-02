@@ -208,7 +208,6 @@ Type TxmlNode Extends TxmlBase
 		Return list
 	End Method
 
-
 	Rem
 	bbdoc: Returns the count of node attributes.
 	returns: The count of attributes.
@@ -216,7 +215,6 @@ Type TxmlNode Extends TxmlBase
 	Method getAttributeCount:Int()
 		Return bmx_mxmlElementGetAttrCount(nodePtr)
 	End Method
-
 
 	Rem
 	bbdoc: Returns the value of a node's attribute. Name of the attribute is written into "name" (or empty if not existing)
@@ -234,7 +232,6 @@ Type TxmlNode Extends TxmlBase
 		Return bmx_mxmlElementGetAttrByIndexNoName(nodePtr, index)
 	End Method
 
-	
 	Rem
 	bbdoc: Remove an attribute carried by the node.
 	End Rem
@@ -335,6 +332,9 @@ Type TxmlNode Extends TxmlBase
 					
 				Case MXML_OPAQUE
 					sb.Append(bmx_mxmlGetContent(n))
+				
+				Case MXML_TEXT
+					sb.Append(bmx_mxmlGetText(n))
 					
 			EndSelect
 			
@@ -397,7 +397,7 @@ Type TxmlDoc Extends TxmlBase
 	returns: The resulting document tree.
 	End Rem
 	Function readDoc:TxmlDoc(doc:Object)
-		If String(doc) Then
+		If doc And ObjectIsString(doc) Then
 			Local txt:String = String(doc)
 	
 			' strip utf8 BOM		
@@ -446,13 +446,15 @@ Type TxmlDoc Extends TxmlBase
 		End If
 		
 		If TStream(file) Then
-			Try
+			If created Or autoClose Then
+				Using
+					Local stream:TStream = TStream(file)
+				Do
+					Return bmx_mxmlSaveStream(nodePtr, stream, format) = 0
+				End Using
+			Else
 				Return bmx_mxmlSaveStream(nodePtr, TStream(file), format) = 0
-			Finally
-				If created Or autoClose Then
-					TStream(file).Close()
-				End If
-			End Try
+			End If
 		End If
 		
 		Return False
@@ -474,13 +476,17 @@ Type TxmlDoc Extends TxmlBase
 		
 		If TStream(file) Then
 			Local doc:TxmlDoc
-			Try
+
+			If opened Then
+				Using
+					Local stream:TStream = TStream(file)
+				Do
+					doc = _create(bmx_mxmlLoadStream(stream))
+				End Using
+			Else
 				doc = _create(bmx_mxmlLoadStream(TStream(file)))
-			Finally
-				If opened Then
-					TStream(file).close()
-				End If
-			End Try
+			End If
+
 			Return doc
 		End If
 		

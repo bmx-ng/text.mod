@@ -63,6 +63,7 @@ Extern
 	Function bmx_mxmlSetWrapMargin(column:Int)
 	Function bmx_mxmlGetContent:String(handle:Byte Ptr)
 	Function bmx_mxmlGetCDATA:String(handle:Byte Ptr)
+	Function bmx_mxmlGetText:String(handle:Byte Ptr)
 	
 	Function bmx_mxmlSetErrorCallback(callback(message:Byte Ptr))
 End Extern
