@@ -60,8 +60,8 @@ Type THBFreeTypeFont Extends BRL.Font.TFont
 	Field _featuresLength:Int
 	Field _features:Byte Ptr
 
-	Field _glyphMap:TTreeMap<Int,SGlyphPosition> = New TTreeMap<Int,SGlyphPosition>
-	Field _positionMap:TTreeMap<Int,SGlyphPosition> = New TTreeMap<Int,SGlyphPosition>
+	Field _glyphMap:THashMap<Int,SGlyphPosition> = New THashMap<Int,SGlyphPosition>
+	Field _positionMap:THashMap<Int,SGlyphPosition> = New THashMap<Int,SGlyphPosition>
 
 	Method Delete()
 		bmx_hb_ft_font_destroy(_hb_font)

@@ -22,7 +22,7 @@ SuperStrict
 
 
 Import Brl.FreeTypeFont
-Import Brl.Collections
+Import Collections.HashMap
 Import "source.bmx"
 
 Extern

@@ -598,7 +598,7 @@ Type TPersist
 										Next
 										
 									Default
-										Local arrayList:TList = fieldNode.getChildren()
+										Local arrayList:TObjectList = fieldNode.getChildren()
 										
 										If arrayList ' Birdie
 											Local arrayObj:Object = arrayType.NewArray(arrayList.Count(), scalesi)
@@ -715,7 +715,7 @@ Type TPersist
 							Next
 							
 						Default
-							Local arrayList:TList = node.getChildren()
+							Local arrayList:TObjectList = node.getChildren()
 							
 							If arrayList
 								
