@@ -25,12 +25,14 @@ bbdoc: A CSV parser.
 End Rem
 Module Text.CSV
 
-ModuleInfo "Version: 1.06"
+ModuleInfo "Version: 1.07"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
 ModuleInfo "zsv - Copyright (c) 2021 Guarnerix Inc dba Liquidaty"
 ModuleInfo "Copyright: 2022-2025 Bruce A Henderson"
 
+ModuleInfo "History: 1.07"
+ModuleInfo "History: Disabled zsv extras which were causing build issues on some platforms due to sqilte3 requirements."
 ModuleInfo "History: 1.06"
 ModuleInfo "History: Updated to zsv 1.3.0"
 ModuleInfo "History: 1.05"
@@ -47,9 +49,13 @@ ModuleInfo "History: 1.00"
 ModuleInfo "History: Initial Release"
 
 ModuleInfo "CC_OPTS: -DVERSION=\~qv1.3.0\~q"
-ModuleInfo "CC_OPTS: -DZSV_EXTRAS=1"
 
 Import "common.bmx"
+
+'
+' Build notes:
+'   Commented out ZSV_EXTRAS in zsv.h since its addition oddly adds sqlite3 requirement to the library
+'
 
 Rem
 bbdoc: Csv Parser

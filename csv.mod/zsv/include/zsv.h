@@ -9,9 +9,9 @@
 #ifndef ZSV_H
 #define ZSV_H
 
-#ifndef ZSV_EXTRAS
-#define ZSV_EXTRAS
-#endif
+// #ifndef ZSV_EXTRAS
+// #define ZSV_EXTRAS
+// #endif
 
 #include <stddef.h>
 #include "zsv/common.h"
