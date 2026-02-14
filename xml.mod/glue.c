@@ -16,6 +16,7 @@ limitations under the License.
 
 #include "text.mod/mxml.mod/mxml/mxml.h"
 #include "brl.mod/blitz.mod/blitz.h"
+#include "brl.mod/stringbuilder.mod/glue.h"
 
 extern int text_xml__xmlstream_read(void *, void *, unsigned int);
 extern int text_xml__xmlstream_write(void *, const void *, unsigned int);
@@ -509,6 +510,11 @@ BBString * bmx_mxmlGetContent(mxml_node_t * node) {
 	return bbStringFromUTF8String(txt);
 }
 
+void bmx_mxmlGetContent_append_stringbuilder(mxml_node_t * node, struct MaxStringBuilder * sb) {
+	const char * txt = mxmlGetOpaque(node);
+	bmx_stringbuilder_append_utf8string(sb, txt);
+}
+
 BBString * bmx_mxmlGetCDATA(mxml_node_t * node) {
 	const char * txt = mxmlGetCDATA(node);
 	
@@ -518,6 +524,11 @@ BBString * bmx_mxmlGetCDATA(mxml_node_t * node) {
 	return bbStringFromUTF8String(txt);
 }
 
+void bmx_mxmlGetCDATA_append_stringbuilder(mxml_node_t * node, struct MaxStringBuilder * sb) {
+	const char * txt = mxmlGetCDATA(node);
+	bmx_stringbuilder_append_utf8string(sb, txt);
+}
+
 BBString * bmx_mxmlGetText(mxml_node_t * node) {
 	const char * txt = mxmlGetText(node, NULL);
 	
@@ -525,6 +536,11 @@ BBString * bmx_mxmlGetText(mxml_node_t * node) {
 		return &bbEmptyString;
 	}
 	return bbStringFromUTF8String(txt);
+}
+
+void bmx_mxmlGetText_append_stringbuilder(mxml_node_t * node, struct MaxStringBuilder * sb) {
+	const char * txt = mxmlGetText(node, NULL);
+	bmx_stringbuilder_append_utf8string(sb, txt);
 }
 
 mxml_node_t * bmx_mxmlFindElement(mxml_node_t * node, BBString * element, BBString * attr, BBString * value, int descend) {

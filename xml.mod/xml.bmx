@@ -328,13 +328,13 @@ Type TxmlNode Extends TxmlBase
 		While n
 			Select bmx_mxmlGetType(n)
 				Case MXML_ELEMENT
-					sb.Append(bmx_mxmlGetCDATA(n))
+					bmx_mxmlGetCDATA_append_stringbuilder(n, sb.buffer)
 					
 				Case MXML_OPAQUE
-					sb.Append(bmx_mxmlGetContent(n))
+					bmx_mxmlGetContent_append_stringbuilder(n, sb.buffer)
 				
 				Case MXML_TEXT
-					sb.Append(bmx_mxmlGetText(n))
+					bmx_mxmlGetText_append_stringbuilder(n, sb.buffer)
 					
 			EndSelect
 			
