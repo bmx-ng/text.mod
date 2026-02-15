@@ -1,4 +1,4 @@
-' Copyright 2019-2020 Bruce A Henderson
+' Copyright 2019-2026 Bruce A Henderson
 '
 ' Licensed under the Apache License, Version 2.0 (the "License");
 ' you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ Module Text.XML
 
 ModuleInfo "Version: 1.00"
 ModuleInfo "License: Apache 2.0"
-ModuleInfo "Copyright: 2019-2020 Bruce A Henderson"
+ModuleInfo "Copyright: 2019-2026 Bruce A Henderson"
 
 ModuleInfo "History: 1.00"
 ModuleInfo "History: Initial Release."
@@ -178,8 +178,26 @@ Type TxmlNode Extends TxmlBase
 	End Method
 
 	Rem
+	bbdoc: Provides the value of the attribute with the specified qualified name, appending to an existing #TStringBuilder.
+	End Rem
+	Method getAttribute:TStringBuilder(name:String, sb:TStringBuilder, caseInsensitive:Int = False)
+		If Not sb Then
+			sb = New TStringBuilder()
+		End If
+
+		Local found:Int
+		If Not caseInsensitive
+			bmx_mxmlElementGetAttr_append_stringbuilder(nodePtr, name, sb.buffer, found)
+		Else
+			bmx_mxmlElementGetAttrCaseInsensitive_append_stringbuilder(nodePtr, name, sb.buffer, found)
+		EndIf
+
+		Return sb
+	End Method
+
+	Rem
 	bbdoc: Provides the value of the attribute with the specified qualified name.
-	returns: True if the attribute exists
+	returns: #True if the attribute exists
 	End Rem
 	Method tryGetAttribute:Int(name:String, value:String var, caseInsensitive:Int = False)
 		Local found:Int
@@ -187,6 +205,20 @@ Type TxmlNode Extends TxmlBase
 			value = bmx_mxmlElementGetAttr(nodePtr, name, found)
 		Else
 			value = bmx_mxmlElementGetAttrCaseInsensitive(nodePtr, name, found)
+		EndIf
+		Return found
+	End Method
+
+	Rem
+	bbdoc: Provides the value of the attribute with the specified qualified name, appending to an existing #TStringBuilder.
+	returns: #True if the attribute exists
+	End Rem
+	Method tryGetAttribute:Int(name:String, sb:TStringBuilder, caseInsensitive:Int = False)
+		Local found:Int
+		If Not caseInsensitive
+			bmx_mxmlElementGetAttr_append_stringbuilder(nodePtr, name, sb.buffer, found)
+		Else
+			bmx_mxmlElementGetAttrCaseInsensitive_append_stringbuilder(nodePtr, name, sb.buffer, found)
 		EndIf
 		Return found
 	End Method

@@ -1,5 +1,5 @@
 /*
-Copyright 2019-2020 Bruce A Henderson
+Copyright 2019-2026 Bruce A Henderson
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -227,6 +227,18 @@ BBString * bmx_mxmlElementGetAttr(mxml_node_t * node, BBString * name, int *foun
 	return &bbEmptyString;
 }
 
+void bmx_mxmlElementGetAttr_append_stringbuilder(mxml_node_t * node, BBString * name, struct MaxStringBuilder * sb, int * found) {
+	char * n = bbStringToUTF8String(name);
+	char * v = mxmlElementGetAttr(node, n);
+	bbMemFree(n);
+	if (v) {
+		*found = 1;
+		bmx_stringbuilder_append_utf8string(sb, v);
+	} else {
+		*found = 0;
+	}
+}
+
 void bmx_mxmlElementDeleteAttr(mxml_node_t * node, BBString * name) {
 	char * n = bbStringToUTF8String(name);
 	mxmlElementDeleteAttr(node, n);
@@ -311,6 +323,44 @@ BBString * bmx_mxmlElementGetAttrCaseInsensitive(mxml_node_t *node, BBString *at
     return bbStringFromUTF8String(result);
 }
 
+void bmx_mxmlElementGetAttrCaseInsensitive_append_stringbuilder(mxml_node_t *node, BBString *attr, struct MaxStringBuilder *sb, int *found) {
+	if (attr == &bbEmptyString) {
+		*found = 0;
+		return;
+	}
+
+	char *a = bbStringToUTF8String(attr);
+	const char *result = NULL;
+	int type = mxmlGetType(node);
+	
+	*found = 0;
+
+	if (type == MXML_ELEMENT && a) {
+		int count = mxmlElementGetAttrCount(node);
+
+		for (int i = 0; i < count; i++) {
+			const char *name = NULL;
+			const char *val = mxmlElementGetAttrByIndex(node, i, &name);
+
+			if (!name) {
+				continue;
+			}
+
+			// different name?
+			if (strcasecmp(name, a) != 0) {
+				continue;
+			}
+
+			// found the value
+			result = val;   // can be NULL !
+			*found = 1;
+			bmx_stringbuilder_append_utf8string(sb, result);
+			break;
+		}
+	}
+
+	bbMemFree(a);
+}
 
 int bmx_mxmlElementHasAttrCaseInsensitive(mxml_node_t *node, BBString *name) {
     char *n = bbStringToUTF8String(name);
