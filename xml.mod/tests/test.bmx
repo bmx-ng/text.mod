@@ -269,10 +269,16 @@ Type TXmlMoreTests Extends TTest
 		AssertEquals(True, n.hasAttribute("id"))
 		AssertEquals("123", n.getAttribute("id"))
 
+		Local sb:TStringBuilder = New TStringBuilder()
+		AssertEquals("123", n.getAttribute("id", sb).ToString())
+
 		' default value parameter
 		n.setAttribute("empty") ' should become ""
 		AssertEquals(True, n.hasAttribute("empty"))
 		AssertEquals("", n.getAttribute("empty"))
+
+		sb.SetLength(0)
+		AssertEquals("", n.getAttribute("empty", sb).ToString())
 
 		n.unsetAttribute("id")
 		AssertEquals(False, n.hasAttribute("id"))

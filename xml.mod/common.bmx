@@ -1,4 +1,4 @@
-' Copyright 2019-2020 Bruce A Henderson
+' Copyright 2019-2026 Bruce A Henderson
 '
 ' Licensed under the Apache License, Version 2.0 (the "License");
 ' you may not use this file except in compliance with the License.
@@ -68,6 +68,9 @@ Extern
 	Function bmx_mxmlGetContent_append_stringbuilder(handle:Byte Ptr, sb:Byte Ptr)
 	Function bmx_mxmlGetCDATA_append_stringbuilder(handle:Byte Ptr, sb:Byte Ptr)
 	Function bmx_mxmlGetText_append_stringbuilder(handle:Byte Ptr, sb:Byte Ptr)
+
+	Function bmx_mxmlElementGetAttr_append_stringbuilder(handle:Byte Ptr, name:String, sb:Byte Ptr, found:Int var)
+	Function bmx_mxmlElementGetAttrCaseInsensitive_append_stringbuilder(handle:Byte Ptr, name:String, sb:Byte Ptr, found:Int var)
 	
 	Function bmx_mxmlSetErrorCallback(callback(message:Byte Ptr))
 End Extern
