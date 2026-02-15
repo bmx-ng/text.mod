@@ -542,8 +542,9 @@ Type TPersist
 	
 	Method DeserializeFields(objType:TTypeId, obj:Object, node:TxmlNode)
 		' does the node contain child nodes?
-		If node.getChildren() <> Null Then
-			For Local fieldNode:TxmlNode = EachIn node.getChildren()
+		Local children:TObjectList = node.getChildren()
+		If children <> Null Then
+			For Local fieldNode:TxmlNode = EachIn children
 			
 				' this should be a field
 				If fieldNode.GetName() = "field" Then
@@ -1315,9 +1316,10 @@ Type TMapXMLSerializer Extends TXMLSerializer
 	
 	Method Deserialize:Object(objType:TTypeId, node:TxmlNode)
 		Local map:TMap = TMap(CreateObjectInstance(objType, node))
-	
-		If node.getChildren() Then
-			For Local mapNode:TxmlNode = EachIn node.getChildren()
+
+		Local children:TObjectList = node.getChildren()
+		If children Then
+			For Local mapNode:TxmlNode = EachIn children
 				Local key:Object = DeserializeReferencedObject(TxmlNode(mapNode.getFirstChild()))
 				Local value:Object = DeserializeReferencedObject(TxmlNode(mapNode.getLastChild()))
 			
@@ -1353,8 +1355,9 @@ Type TListXMLSerializer Extends TXMLSerializer
 	Method Deserialize:Object(objType:TTypeId, node:TxmlNode)
 		Local list:TList = TList(CreateObjectInstance(objType, node))
 		
-		If node.getChildren() Then
-			For Local listNode:TxmlNode = EachIn node.getChildren()
+		Local children:TObjectList = node.getChildren()
+		If children Then
+			For Local listNode:TxmlNode = EachIn children
 				list.AddLast(DeserializeReferencedObject(listNode))
 			Next
 		End If
@@ -1390,9 +1393,11 @@ Type TIntMapXMLSerializer Extends TXMLSerializer
 	
 	Method Deserialize:Object(objType:TTypeId, node:TxmlNode)
 		Local map:TIntMap = TIntMap(CreateObjectInstance(objType, node))
-		If node.getChildren() Then
+
+		Local children:TObjectList = node.getChildren()
+		If children Then
 			
-			For Local mapNode:TxmlNode = EachIn node.getChildren()
+			For Local mapNode:TxmlNode = EachIn children
 				Local index:Int = Int(mapNode.getAttribute("index"))
 				Local obj:Object = DeserializeReferencedObject(mapNode)
 				map.Insert(index, obj)
@@ -1428,8 +1433,9 @@ Type TStringMapXMLSerializer Extends TXMLSerializer
 	Method Deserialize:Object(objType:TTypeId, node:TxmlNode)
 		Local map:TStringMap = TStringMap(CreateObjectInstance(objType, node))
 
-		If node.getChildren() Then
-			For Local mapNode:TxmlNode = EachIn node.getChildren()
+		Local children:TObjectList = node.getChildren()
+		If children Then
+			For Local mapNode:TxmlNode = EachIn children
 				Local keyNode:TxmlNode = TxmlNode(mapNode.getFirstChild())
 				Local valueNode:TxmlNode = TxmlNode(mapNode.getLastChild())
 				
