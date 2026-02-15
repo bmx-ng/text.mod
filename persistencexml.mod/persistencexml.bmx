@@ -26,11 +26,13 @@ about: An XML-based object-persistence framework.
 End Rem
 Module Text.PersistenceXml
 
-ModuleInfo "Version: 1.07"
+ModuleInfo "Version: 1.08"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
 ModuleInfo "Copyright: 2008-2026 Bruce A Henderson"
 
+ModuleInfo "History: 1.08"
+ModuleInfo "History: Performance improvements for deserializing numeric arrays."
 ModuleInfo "History: 1.07"
 ModuleInfo "History: Collections refactoring."
 ModuleInfo "History: 1.06"
@@ -98,6 +100,8 @@ Type TPersist
 	
 	Field serializers:TMap = New TMap
 	Field _inited:Int
+
+	Field _sb:TStringBuilder = New TStringBuilder()
 
 	Rem
 	bbdoc: Serializes the specified Object into a String.
@@ -186,7 +190,7 @@ Type TPersist
 		Local elementType:TTypeId = typeId.ElementType()
 		
 		Select elementType
-			Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, UIntTypeId, ULongTypeId, LongIntTypeId, ULongIntTypeId
+			Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, UIntTypeId, ULongTypeId, LongIntTypeId, ULongIntTypeId, SizeTTypeId
 
 				Local sb:TStringBuilder = new TStringBuilder()
 				
@@ -292,6 +296,9 @@ Type TPersist
 			Case ULongIntTypeId
 				t = "ulongint"
 				fieldNode.setContent(f.GetULongInt(obj))
+			Case SizeTTypeId
+				t = "sizet"
+				fieldNode.setContent(f.GetSizeT(obj))
 			Default
 				t = fieldType.Name()
 
@@ -540,46 +547,48 @@ Type TPersist
 			
 				' this should be a field
 				If fieldNode.GetName() = "field" Then
+					_sb.SetLength(0)
 				
 					Local fieldObj:TField = objType.FindField(fieldNode.getAttribute("name"))
 					
 					Local fieldType:String = fieldNode.getAttribute("type")
 					Select fieldType
 						Case "byte", "short", "int"
-							fieldObj.SetInt(obj, fieldNode.GetContent().toInt())
+							fieldObj.SetInt(obj, fieldNode.GetContent(_sb).toInt())
 						Case "long"
-							fieldObj.SetLong(obj, fieldNode.GetContent().toLong())
+							fieldObj.SetLong(obj, fieldNode.GetContent(_sb).toLong())
 						Case "float"
-							fieldObj.SetFloat(obj, fieldNode.GetContent().toFloat())
+							fieldObj.SetFloat(obj, fieldNode.GetContent(_sb).toFloat())
 						Case "double"
-							fieldObj.SetDouble(obj, fieldNode.GetContent().toDouble())
+							fieldObj.SetDouble(obj, fieldNode.GetContent(_sb).toDouble())
 						Case "uint"
-							fieldObj.SetUInt(obj, fieldNode.GetContent().toUInt())
+							fieldObj.SetUInt(obj, fieldNode.GetContent(_sb).toUInt())
+						Case "sizet"
+							fieldObj.SetSizeT(obj, fieldNode.GetContent(_sb).toSizeT())
 						Case "ulong"
-							fieldObj.SetULong(obj, fieldNode.GetContent().toULong())
+							fieldObj.SetULong(obj, fieldNode.GetContent(_sb).toULong())
 						Case "longint"
-							fieldObj.SetLongInt(obj, LongInt(fieldNode.GetContent().toLongInt())) ' FIXME : why do we need to cast here?
+							fieldObj.SetLongInt(obj, LongInt(fieldNode.GetContent(_sb).toLongInt())) ' FIXME : why do we need to cast here?
 						Case "ulongint"
-							fieldObj.SetULongInt(obj, fieldNode.GetContent().toULongInt())
+							fieldObj.SetULongInt(obj, fieldNode.GetContent(_sb).toULongInt())
 						Default
 							If fieldType.StartsWith("array:") Then
 
 								Local arrayType:TTypeId = fieldObj.TypeId()
 								Local arrayElementType:TTypeId = arrayType.ElementType()
 
+								_sb.SetLength(0)
+
 								' for file version 3+
 								Local scalesi:Int[]
-								Local scales:String[] = fieldNode.getAttribute("scales").split(",")
+								Local scales:Int[] = fieldNode.getAttribute("scales", _sb).SplitInts(",")
 								If scales.length > 1 Then
-									scalesi = New Int[scales.length]
-									For Local i:Int = 0 Until scales.length
-										scalesi[i] = Int(scales[i])
-									Next
+									scalesi = scales
 								End If
 								
 								' for file Version 1+
 								Select arrayElementType
-									Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, UIntTypeId, ULongTypeId, LongIntTypeId, ULongIntTypeId
+									Case FloatTypeId, DoubleTypeId
 									
 										Local arrayList:String[]
 										Local content:String = fieldNode.GetContent().Trim()
@@ -596,7 +605,205 @@ Type TPersist
 										For Local i:Int = 0 Until arrayList.length
 											arrayType.SetArrayElement(arrayObj, i, arrayList[i])
 										Next
+
+									Case ByteTypeId
+										_sb.SetLength(0)
+										fieldNode.GetContent(_sb).Trim()
+
+										Local values:Byte[]
+										If _sb.Length() > 0 Then
+											values = _sb.SplitBytes(" ")
+										End If
+
+										' Fast path for 1-dimensional arrays
+										If scalesi.length = 0 Then
+											fieldObj.Set(obj, values)
+										Else
+											' Multi-dimensional array - create and copy
+											Local arrayObj:Object = arrayType.NewArray(values.length, scalesi)
+											fieldObj.Set(obj, arrayObj)
+
+											For Local i:Int = 0 Until values.length
+												arrayType.SetArrayElement(arrayObj, i, values[i])
+											Next
+										End If
+
+									Case ShortTypeId
+										_sb.SetLength(0)
+										fieldNode.GetContent(_sb).Trim()
+
+										Local values:Short[]
+										If _sb.Length() > 0 Then
+											values = _sb.SplitShorts(" ")
+										End If
+
+										' Fast path for 1-dimensional arrays
+										If scalesi.length = 0 Then
+											fieldObj.Set(obj, values)
+										Else
+											' Multi-dimensional array - create and copy
+											Local arrayObj:Object = arrayType.NewArray(values.length, scalesi)
+											fieldObj.Set(obj, arrayObj)
+
+											For Local i:Int = 0 Until values.length
+												arrayType.SetArrayElement(arrayObj, i, values[i])
+											Next
+										End If
+									
+									Case IntTypeId
+										_sb.SetLength(0)
+										fieldNode.GetContent(_sb).Trim()
+
+										Local values:Int[]
+										If _sb.Length() > 0 Then
+											values = _sb.SplitInts(" ")
+										End If
+
+										' Fast path for 1-dimensional arrays
+										If scalesi.length = 0 Then
+											fieldObj.Set(obj, values)
+										Else
+											' Multi-dimensional array - create and copy
+											Local arrayObj:Object = arrayType.NewArray(values.length, scalesi)
+											fieldObj.Set(obj, arrayObj)
+
+											For Local i:Int = 0 Until values.length
+												arrayType.SetArrayElement(arrayObj, i, values[i])
+											Next
+										End If
 										
+									Case LongTypeId
+										_sb.SetLength(0)
+										fieldNode.GetContent(_sb).Trim()
+
+										Local values:Long[]
+										If _sb.Length() > 0 Then
+											values = _sb.SplitLongs(" ")
+										End If
+
+										' Fast path for 1-dimensional arrays
+										If scalesi.length = 0 Then
+											fieldObj.Set(obj, values)
+										Else
+											' Multi-dimensional array - create and copy
+											Local arrayObj:Object = arrayType.NewArray(values.length, scalesi)
+											fieldObj.Set(obj, arrayObj)
+
+											For Local i:Int = 0 Until values.length
+												arrayType.SetArrayElement(arrayObj, i, values[i])
+											Next
+										End If
+
+									Case UIntTypeId
+										_sb.SetLength(0)
+										fieldNode.GetContent(_sb).Trim()
+
+										Local values:UInt[]
+										If _sb.Length() > 0 Then
+											values = _sb.SplitUInts(" ")
+										End If
+
+										' Fast path for 1-dimensional arrays
+										If scalesi.length = 0 Then
+											fieldObj.Set(obj, values)
+										Else
+											' Multi-dimensional array - create and copy
+											Local arrayObj:Object = arrayType.NewArray(values.length, scalesi)
+											fieldObj.Set(obj, arrayObj)
+
+											For Local i:Int = 0 Until values.length
+												arrayType.SetArrayElement(arrayObj, i, values[i])
+											Next
+										End If
+
+									Case ULongTypeId
+										_sb.SetLength(0)
+										fieldNode.GetContent(_sb).Trim()
+
+										Local values:ULong[]
+										If _sb.Length() > 0 Then
+											values = _sb.SplitULongs(" ")
+										End If
+
+										' Fast path for 1-dimensional arrays
+										If scalesi.length = 0 Then
+											fieldObj.Set(obj, values)
+										Else
+											' Multi-dimensional array - create and copy
+											Local arrayObj:Object = arrayType.NewArray(values.length, scalesi)
+											fieldObj.Set(obj, arrayObj)
+
+											For Local i:Int = 0 Until values.length
+												arrayType.SetArrayElement(arrayObj, i, values[i])
+											Next
+										End If
+									
+									Case LongIntTypeId
+										_sb.SetLength(0)
+										fieldNode.GetContent(_sb).Trim()
+
+										Local values:LongInt[]
+										If _sb.Length() > 0 Then
+											values = _sb.SplitLongInts(" ")
+										End If
+
+										' Fast path for 1-dimensional arrays
+										If scalesi.length = 0 Then
+											fieldObj.Set(obj, values)
+										Else
+											' Multi-dimensional array - create and copy
+											Local arrayObj:Object = arrayType.NewArray(values.length, scalesi)
+											fieldObj.Set(obj, arrayObj)
+
+											For Local i:Int = 0 Until values.length
+												arrayType.SetArrayElement(arrayObj, i, values[i])
+											Next
+										End If
+
+									Case ULongIntTypeId
+										_sb.SetLength(0)
+										fieldNode.GetContent(_sb).Trim()
+
+										Local values:ULongInt[]
+										If _sb.Length() > 0 Then
+											values = _sb.SplitULongInts(" ")
+										End If
+
+										' Fast path for 1-dimensional arrays
+										If scalesi.length = 0 Then
+											fieldObj.Set(obj, values)
+										Else
+											' Multi-dimensional array - create and copy
+											Local arrayObj:Object = arrayType.NewArray(values.length, scalesi)
+											fieldObj.Set(obj, arrayObj)
+
+											For Local i:Int = 0 Until values.length
+												arrayType.SetArrayElement(arrayObj, i, values[i])
+											Next
+										End If
+
+									Case SizeTTypeId
+										_sb.SetLength(0)
+										fieldNode.GetContent(_sb).Trim()
+
+										Local values:Size_T[]
+										If _sb.Length() > 0 Then
+											values = _sb.SplitSizeTs(" ")
+										End If
+
+										' Fast path for 1-dimensional arrays
+										If scalesi.length = 0 Then
+											fieldObj.Set(obj, values)
+										Else
+											' Multi-dimensional array - create and copy
+											Local arrayObj:Object = arrayType.NewArray(values.length, scalesi)
+											fieldObj.Set(obj, arrayObj)
+
+											For Local i:Int = 0 Until values.length
+												arrayType.SetArrayElement(arrayObj, i, values[i])
+											Next
+										End If
+
 									Default
 										Local arrayList:TObjectList = fieldNode.getChildren()
 										
@@ -699,22 +906,80 @@ Type TPersist
 				Local objType:TTypeId = TTypeId.ForName(node.getAttribute("type") + "[]")
 				
 				Local size:Int = node.getAttribute("size").toInt()
-				obj = objType.NewArray(size)
-				AddObjectRef(obj, node)
 
 				If size > 0 Then
 					Local arrayElementType:TTypeId = objType.ElementType()
 	
 					Select arrayElementType
-						Case ByteTypeId, ShortTypeId, IntTypeId, LongTypeId, FloatTypeId, DoubleTypeId, UIntTypeId, ULongTypeId, LongIntTypeId, ULongIntTypeId
+						Case FloatTypeId, DoubleTypeId
 						
+							obj = objType.NewArray(size)
+							AddObjectRef(obj, node)
+
 							Local arrayList:String[] = node.GetContent().Split(" ")
 							
 							For Local i:Int = 0 Until arrayList.length
 								objType.SetArrayElement(obj, i, arrayList[i])
 							Next
+
+						Case ByteTypeId
+							_sb.SetLength(0)
+
+							obj = node.GetContent(_sb).SplitBytes(" ")
+							AddObjectRef(obj, node)
+						
+						Case ShortTypeId
+							_sb.SetLength(0)
+
+							obj = node.GetContent(_sb).SplitShorts(" ")
+							AddObjectRef(obj, node)
+
+						Case IntTypeId
+							_sb.SetLength(0)
+
+							obj = node.GetContent(_sb).SplitInts(" ")
+							AddObjectRef(obj, node)
+
+						Case LongTypeId
+							_sb.SetLength(0)
+
+							obj = node.GetContent(_sb).SplitLongs(" ")
+							AddObjectRef(obj, node)
+
+						Case UIntTypeId
+							_sb.SetLength(0)
+
+							obj = node.GetContent(_sb).SplitUInts(" ")
+							AddObjectRef(obj, node)
+
+						Case ULongTypeId
+							_sb.SetLength(0)
+
+							obj = node.GetContent(_sb).SplitULongs(" ")
+							AddObjectRef(obj, node)
+
+						Case LongIntTypeId
+							_sb.SetLength(0)
+
+							obj = node.GetContent(_sb).SplitLongInts(" ")
+							AddObjectRef(obj, node)
+
+						Case ULongIntTypeId
+							_sb.SetLength(0)
+
+							obj = node.GetContent(_sb).SplitULongInts(" ")
+							AddObjectRef(obj, node)
+
+						Case SizeTTypeId
+							_sb.SetLength(0)
+
+							obj = node.GetContent(_sb).SplitSizeTs(" ")
+							AddObjectRef(obj, node)
 							
 						Default
+							obj = objType.NewArray(size)
+							AddObjectRef(obj, node)
+
 							Local arrayList:TObjectList = node.getChildren()
 							
 							If arrayList
@@ -746,6 +1011,9 @@ Type TPersist
 								Next
 							EndIf
 					End Select
+				Else
+					obj = objType.NewArray(size)
+					AddObjectRef(obj, node)
 				End If
 			
 			Else
