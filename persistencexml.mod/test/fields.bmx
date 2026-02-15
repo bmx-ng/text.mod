@@ -230,6 +230,16 @@ Type FieldsTest Extends TTest
 			AssertEquals(arrays.sizets[i], result.sizets[i], "Size_Ts Array item mismatch at index " + i)
 		Next
 
+		AssertEquals(arrays.floats.Length, result.floats.Length, "Floats Array length mismatch")
+		For Local i:Int = 0 Until arrays.floats.Length
+			AssertEquals(arrays.floats[i], result.floats[i], 0, "Floats Array item mismatch at index " + i)
+		Next
+
+		AssertEquals(arrays.doubles.Length, result.doubles.Length, "Doubles Array length mismatch")
+		For Local i:Int = 0 Until arrays.doubles.Length
+			AssertEquals(arrays.doubles[i], result.doubles[i], 0, "Doubles Array item mismatch at index " + i)
+		Next
+
 	End Method
 
 	Method testIntArray() { test }
@@ -381,6 +391,36 @@ Type FieldsTest Extends TTest
 		AssertEquals(ulongints.Length, result.Length, "ULongInts Array length mismatch")
 		For Local i:Int = 0 Until ulongints.Length
 			AssertEquals(ulongints[i], result[i], "ULongInts Array item mismatch at index " + i)
+		Next
+	End Method
+
+	Method testFloatArray() { test }
+		Local floats:Float[] = [-3.4028235E+38:Float, 1.4E-45:Float, 0:Float, 3.4028235E+38:Float]
+		
+		Local s:String = persist.SerializeToString(floats)
+
+		persist.Free()
+		
+		Local result:Float[] = Float[](persist.DeserializeObject(s))
+
+		AssertEquals(floats.Length, result.Length, "Floats Array length mismatch")
+		For Local i:Int = 0 Until floats.Length
+			AssertEquals(floats[i], result[i], 0, "Floats Array item mismatch at index " + i)
+		Next
+	End Method
+
+	Method testDoubleArray() { test }
+		Local doubles:Double[] = [-1.7976931348623157E+17:Double, 4.9406564584124654E-17:Double, 0:Double, 1.7976931348623157E+17:Double]
+		
+		Local s:String = persist.SerializeToString(doubles)
+
+		persist.Free()
+		
+		Local result:Double[] = Double[](persist.DeserializeObject(s))
+
+		AssertEquals(doubles.Length, result.Length, "Doubles Array length mismatch")
+		For Local i:Int = 0 Until doubles.Length
+			AssertEquals(doubles[i], result[i], 0, "Doubles Array item mismatch at index " + i)
 		Next
 	End Method
 
