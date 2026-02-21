@@ -43,6 +43,10 @@ Extern
 	Function bmx_openxlsx_xldocument_close(document:Byte Ptr)
 	Function bmx_openxlsx_xldocument_name:String(document:Byte Ptr)
 	Function bmx_openxlsx_xldocument_path:String(document:Byte Ptr)
+	Function bmx_openxlsx_xldocument_property:String(document:Byte Ptr, property:EXLProperty)
+	Function bmx_openxlsx_xldocument_setproperty(document:Byte Ptr, property:EXLProperty, value:String)
+	Function bmx_openxlsx_xldocument_deleteproperty(document:Byte Ptr, property:EXLProperty)
+	Function bmx_openxlsx_xldocument_isopen:Int(document:Byte Ptr)
 
 	Function bmx_openxlsx_xlworkbook_worksheet:Byte Ptr(document:Byte Ptr, name:String)
 	Function bmx_openxlsx_xlworkbook_free(handle:Byte Ptr)
@@ -79,6 +83,41 @@ Extern
 	Function bmx_openxlsx_xlworksheet_rows:Byte Ptr(worksheet:Byte Ptr)
 	Function bmx_openxlsx_xlworksheet_rows_count:Byte Ptr(worksheet:Byte Ptr, rowCount:UInt)
 	Function bmx_openxlsx_xlworksheet_rows_range:Byte Ptr(worksheet:Byte Ptr, firstRow:UInt, lastRow:UInt)
+	Function bmx_openxlsx_xlworksheet_column:Byte Ptr(worksheet:Byte Ptr, columnNumber:Short)
+	Function bmx_openxlsx_xlworksheet_column_str:Byte Ptr(worksheet:Byte Ptr, columnRef:String)
+	Function bmx_openxlsx_xlworksheet_lastcell:Byte Ptr(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_columncount:Short(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_rowcount:UInt(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_deleterow(worksheet:Byte Ptr, rowNumber:UInt)
+	Function bmx_openxlsx_xlworksheet_updatesheetname(worksheet:Byte Ptr, oldName:String, newName:String)
+	Function bmx_openxlsx_xlworksheet_protectsheet:Int(worksheet:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlworksheet_protectobjects:Int(worksheet:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlworksheet_protectscenarios:Int(worksheet:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlworksheet_allowinsertcolumns:Int(worksheet:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlworksheet_allowinsertrows:Int(worksheet:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlworksheet_allowdeletecolumns:Int(worksheet:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlworksheet_allowdeleterows:Int(worksheet:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlworksheet_allowselectlockedcells:Int(worksheet:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlworksheet_allowselectunlockedcells:Int(worksheet:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlworksheet_setpasswordhash:Int(worksheet:Byte Ptr, hash:String)
+	Function bmx_openxlsx_xlworksheet_setpassword:Int(worksheet:Byte Ptr, password:String)
+	Function bmx_openxlsx_xlworksheet_clearpassword:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_clearsheetprotection:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_sheetprotected:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_objectsprotected:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_scenariosprotected:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_insertcolumnsallowed:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_insertrowsallowed:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_deletecolumnsallowed:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_deleterowsallowed:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_selectlockedcellsallowed:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_selectunlockedcellsallowed:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_passwordhash:String(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_passwordisset:Int(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_mergecells(worksheet:Byte Ptr, range:Byte Ptr, emptyHiddenCells:Int)
+	Function bmx_openxlsx_xlworksheet_mergecells_str(worksheet:Byte Ptr, range:String, emptyHiddenCells:Int)
+	Function bmx_openxlsx_xlworksheet_unmergecells(worksheet:Byte Ptr, range:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_unmergecells_str(worksheet:Byte Ptr, range:String)
 
 	Function bmx_openxlsx_xlcell_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlcell_setvalue_double(cell:Byte Ptr, value:Double)
@@ -154,6 +193,12 @@ Extern
 	Function bmx_openxlsx_xlrowdatarange_iterator_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlrowdatarange_iterator_hasnext:Int(iterator:Byte Ptr)
 	Function bmx_openxlsx_xlrowdatarange_iterator_next:Byte Ptr(iterator:Byte Ptr)
+
+	Function bmx_openxlsx_xlcolumn_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlcolumn_width:Float(column:Byte Ptr)
+	Function bmx_openxlsx_xlcolumn_setwidth(column:Byte Ptr, width:Float)
+	Function bmx_openxlsx_xlcolumn_ishidden:Int(column:Byte Ptr)
+	Function bmx_openxlsx_xlcolumn_sethidden(column:Byte Ptr, state:Int)
 End Extern
 
 Rem
@@ -185,4 +230,27 @@ Enum EXLSheetState
 	Visible
 	Hidden
 	VeryHidden
+End Enum
+
+Enum EXLProperty
+	Title
+	Subject
+	Creator
+	Keywords
+	Description
+	LastModifiedBy
+	LastPrinted
+	CreationDate
+	ModificationDate
+	Category
+	Application
+	DocSecurity
+	ScaleCrop
+	Manager
+	Company
+	LinksUpToDate
+	SharedDoc
+	HyperlinkBase
+	HyperlinksChanged
+	AppVersion
 End Enum

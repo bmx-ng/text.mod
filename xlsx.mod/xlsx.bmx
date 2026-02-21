@@ -33,7 +33,7 @@ Module Text.Xlsx
 ModuleInfo "Version: 1.00"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: BSD-3-Clause"
-ModuleInfo "OPENXLSX - Copyright (c) 2020, Kenneth Troldal Balslev"
+ModuleInfo "OpenXLSX - Copyright (c) 2020, Kenneth Troldal Balslev"
 ModuleInfo "Copyright: 2026 Bruce A Henderson"
 
 ModuleInfo "History: 1.00"
@@ -77,12 +77,28 @@ Type TXLDocument
 		bmx_openxlsx_xldocument_close(docPtr)
 	End Method
 
+	Method IsOpen:Int()
+		Return bmx_openxlsx_xldocument_isopen(docPtr)
+	End Method
+
 	Method Name:String()
 		Return bmx_openxlsx_xldocument_name(docPtr)
 	End Method
 
 	Method Path:String()
 		Return bmx_openxlsx_xldocument_path(docPtr)
+	End Method
+
+	Method Property:String(prop:EXLProperty)
+		Return bmx_openxlsx_xldocument_property(docPtr, prop)
+	End Method
+
+	Method SetProperty(prop:EXLProperty, value:String)
+		bmx_openxlsx_xldocument_setproperty(docPtr, prop, value)
+	End Method
+
+	Method DeleteProperty(prop:EXLProperty)
+		bmx_openxlsx_xldocument_deleteproperty(docPtr, prop)
 	End Method
 
 	Method Delete()
@@ -255,6 +271,170 @@ Type TXLWorkSheet
 
 	Method Rows:TXLRowRange(firstRow:UInt, lastRow:UInt)
 		Return TXLRowRange._Create(bmx_openxlsx_xlworksheet_rows_range(worksheetPtr, firstRow, lastRow))
+	End Method
+
+	Method Column:TXLColumn(columnNumber:Short)
+		Return TXLColumn._Create(bmx_openxlsx_xlworksheet_column(worksheetPtr, columnNumber))
+	End Method
+
+	Method Column:TXLColumn(columnRef:String)
+		Return TXLColumn._Create(bmx_openxlsx_xlworksheet_column_str(worksheetPtr, columnRef))
+	End Method
+
+	Method LastCell:TXLCell()
+		Return TXLCell._Create(bmx_openxlsx_xlworksheet_lastcell(worksheetPtr))
+	End Method
+
+	Method ColumnCount:Short()
+		Return bmx_openxlsx_xlworksheet_columncount(worksheetPtr)
+	End Method
+
+	Method RowCount:UInt()
+		Return bmx_openxlsx_xlworksheet_rowcount(worksheetPtr)
+	End Method
+
+	Method DeleteRow(rowNumber:UInt)
+		bmx_openxlsx_xlworksheet_deleterow(worksheetPtr, rowNumber)
+	End Method
+
+	Method UpdateSheetName(oldName:String, newName:String)
+		bmx_openxlsx_xlworksheet_updatesheetname(worksheetPtr, oldName, newName)
+	End Method
+
+	Method ProtectSheet:Int(set:Int = True)
+		Return bmx_openxlsx_xlworksheet_protectsheet(worksheetPtr, set)
+	End Method
+
+	Method ProtectObjects:Int(set:Int = True)
+		Return bmx_openxlsx_xlworksheet_protectobjects(worksheetPtr, set)
+	End Method
+
+	Method ProtectScenarios:Int(set:Int = True)
+		Return bmx_openxlsx_xlworksheet_protectscenarios(worksheetPtr, set)
+	End Method
+
+	Method AllowInsertColumns:Int(set:Int = True)
+		Return bmx_openxlsx_xlworksheet_allowinsertcolumns(worksheetPtr, set)
+	End Method
+
+	Method AllowInsertRows:Int(set:Int = True)
+		Return bmx_openxlsx_xlworksheet_allowinsertrows(worksheetPtr, set)
+	End Method
+
+	Method AllowDeleteColumns:Int(set:Int = True)
+		Return bmx_openxlsx_xlworksheet_allowdeletecolumns(worksheetPtr, set)
+	End Method
+
+	Method AllowDeleteRows:Int(set:Int = True)
+		Return bmx_openxlsx_xlworksheet_allowdeleterows(worksheetPtr, set)
+	End Method
+
+	Method AllowSelectLockedCells:Int(set:Int = True)
+		Return bmx_openxlsx_xlworksheet_allowselectlockedcells(worksheetPtr, set)
+	End Method
+
+	Method AllowSelectUnlockedCells:Int(set:Int = True)
+		Return bmx_openxlsx_xlworksheet_allowselectunlockedcells(worksheetPtr, set)
+	End Method
+
+	Method DenyInsertColumns:Int()
+		Return AllowInsertColumns(False)
+	End Method
+
+	Method DenyInsertRows:Int()
+		Return AllowInsertRows(False)
+	End Method
+
+	Method DenyDeleteColumns:Int()
+		Return AllowDeleteColumns(False)
+	End Method
+
+	Method DenyDeleteRows:Int()
+		Return AllowDeleteRows(False)
+	End Method
+
+	Method DenySelectLockedCells:Int()
+		Return AllowSelectLockedCells(False)
+	End Method
+
+	Method DenySelectUnlockedCells:Int()
+		Return AllowSelectUnlockedCells(False)
+	End Method
+
+	Method SetPasswordHash:Int(hash:String)
+		Return bmx_openxlsx_xlworksheet_setpasswordhash(worksheetPtr, hash)
+	End Method
+
+	Method SetPassword:Int(password:String)
+		Return bmx_openxlsx_xlworksheet_setpassword(worksheetPtr, password)
+	End Method
+
+	Method ClearPassword:Int()
+		Return bmx_openxlsx_xlworksheet_clearpassword(worksheetPtr)
+	End Method
+
+	Method ClearSheetProtection:Int()
+		Return bmx_openxlsx_xlworksheet_clearsheetprotection(worksheetPtr)
+	End Method
+
+	Method SheetProtected:Int()
+		Return bmx_openxlsx_xlworksheet_sheetprotected(worksheetPtr)
+	End Method
+
+	Method ObjectsProtected:Int()
+		Return bmx_openxlsx_xlworksheet_objectsprotected(worksheetPtr)
+	End Method
+
+	Method ScenariosProtected:Int()
+		Return bmx_openxlsx_xlworksheet_scenariosprotected(worksheetPtr)
+	End Method
+
+	Method InsertColumnsAllowed:Int()
+		Return bmx_openxlsx_xlworksheet_insertcolumnsallowed(worksheetPtr)
+	End Method
+
+	Method InsertRowsAllowed:Int()
+		Return bmx_openxlsx_xlworksheet_insertrowsallowed(worksheetPtr)
+	End Method
+
+	Method DeleteColumnsAllowed:Int()
+		Return bmx_openxlsx_xlworksheet_deletecolumnsallowed(worksheetPtr)
+	End Method
+
+	Method DeleteRowsAllowed:Int()
+		Return bmx_openxlsx_xlworksheet_deleterowsallowed(worksheetPtr)
+	End Method
+
+	Method SelectLockedCellsAllowed:Int()
+		Return bmx_openxlsx_xlworksheet_selectlockedcellsallowed(worksheetPtr)
+	End Method
+
+	Method SelectUnlockedCellsAllowed:Int()
+		Return bmx_openxlsx_xlworksheet_selectunlockedcellsallowed(worksheetPtr)
+	End Method
+
+	Method PasswordHash:String()
+		Return bmx_openxlsx_xlworksheet_passwordhash(worksheetPtr)
+	End Method
+
+	Method PasswordIsSet:Int()
+		Return bmx_openxlsx_xlworksheet_passwordisset(worksheetPtr)
+	End Method
+
+	Method MergeCells(range:TXLCellRange, emptyHiddenCells:Int = False)
+		bmx_openxlsx_xlworksheet_mergecells(worksheetPtr, range.rangePtr, emptyHiddenCells)
+	End Method
+
+	Method MergeCells(rangeReference:String, emptyHiddenCells:Int = False)
+		bmx_openxlsx_xlworksheet_mergecells_str(worksheetPtr, rangeReference, emptyHiddenCells)
+	End Method
+
+	Method UnmergeCells(rangeToUnmerge:TXLCellRange)
+		bmx_openxlsx_xlworksheet_unmergecells(worksheetPtr, rangeToUnmerge.rangePtr)
+	End Method
+
+	Method UnmergeCells(rangeReference:String)
+		bmx_openxlsx_xlworksheet_unmergecells_str(worksheetPtr, rangeReference)
 	End Method
 
 	Method Delete()
@@ -780,6 +960,44 @@ Type TXLRowDataRange Implements IIterable<TXLCell>
 
 End Type
 
+Type TXLColumn
+
+	Field columnPtr:Byte Ptr
+
+	Function _Create:TXLColumn(columnPtr:Byte Ptr)
+		If columnPtr Then
+			Local column:TXLColumn = New TXLColumn()
+			column.columnPtr = columnPtr
+			Return column
+		End If
+		Return Null
+	End Function
+
+	Method Width:Float()
+		Return bmx_openxlsx_xlcolumn_width(columnPtr)
+	End Method
+
+	Method SetWidth(width:Float)
+		bmx_openxlsx_xlcolumn_setwidth(columnPtr, width)
+	End Method
+
+	Method IsHidden:Int()
+		Return bmx_openxlsx_xlcolumn_ishidden(columnPtr)
+	End Method
+
+	Method SetHidden(state:Int)
+		bmx_openxlsx_xlcolumn_sethidden(columnPtr, state)
+	End Method
+
+	Method Delete()
+		If columnPtr Then
+			bmx_openxlsx_xlcolumn_free(columnPtr)
+			columnPtr = Null
+		End If
+	End Method
+
+End Type
+
 ' exceptions
 
 Type TXLException Extends TRuntimeException
@@ -826,6 +1044,16 @@ Type TXLInputError Extends TRuntimeException
 
 	Function _Create:TXLInputError(message:String) { nomangle }
 		Local ex:TXLInputError = New TXLInputError()
+		ex.error = message
+		Return ex
+	End Function
+
+End Type
+
+Type TXLPropertyError Extends TRuntimeException
+
+	Function _Create:TXLPropertyError(message:String) { nomangle }
+		Local ex:TXLPropertyError = New TXLPropertyError()
 		ex.error = message
 		Return ex
 	End Function

@@ -40,6 +40,7 @@ class MaxXLRowRange;
 class MaxXLRowIterator;
 class MaxXLRowDataRange;
 class MaxXLRowDataIterator;
+class MaxXLColumn;
 
 extern "C" {
 
@@ -55,6 +56,7 @@ extern "C" {
 	BBObject * text_xlsx_TXLValueTypeError__Create(BBString * err);
 	BBObject * text_xlsx_TXLCellAddressError__Create(BBString * err);
 	BBObject * text_xlsx_TXLInputError__Create(BBString * err);
+	BBObject * text_xlsx_TXLPropertyError__Create(BBString * err);
 
 	MaxXLDocument * bmx_openxlsx_xldocument_new();
 	void bmx_openxlsx_xldocument_free(MaxXLDocument * doc);
@@ -66,6 +68,10 @@ extern "C" {
 	void bmx_openxlsx_xldocument_close(MaxXLDocument * doc);
 	BBString * bmx_openxlsx_xldocument_name(MaxXLDocument * doc);
 	BBString * bmx_openxlsx_xldocument_path(MaxXLDocument * doc);
+	BBString * bmx_openxlsx_xldocument_property(MaxXLDocument * doc, int property);
+	void bmx_openxlsx_xldocument_setproperty(MaxXLDocument * doc, int property, BBString * value);
+	void bmx_openxlsx_xldocument_deleteproperty(MaxXLDocument * doc, int property);
+	int bmx_openxlsx_xldocument_isopen(MaxXLDocument * doc);
 
 	MaxXLWorkSheet * bmx_openxlsx_xlworkbook_worksheet(MaxXLWorkbook * workbook, BBString * name);
 	void bmx_openxlsx_xlworkbook_free(MaxXLWorkbook * workbook);
@@ -102,6 +108,41 @@ extern "C" {
 	MaxXLRowRange * bmx_openxlsx_xlworksheet_rows(MaxXLWorkSheet * worksheet);
 	MaxXLRowRange * bmx_openxlsx_xlworksheet_rows_count(MaxXLWorkSheet * worksheet, unsigned int rowCount);
 	MaxXLRowRange * bmx_openxlsx_xlworksheet_rows_range(MaxXLWorkSheet * worksheet, unsigned int firstRow, unsigned int lastRow);
+	MaxXLColumn * bmx_openxlsx_xlworksheet_column(MaxXLWorkSheet * worksheet, unsigned short columnNumber);
+	MaxXLColumn * bmx_openxlsx_xlworksheet_column_str(MaxXLWorkSheet * worksheet, BBString * columnRef);
+	MaxXLCell * bmx_openxlsx_xlworksheet_lastcell(MaxXLWorkSheet * worksheet);
+	unsigned short bmx_openxlsx_xlworksheet_columncount(MaxXLWorkSheet * worksheet);
+	unsigned int bmx_openxlsx_xlworksheet_rowcount(MaxXLWorkSheet * worksheet);
+	void bmx_openxlsx_xlworksheet_deleterow(MaxXLWorkSheet * worksheet, unsigned int rowNumber);
+	void bmx_openxlsx_xlworksheet_updatesheetname(MaxXLWorkSheet * worksheet, BBString * oldName, BBString * newName);
+	int bmx_openxlsx_xlworksheet_protectsheet(MaxXLWorkSheet * worksheet, int set);
+	int bmx_openxlsx_xlworksheet_protectobjects(MaxXLWorkSheet * worksheet, int set);
+	int bmx_openxlsx_xlworksheet_protectscenarios(MaxXLWorkSheet * worksheet, int set);
+	int bmx_openxlsx_xlworksheet_allowinsertcolumns(MaxXLWorkSheet * worksheet, int set);
+	int bmx_openxlsx_xlworksheet_allowinsertrows(MaxXLWorkSheet * worksheet, int set);
+	int bmx_openxlsx_xlworksheet_allowdeletecolumns(MaxXLWorkSheet * worksheet, int set);
+	int bmx_openxlsx_xlworksheet_allowdeleterows(MaxXLWorkSheet * worksheet, int set);
+	int bmx_openxlsx_xlworksheet_allowselectlockedcells(MaxXLWorkSheet * worksheet, int set);
+	int bmx_openxlsx_xlworksheet_allowselectunlockedcells(MaxXLWorkSheet * worksheet, int set);
+	int bmx_openxlsx_xlworksheet_setpasswordhash(MaxXLWorkSheet * worksheet, BBString * hash);
+	int bmx_openxlsx_xlworksheet_setpassword(MaxXLWorkSheet * worksheet, BBString * password);
+	int bmx_openxlsx_xlworksheet_clearpassword(MaxXLWorkSheet * worksheet);
+	int bmx_openxlsx_xlworksheet_clearsheetprotection(MaxXLWorkSheet * worksheet);
+	int bmx_openxlsx_xlworksheet_sheetprotected(MaxXLWorkSheet * worksheet);
+	int bmx_openxlsx_xlworksheet_objectsprotected(MaxXLWorkSheet * worksheet);
+	int bmx_openxlsx_xlworksheet_scenariosprotected(MaxXLWorkSheet * worksheet);
+	int bmx_openxlsx_xlworksheet_insertcolumnsallowed(MaxXLWorkSheet * worksheet);
+	int bmx_openxlsx_xlworksheet_insertrowsallowed(MaxXLWorkSheet * worksheet);
+	int bmx_openxlsx_xlworksheet_deletecolumnsallowed(MaxXLWorkSheet * worksheet);
+	int bmx_openxlsx_xlworksheet_deleterowsallowed(MaxXLWorkSheet * worksheet);
+	int bmx_openxlsx_xlworksheet_selectlockedcellsallowed(MaxXLWorkSheet * worksheet);
+	int bmx_openxlsx_xlworksheet_selectunlockedcellsallowed(MaxXLWorkSheet * worksheet);
+	BBString * bmx_openxlsx_xlworksheet_passwordhash(MaxXLWorkSheet * worksheet);
+	int bmx_openxlsx_xlworksheet_passwordisset(MaxXLWorkSheet * worksheet);
+	void bmx_openxlsx_xlworksheet_mergecells(MaxXLWorkSheet * worksheet, MaxXLCellRange * range, int emptyHiddenCells);
+	void bmx_openxlsx_xlworksheet_mergecells_str(MaxXLWorkSheet * worksheet, BBString * range, int emptyHiddenCells);
+	void bmx_openxlsx_xlworksheet_unmergecells(MaxXLWorkSheet * worksheet, MaxXLCellRange * range);
+	void bmx_openxlsx_xlworksheet_unmergecells_str(MaxXLWorkSheet * worksheet, BBString * range);
 
 	void bmx_openxlsx_xlcell_free(MaxXLCell * cell);
 	void bmx_openxlsx_xlcell_setvalue_double(MaxXLCell * cell, double value);
@@ -177,6 +218,12 @@ extern "C" {
 	void bmx_openxlsx_xlrowdatarange_iterator_free(MaxXLRowDataIterator * iter);
 	int bmx_openxlsx_xlrowdatarange_iterator_hasnext(MaxXLRowDataIterator * iter);
 	MaxXLCell * bmx_openxlsx_xlrowdatarange_iterator_next(MaxXLRowDataIterator * iter);
+
+	void bmx_openxlsx_xlcolumn_free(MaxXLColumn * column);
+	float bmx_openxlsx_xlcolumn_width(MaxXLColumn * column);
+	void bmx_openxlsx_xlcolumn_setwidth(MaxXLColumn * column, float width);
+	int bmx_openxlsx_xlcolumn_ishidden(MaxXLColumn * column);
+	void bmx_openxlsx_xlcolumn_sethidden(MaxXLColumn * column, int state);
 }
 
 ///////////////////////////////////////////////////////////
@@ -230,6 +277,10 @@ static inline void throwXLInputError(const OpenXLSX::XLInputError& e) {
 	bbExThrow(text_xlsx_TXLInputError__Create(err));
 }
 
+static inline void throwXLPropertyError(const OpenXLSX::XLPropertyError& e) {
+	BBString * err = fromStdString(e.what());
+	bbExThrow(text_xlsx_TXLPropertyError__Create(err));
+}
 
 ///////////////////////////////////////////////////////////
 
@@ -611,6 +662,33 @@ public:
 
 ///////////////////////////////////////////////////////////
 
+class MaxXLColumn
+{
+public:
+	MaxXLColumn(OpenXLSX::XLColumn column) : column(column) {
+	}
+
+	float width() const {
+		return column.width();
+	}
+
+	void setWidth(float width) {
+		column.setWidth(width);
+	}
+
+	int isHidden() const {
+		return column.isHidden() ? 1 : 0;
+	}
+
+	void setHidden(int state) {
+		column.setHidden((bool)state);
+	}
+
+	OpenXLSX::XLColumn column;
+};
+
+///////////////////////////////////////////////////////////
+
 class MaxXLWorkSheet
 {
 public:
@@ -710,6 +788,153 @@ public:
 
 	MaxXLRowRange * rows(unsigned int firstRow, unsigned int lastRow) {
 		return new MaxXLRowRange(worksheet.rows(firstRow, lastRow));
+	}
+
+	MaxXLColumn * column(unsigned short columnNumber) {
+		return new MaxXLColumn(worksheet.column(columnNumber));
+	}
+
+	MaxXLColumn * column(BBString * columnRef) {
+		std::string cr = toStdString(columnRef);
+		return new MaxXLColumn(worksheet.column(cr));
+	}
+
+	MaxXLCell * lastCell() {
+		return new MaxXLCell(worksheet.cell(worksheet.lastCell()));
+	}
+
+	unsigned short columnCount() const {
+		return worksheet.columnCount();
+	}
+
+	unsigned int rowCount() const {
+		return worksheet.rowCount();
+	}
+
+	void deleteRow(unsigned int rowNumber) {
+		worksheet.deleteRow(rowNumber);
+	}
+
+	void updateSheetName(BBString * oldName, BBString * newName) {
+		std::string on = toStdString(oldName);
+		std::string nn = toStdString(newName);
+		worksheet.updateSheetName(on, nn);
+	}
+
+	int protectSheet(int set) {
+		return worksheet.protectSheet((bool)set) ? 1 : 0;
+	}
+
+	int protectObjects(int set) {
+		return worksheet.protectObjects((bool)set) ? 1 : 0;
+	}
+
+	int protectScenarios(int set) {
+		return worksheet.protectScenarios((bool)set) ? 1 : 0;
+	}
+
+	int allowInsertColumns(int set) {
+		return worksheet.allowInsertColumns((bool)set) ? 1 : 0;
+	}
+
+	int allowInsertRows(int set) {
+		return worksheet.allowInsertRows((bool)set) ? 1 : 0;
+	}
+
+	int allowDeleteColumns(int set) {
+		return worksheet.allowDeleteColumns((bool)set) ? 1 : 0;
+	}
+
+	int allowDeleteRows(int set) {
+		return worksheet.allowDeleteRows((bool)set) ? 1 : 0;
+	}
+
+	int allowSelectLockedCells(int set) {
+		return worksheet.allowSelectLockedCells((bool)set) ? 1 : 0;
+	}
+
+	int allowSelectUnlockedCells(int set) {
+		return worksheet.allowSelectUnlockedCells((bool)set) ? 1 : 0;
+	}
+
+	int setPasswordHash(BBString * hash) {
+		std::string h = toStdString(hash);
+		return worksheet.setPasswordHash(h) ? 1 : 0;
+	}
+
+	int setPassword(BBString * password) {
+		std::string p = toStdString(password);
+		return worksheet.setPassword(p) ? 1 : 0;
+	}
+
+	int clearPassword() {
+		return worksheet.clearPassword() ? 1 : 0;
+	}
+
+	int clearSheetProtection() {
+		return worksheet.clearSheetProtection() ? 1 : 0;
+	}
+
+	int sheetProtected() {
+		return worksheet.sheetProtected() ? 1 : 0;
+	}
+
+	int objectsProtected() {
+		return worksheet.objectsProtected() ? 1 : 0;
+	}
+
+	int scenariosProtected() {
+		return worksheet.scenariosProtected() ? 1 : 0;
+	}
+
+	int insertColumnsAllowed() {
+		return worksheet.insertColumnsAllowed() ? 1 : 0;
+	}
+
+	int insertRowsAllowed() {
+		return worksheet.insertRowsAllowed() ? 1 : 0;
+	}
+
+	int deleteColumnsAllowed() {
+		return worksheet.deleteColumnsAllowed() ? 1 : 0;
+	}
+
+	int deleteRowsAllowed() {
+		return worksheet.deleteRowsAllowed() ? 1 : 0;
+	}
+
+	int selectLockedCellsAllowed() {
+		return worksheet.selectLockedCellsAllowed() ? 1 : 0;
+	}
+
+	int selectUnlockedCellsAllowed() {
+		return worksheet.selectUnlockedCellsAllowed() ? 1 : 0;
+	}
+
+	BBString * passwordHash() {
+		return fromStdString(worksheet.passwordHash());
+	}
+
+	int passwordIsSet() {
+		return worksheet.passwordIsSet() ? 1 : 0;
+	}
+
+	void mergeCells(MaxXLCellRange * range, int emptyHiddenCells) {
+		worksheet.mergeCells(range->range, (bool)emptyHiddenCells);
+	}
+
+	void mergeCells(BBString * range, int emptyHiddenCells) {
+		std::string r = toStdString(range);
+		worksheet.mergeCells(r, (bool)emptyHiddenCells);
+	}
+
+	void unmergeCells(MaxXLCellRange * range) {
+		worksheet.unmergeCells(range->range);
+	}
+
+	void unmergeCells(BBString * range) {
+		std::string r = toStdString(range);
+		worksheet.unmergeCells(r);
 	}
 
 	OpenXLSX::XLWorksheet worksheet;
@@ -845,8 +1070,6 @@ public:
 class MaxXLDocument
 {
 public:
-	OpenXLSX::XLDocument * doc;
-
 	MaxXLDocument() {
 		doc = new OpenXLSX::XLDocument();
 	}
@@ -930,10 +1153,30 @@ public:
 		return fromStdString(doc->path());
 	}
 
+	BBString * property(int property) {
+		return fromStdString(doc->property((OpenXLSX::XLProperty)property));
+	}
+
+	void setProperty(int property, BBString * value) {
+		try {
+			doc->setProperty((OpenXLSX::XLProperty)property, toStdString(value));
+		}
+		catch (const OpenXLSX::XLPropertyError& e)
+		{
+			throwXLPropertyError(e);
+		}
+	}
+
+	void deleteProperty(int property) {
+		doc->deleteProperty((OpenXLSX::XLProperty)property);
+	}
+
+	int isOpen() {
+		return doc->isOpen() ? 1 : 0;
+	}
+
+	OpenXLSX::XLDocument * doc;
 };
-
-///////////////////////////////////////////////////////////
-
 
 ///////////////////////////////////////////////////////////
 
@@ -975,6 +1218,22 @@ BBString * bmx_openxlsx_xldocument_name(MaxXLDocument * doc) {
 
 BBString * bmx_openxlsx_xldocument_path(MaxXLDocument * doc) {
 	return doc->path();
+}
+
+BBString * bmx_openxlsx_xldocument_property(MaxXLDocument * doc, int property) {
+	return doc->property(property);
+}
+
+void bmx_openxlsx_xldocument_setproperty(MaxXLDocument * doc, int property, BBString * value) {
+	doc->setProperty(property, value);
+}
+
+void bmx_openxlsx_xldocument_deleteproperty(MaxXLDocument * doc, int property) {
+	doc->deleteProperty(property);
+}
+
+int bmx_openxlsx_xldocument_isopen(MaxXLDocument * doc) {
+	doc->isOpen();
 }
 
 ///////////////////////////////////////////////////////////
@@ -1127,6 +1386,146 @@ MaxXLRowRange * bmx_openxlsx_xlworksheet_rows_count(MaxXLWorkSheet * worksheet, 
 
 MaxXLRowRange * bmx_openxlsx_xlworksheet_rows_range(MaxXLWorkSheet * worksheet, unsigned int firstRow, unsigned int lastRow) {
 	return worksheet->rows(firstRow, lastRow);
+}
+
+MaxXLColumn * bmx_openxlsx_xlworksheet_column(MaxXLWorkSheet * worksheet, unsigned short columnNumber) {
+	return worksheet->column(columnNumber);
+}
+
+MaxXLColumn * bmx_openxlsx_xlworksheet_column_str(MaxXLWorkSheet * worksheet, BBString * columnRef) {
+	return worksheet->column(columnRef);
+}
+
+MaxXLCell * bmx_openxlsx_xlworksheet_lastcell(MaxXLWorkSheet * worksheet) {
+	return worksheet->lastCell();
+}
+
+unsigned short bmx_openxlsx_xlworksheet_columncount(MaxXLWorkSheet * worksheet) {
+	return worksheet->columnCount();
+}
+
+unsigned int bmx_openxlsx_xlworksheet_rowcount(MaxXLWorkSheet * worksheet) {
+	return worksheet->rowCount();
+}
+
+void bmx_openxlsx_xlworksheet_deleterow(MaxXLWorkSheet * worksheet, unsigned int rowNumber) {
+	worksheet->deleteRow(rowNumber);
+}
+
+void bmx_openxlsx_xlworksheet_updatesheetname(MaxXLWorkSheet * worksheet, BBString * oldName, BBString * newName) {
+	worksheet->updateSheetName(oldName, newName);
+}
+
+int bmx_openxlsx_xlworksheet_protectsheet(MaxXLWorkSheet * worksheet, int set) {
+	return worksheet->protectSheet(set);
+}
+
+int bmx_openxlsx_xlworksheet_protectobjects(MaxXLWorkSheet * worksheet, int set) {
+	return worksheet->protectObjects(set);
+}
+
+int bmx_openxlsx_xlworksheet_protectscenarios(MaxXLWorkSheet * worksheet, int set) {
+	return worksheet->protectScenarios(set);
+}
+
+int bmx_openxlsx_xlworksheet_allowinsertcolumns(MaxXLWorkSheet * worksheet, int set) {
+	return worksheet->allowInsertColumns(set);
+}
+
+int bmx_openxlsx_xlworksheet_allowinsertrows(MaxXLWorkSheet * worksheet, int set) {
+	return worksheet->allowInsertRows(set);
+}
+
+int bmx_openxlsx_xlworksheet_allowdeletecolumns(MaxXLWorkSheet * worksheet, int set) {
+	return worksheet->allowDeleteColumns(set);
+}
+
+int bmx_openxlsx_xlworksheet_allowdeleterows(MaxXLWorkSheet * worksheet, int set) {
+	return worksheet->allowDeleteRows(set);
+}
+
+int bmx_openxlsx_xlworksheet_allowselectlockedcells(MaxXLWorkSheet * worksheet, int set) {
+	return worksheet->allowSelectLockedCells(set);
+}
+
+int bmx_openxlsx_xlworksheet_allowselectunlockedcells(MaxXLWorkSheet * worksheet, int set) {
+	return worksheet->allowSelectUnlockedCells(set);
+}
+
+int bmx_openxlsx_xlworksheet_setpasswordhash(MaxXLWorkSheet * worksheet, BBString * hash) {
+	return worksheet->setPasswordHash(hash);
+}
+
+int bmx_openxlsx_xlworksheet_setpassword(MaxXLWorkSheet * worksheet, BBString * password) {
+	return worksheet->setPassword(password);
+}
+
+int bmx_openxlsx_xlworksheet_clearpassword(MaxXLWorkSheet * worksheet) {
+	return worksheet->clearPassword();
+}
+
+int bmx_openxlsx_xlworksheet_clearsheetprotection(MaxXLWorkSheet * worksheet) {
+	return worksheet->clearSheetProtection();
+}
+
+int bmx_openxlsx_xlworksheet_sheetprotected(MaxXLWorkSheet * worksheet) {
+	return worksheet->sheetProtected();
+}
+
+int bmx_openxlsx_xlworksheet_objectsprotected(MaxXLWorkSheet * worksheet) {
+	return worksheet->objectsProtected();
+}
+
+int bmx_openxlsx_xlworksheet_scenariosprotected(MaxXLWorkSheet * worksheet) {
+	return worksheet->scenariosProtected();
+}
+
+int bmx_openxlsx_xlworksheet_insertcolumnsallowed(MaxXLWorkSheet * worksheet) {
+	return worksheet->insertColumnsAllowed();
+}
+
+int bmx_openxlsx_xlworksheet_insertrowsallowed(MaxXLWorkSheet * worksheet) {
+	return worksheet->insertRowsAllowed();
+}
+
+int bmx_openxlsx_xlworksheet_deletecolumnsallowed(MaxXLWorkSheet * worksheet) {
+	return worksheet->deleteColumnsAllowed();
+}
+
+int bmx_openxlsx_xlworksheet_deleterowsallowed(MaxXLWorkSheet * worksheet) {
+	return worksheet->deleteRowsAllowed();
+}
+
+int bmx_openxlsx_xlworksheet_selectlockedcellsallowed(MaxXLWorkSheet * worksheet) {
+	return worksheet->selectLockedCellsAllowed();
+}
+
+int bmx_openxlsx_xlworksheet_selectunlockedcellsallowed(MaxXLWorkSheet * worksheet) {
+	return worksheet->selectUnlockedCellsAllowed();
+}
+
+BBString * bmx_openxlsx_xlworksheet_passwordhash(MaxXLWorkSheet * worksheet) {
+	return worksheet->passwordHash();
+}
+
+int bmx_openxlsx_xlworksheet_passwordisset(MaxXLWorkSheet * worksheet) {
+	return worksheet->passwordIsSet();
+}
+
+void bmx_openxlsx_xlworksheet_mergecells(MaxXLWorkSheet * worksheet, MaxXLCellRange * range, int emptyHiddenCells) {
+	worksheet->mergeCells(range, emptyHiddenCells);
+}
+
+void bmx_openxlsx_xlworksheet_mergecells_str(MaxXLWorkSheet * worksheet, BBString * range, int emptyHiddenCells) {
+	worksheet->mergeCells(range, emptyHiddenCells);
+}
+
+void bmx_openxlsx_xlworksheet_unmergecells(MaxXLWorkSheet * worksheet, MaxXLCellRange * range) {
+	worksheet->unmergeCells(range);
+}
+
+void bmx_openxlsx_xlworksheet_unmergecells_str(MaxXLWorkSheet * worksheet, BBString * range) {
+	worksheet->unmergeCells(range);
 }
 
 ///////////////////////////////////////////////////////////
@@ -1409,4 +1808,26 @@ int bmx_openxlsx_xlrowdatarange_iterator_hasnext(MaxXLRowDataIterator * iter) {
 
 MaxXLCell * bmx_openxlsx_xlrowdatarange_iterator_next(MaxXLRowDataIterator * iter) {
 	return iter->next();
+}
+
+///////////////////////////////////////////////////////////
+
+void bmx_openxlsx_xlcolumn_free(MaxXLColumn * column) {
+	delete column;
+}
+
+float bmx_openxlsx_xlcolumn_width(MaxXLColumn * column) {
+	return column->width();
+}
+
+void bmx_openxlsx_xlcolumn_setwidth(MaxXLColumn * column, float width) {
+	column->setWidth(width);
+}
+
+int bmx_openxlsx_xlcolumn_ishidden(MaxXLColumn * column) {
+	return column->isHidden();
+}
+
+void bmx_openxlsx_xlcolumn_sethidden(MaxXLColumn * column, int state) {
+	column->setHidden(state);
 }
