@@ -57,6 +57,10 @@ class MaxXLCellFormat;
 class MaxXLAlignment;
 class MaxXLCellStyle;
 class MaxXLNumberFormat;
+class MaxXLConditionalFormats;
+class MaxXLConditionalFormat;
+class MaxXLCfRules;
+class MaxXLCfRule;
 
 extern "C" {
 
@@ -160,6 +164,13 @@ extern "C" {
 	void bmx_openxlsx_xlworksheet_mergecells_str(MaxXLWorkSheet * worksheet, BBString * range, int emptyHiddenCells);
 	void bmx_openxlsx_xlworksheet_unmergecells(MaxXLWorkSheet * worksheet, MaxXLCellRange * range);
 	void bmx_openxlsx_xlworksheet_unmergecells_str(MaxXLWorkSheet * worksheet, BBString * range);
+	MaxXLConditionalFormats * bmx_openxlsx_xlworksheet_conditionalformats(MaxXLWorkSheet * worksheet);
+	size_t bmx_openxlsx_xlworksheet_getcolumnformat(MaxXLWorkSheet * worksheet, unsigned short column);
+	size_t bmx_openxlsx_xlworksheet_getcolumnformat_str(MaxXLWorkSheet * worksheet, BBString * columnRef);
+	int bmx_openxlsx_xlworksheet_setcolumnformat(MaxXLWorkSheet * worksheet, unsigned short column, size_t cellFormatIndex);
+	int bmx_openxlsx_xlworksheet_setcolumnformat_str(MaxXLWorkSheet * worksheet, BBString * columnRef, size_t cellFormatIndex);
+	size_t bmx_openxlsx_xlworksheet_getrowformat(MaxXLWorkSheet * worksheet, unsigned int row);
+	int bmx_openxlsx_xlworksheet_setrowformat(MaxXLWorkSheet * worksheet, unsigned int row, size_t cellFormatIndex);
 
 	void bmx_openxlsx_xlcell_free(MaxXLCell * cell);
 	void bmx_openxlsx_xlcell_setvalue_double(MaxXLCell * cell, double value);
@@ -421,6 +432,53 @@ extern "C" {
 	BBString * bmx_openxlsx_xlnumberformat_formatcode(MaxXLNumberFormat * numberFormat);
 	int bmx_openxlsx_xlnumberformat_setnumberformatid(MaxXLNumberFormat * numberFormat, unsigned int newNumberFormatId);
 	int bmx_openxlsx_xlnumberformat_setformatcode(MaxXLNumberFormat * numberFormat, BBString * newFormatCode);
+
+	void bmx_openxlsx_xlconditionalformats_free(MaxXLConditionalFormats * conditionalFormats);
+	size_t bmx_openxlsx_xlconditionalformats_count(MaxXLConditionalFormats * conditionalFormats);
+	MaxXLConditionalFormat * bmx_openxlsx_xlconditionalformats_conditionalformatbyindex(MaxXLConditionalFormats * conditionalFormats, size_t index);
+
+	void bmx_openxlsx_xlconditionalformat_free(MaxXLConditionalFormat * conditionalFormat);
+	int bmx_openxlsx_xlconditionalformat_empty(MaxXLConditionalFormat * conditionalFormat);
+	BBString * bmx_openxlsx_xlconditionalformat_sqref(MaxXLConditionalFormat * conditionalFormat);
+	MaxXLCfRules * bmx_openxlsx_xlconditionalformat_cfrules(MaxXLConditionalFormat * conditionalFormat);
+	int bmx_openxlsx_xlconditionalformat_setsqref(MaxXLConditionalFormat * conditionalFormat, BBString * newSqref);
+
+	void bmx_openxlsx_xlcfrules_free(MaxXLCfRules * cfRules);
+	int bmx_openxlsx_xlcfrules_empty(MaxXLCfRules * cfRules);
+	unsigned short bmx_openxlsx_xlcfrules_maxpriorityvalue(MaxXLCfRules * cfRules);
+	int bmx_openxlsx_xlcfrules_setpriority(MaxXLCfRules * cfRules, size_t cfRuleIndex, unsigned short newPriority);
+	void bmx_openxlsx_xlcfrules_renumberpriorities(MaxXLCfRules * cfRules, unsigned short increment);
+	size_t bmx_openxlsx_xlcfrules_count(MaxXLCfRules * cfRules);
+	MaxXLCfRule * bmx_openxlsx_xlcfrules_cfrulebyindex(MaxXLCfRules * cfRules, size_t index);
+
+	void bmx_openxlsx_xlcfrule_free(MaxXLCfRule * cfRule);
+	int bmx_openxlsx_xlcfrule_empty(MaxXLCfRule * cfRule);
+	BBString * bmx_openxlsx_xlcfrule_formula(MaxXLCfRule * cfRule);
+	uint8_t bmx_openxlsx_xlcfrule_type(MaxXLCfRule * cfRule);
+	size_t bmx_openxlsx_xlcfrule_dxfid(MaxXLCfRule * cfRule);
+	unsigned short bmx_openxlsx_xlcfrule_priority(MaxXLCfRule * cfRule);
+	int bmx_openxlsx_xlcfrule_stopiftrue(MaxXLCfRule * cfRule);
+	int bmx_openxlsx_xlcfrule_aboveaverage(MaxXLCfRule * cfRule);
+	int bmx_openxlsx_xlcfrule_percent(MaxXLCfRule * cfRule);
+	int bmx_openxlsx_xlcfrule_bottom(MaxXLCfRule * cfRule);
+	uint8_t bmx_openxlsx_xlcfrule_operator(MaxXLCfRule * cfRule);
+	BBString * bmx_openxlsx_xlcfrule_text(MaxXLCfRule * cfRule);
+	uint8_t bmx_openxlsx_xlcfrule_timeperiod(MaxXLCfRule * cfRule);
+	unsigned short bmx_openxlsx_xlcfrule_rank(MaxXLCfRule * cfRule);
+	int bmx_openxlsx_xlcfrule_stddev(MaxXLCfRule * cfRule);
+	int bmx_openxlsx_xlcfrule_equalaverage(MaxXLCfRule * cfRule);
+	int bmx_openxlsx_xlcfrule_settype(MaxXLCfRule * cfRule, uint8_t newType);
+	int bmx_openxlsx_xlcfrule_setdxfid(MaxXLCfRule * cfRule, size_t newDxfId);
+	int bmx_openxlsx_xlcfrule_setstopiftrue(MaxXLCfRule * cfRule, int set);
+	int bmx_openxlsx_xlcfrule_setaboveaverage(MaxXLCfRule * cfRule, int set);
+	int bmx_openxlsx_xlcfrule_setpercent(MaxXLCfRule * cfRule, int set);
+	int bmx_openxlsx_xlcfrule_setbottom(MaxXLCfRule * cfRule, int set);
+	int bmx_openxlsx_xlcfrule_setoperator(MaxXLCfRule * cfRule, uint8_t newOperator);
+	int bmx_openxlsx_xlcfrule_settext(MaxXLCfRule * cfRule, BBString * newText);
+	int bmx_openxlsx_xlcfrule_settimeperiod(MaxXLCfRule * cfRule, uint8_t newTimePeriod);
+	int bmx_openxlsx_xlcfrule_setrank(MaxXLCfRule * cfRule, unsigned short newRank);
+	int bmx_openxlsx_xlcfrule_setstddev(MaxXLCfRule * cfRule, int set);
+	int bmx_openxlsx_xlcfrule_setequalaverage(MaxXLCfRule * cfRule, int set);
 }
 
 ///////////////////////////////////////////////////////////
@@ -886,6 +944,222 @@ public:
 
 ///////////////////////////////////////////////////////////
 
+class MaxXLCfRule
+{
+public:
+	MaxXLCfRule(OpenXLSX::XLCfRule cfRule) : cfRule(cfRule) {
+	}
+
+	int empty() const {
+		return cfRule.empty() ? 1 : 0;
+	}
+
+	BBString * formula() const {
+		return fromStdString(cfRule.formula());
+	}
+
+	uint8_t type() const {
+		return (uint8_t)cfRule.type();
+	}
+
+	size_t dxfId() const {
+		return cfRule.dxfId();
+	}
+
+	unsigned short priority() const {
+		return cfRule.priority();
+	}
+
+	int stopIfTrue() const {
+		return cfRule.stopIfTrue() ? 1 : 0;
+	}
+
+	int aboveAverage() const {
+		return cfRule.aboveAverage() ? 1 : 0;
+	}
+
+	int percent() const {
+		return cfRule.percent() ? 1 : 0;
+	}
+
+	int bottom() const {
+		return cfRule.bottom() ? 1 : 0;
+	}
+
+	uint8_t Operator() const {
+		return (uint8_t)cfRule.Operator();
+	}
+
+	BBString * text() const {
+		return fromStdString(cfRule.text());
+	}
+
+	uint8_t timePeriod() const {
+		return (uint8_t)cfRule.timePeriod();
+	}
+
+	unsigned short rank() const {
+		return cfRule.rank();
+	}
+
+	int stdDev() const {
+		return cfRule.stdDev() ? 1 : 0;
+	}
+
+	int equalAverage() const {
+		return cfRule.equalAverage() ? 1 : 0;
+	}
+
+	int setType(uint8_t newType) {
+		return cfRule.setType((OpenXLSX::XLCfType)newType) ? 1 : 0;
+	}
+
+	int setDxfId(size_t newDxfId) {
+		return cfRule.setDxfId(newDxfId) ? 1 : 0;
+	}
+
+	int setStopIfTrue(int set) {
+		return cfRule.setStopIfTrue((bool)set) ? 1 : 0;
+	}
+
+	int setAboveAverage(int set) {
+		return cfRule.setAboveAverage((bool)set) ? 1 : 0;
+	}
+
+	int setPercent(int set) {
+		return cfRule.setPercent((bool)set) ? 1 : 0;
+	}
+
+	int setBottom(int set) {
+		return cfRule.setBottom((bool)set) ? 1 : 0;
+	}
+
+	int setOperator(uint8_t newOperator) {
+		return cfRule.setOperator((OpenXLSX::XLCfOperator)newOperator) ? 1 : 0;
+	}
+
+	int setText(BBString * newText) {
+		std::string t = toStdString(newText);
+		return cfRule.setText(t) ? 1 : 0;
+	}
+
+	int setTimePeriod(uint8_t newTimePeriod) {
+		return cfRule.setTimePeriod((OpenXLSX::XLCfTimePeriod)newTimePeriod) ? 1 : 0;
+	}
+
+	int setRank(unsigned short newRank) {
+		return cfRule.setRank(newRank) ? 1 : 0;
+	}
+
+	int setStdDev(int set) {
+		return cfRule.setStdDev((bool)set) ? 1 : 0;
+	}
+
+	int setEqualAverage(int set) {
+		return cfRule.setEqualAverage((bool)set) ? 1 : 0;
+	}
+
+	OpenXLSX::XLCfRule cfRule;
+};
+
+///////////////////////////////////////////////////////////
+
+class MaxXLCfRules
+{
+public:
+	MaxXLCfRules(OpenXLSX::XLCfRules cfRules) : cfRules(cfRules) {
+	}
+
+	int empty() const {
+		return cfRules.empty() ? 1 : 0;
+	}
+
+	unsigned short maxPriorityValue() const {
+		return cfRules.maxPriorityValue();
+	}
+
+	int setPriority(size_t cfRuleIndex, unsigned short newPriority) {
+		return cfRules.setPriority(cfRuleIndex, newPriority) ? 1 : 0;
+	}
+
+	void renumberPriorities(unsigned short increment) {
+		cfRules.renumberPriorities(increment);
+	}
+
+	size_t count() const {
+		return cfRules.count();
+	}
+
+	MaxXLCfRule * cfRuleByIndex(size_t index) {
+		try {
+			return new MaxXLCfRule(cfRules.cfRuleByIndex(index));
+		}
+		catch (const OpenXLSX::XLException& e)
+		{
+			throwXLException(e);
+		}
+		return nullptr;
+	}
+
+	OpenXLSX::XLCfRules cfRules;
+};
+
+///////////////////////////////////////////////////////////
+
+class MaxXLConditionalFormat
+{
+public:
+	MaxXLConditionalFormat(OpenXLSX::XLConditionalFormat conditionalFormat) : conditionalFormat(conditionalFormat) {
+	}
+
+	int empty() const {
+		return conditionalFormat.empty() ? 1 : 0;
+	}
+
+	BBString * sqref() const {
+		return fromStdString(conditionalFormat.sqref());
+	}
+
+	MaxXLCfRules * cfRules() {
+		return new MaxXLCfRules(conditionalFormat.cfRules());
+	}
+
+	int setSqref(BBString * newSqref) {
+		std::string sq = toStdString(newSqref);
+		return conditionalFormat.setSqref(sq) ? 1 : 0;
+	}
+		
+	OpenXLSX::XLConditionalFormat conditionalFormat;
+};
+
+///////////////////////////////////////////////////////////
+
+class MaxXLConditionalFormats
+{
+public:
+	MaxXLConditionalFormats(OpenXLSX::XLConditionalFormats conditionalFormats) : conditionalFormats(conditionalFormats) {
+	}
+
+	size_t count() const {
+		return conditionalFormats.count();
+	}
+
+	MaxXLConditionalFormat * conditionalFormatByIndex(size_t index) {
+		try {
+			return new MaxXLConditionalFormat(conditionalFormats.conditionalFormatByIndex(index));
+		}
+		catch (const OpenXLSX::XLException& e)
+		{
+			throwXLException(e);
+		}
+		return nullptr;
+	}
+
+	OpenXLSX::XLConditionalFormats conditionalFormats;
+};
+
+///////////////////////////////////////////////////////////
+
 class MaxXLWorkSheet
 {
 public:
@@ -1132,6 +1406,84 @@ public:
 	void unmergeCells(BBString * range) {
 		std::string r = toStdString(range);
 		worksheet.unmergeCells(r);
+	}
+
+	MaxXLConditionalFormats * conditionalFormats() {
+		return new MaxXLConditionalFormats(worksheet.conditionalFormats());
+	}
+
+	size_t getColumnFormat(unsigned short column) {
+		try
+		{
+			return worksheet.getColumnFormat(column);
+		}
+		catch (const OpenXLSX::XLInputError& e)
+		{
+			throwXLInputError(e);
+		}
+		return 0;
+	}
+
+	size_t getColumnFormat(BBString * columnRef) {
+		std::string cr = toStdString(columnRef);
+		try
+		{
+			return worksheet.getColumnFormat(cr);
+		}
+		catch (const OpenXLSX::XLInputError& e)
+		{
+			throwXLInputError(e);
+		}
+		return 0;
+	}
+
+	int setColumnFormat(unsigned short column, size_t cellFormatIndex) {
+		try
+		{
+			return worksheet.setColumnFormat(column, cellFormatIndex) ? 1 : 0;
+		}
+		catch (const OpenXLSX::XLInputError& e)
+		{
+			throwXLInputError(e);
+		}
+		return 0;
+	}
+
+	int setColumnFormat(BBString * columnRef, size_t cellFormatIndex) {
+		std::string cr = toStdString(columnRef);
+		try
+		{
+			return worksheet.setColumnFormat(cr, cellFormatIndex) ? 1 : 0;
+		}
+		catch (const OpenXLSX::XLInputError& e)
+		{
+			throwXLInputError(e);
+		}
+		return 0;
+	}
+
+	size_t getRowFormat(unsigned int row) {
+		try
+		{
+			return worksheet.getRowFormat(row);
+		}
+		catch (const OpenXLSX::XLInputError& e)
+		{
+			throwXLInputError(e);
+		}
+		return 0;
+	}
+
+	int setRowFormat(unsigned int row, size_t cellFormatIndex) {
+		try
+		{
+			return worksheet.setRowFormat(row, cellFormatIndex) ? 1 : 0;
+		}
+		catch (const OpenXLSX::XLInputError& e)
+		{
+			throwXLInputError(e);
+		}
+		return 0;
 	}
 
 	OpenXLSX::XLWorksheet worksheet;
@@ -2578,6 +2930,34 @@ void bmx_openxlsx_xlworksheet_unmergecells_str(MaxXLWorkSheet * worksheet, BBStr
 	worksheet->unmergeCells(range);
 }
 
+MaxXLConditionalFormats * bmx_openxlsx_xlworksheet_conditionalformats(MaxXLWorkSheet * worksheet) {
+	return worksheet->conditionalFormats();
+}
+
+size_t bmx_openxlsx_xlworksheet_getcolumnformat(MaxXLWorkSheet * worksheet, unsigned short column) {
+	return worksheet->getColumnFormat(column);
+}
+
+size_t bmx_openxlsx_xlworksheet_getcolumnformat_str(MaxXLWorkSheet * worksheet, BBString * columnRef) {
+	return worksheet->getColumnFormat(columnRef);
+}
+
+int bmx_openxlsx_xlworksheet_setcolumnformat(MaxXLWorkSheet * worksheet, unsigned short column, size_t cellFormatIndex) {
+	return worksheet->setColumnFormat(column, cellFormatIndex);
+}
+
+int bmx_openxlsx_xlworksheet_setcolumnformat_str(MaxXLWorkSheet * worksheet, BBString * columnRef, size_t cellFormatIndex) {
+	return worksheet->setColumnFormat(columnRef, cellFormatIndex);
+}
+
+size_t bmx_openxlsx_xlworksheet_getrowformat(MaxXLWorkSheet * worksheet, unsigned int row) {
+	return worksheet->getRowFormat(row);
+}
+
+int bmx_openxlsx_xlworksheet_setrowformat(MaxXLWorkSheet * worksheet, unsigned int row, size_t cellFormatIndex) {
+	return worksheet->setRowFormat(row, cellFormatIndex);
+}
+
 ///////////////////////////////////////////////////////////
 
 void bmx_openxlsx_xlcell_free(MaxXLCell * cell) {
@@ -3568,4 +3948,184 @@ int bmx_openxlsx_xlnumberformat_setnumberformatid(MaxXLNumberFormat * numberForm
 
 int bmx_openxlsx_xlnumberformat_setformatcode(MaxXLNumberFormat * numberFormat, BBString * newFormatCode) {
 	return numberFormat->setFormatCode(newFormatCode);
+}
+
+///////////////////////////////////////////////////////////
+
+void bmx_openxlsx_xlconditionalformats_free(MaxXLConditionalFormats * conditionalFormats) {
+	delete conditionalFormats;
+}
+
+size_t bmx_openxlsx_xlconditionalformats_count(MaxXLConditionalFormats * conditionalFormats) {
+	return conditionalFormats->count();
+}
+
+MaxXLConditionalFormat * bmx_openxlsx_xlconditionalformats_conditionalformatbyindex(MaxXLConditionalFormats * conditionalFormats, size_t index) {
+	return conditionalFormats->conditionalFormatByIndex(index);
+}
+
+///////////////////////////////////////////////////////////
+
+void bmx_openxlsx_xlconditionalformat_free(MaxXLConditionalFormat * conditionalFormat) {
+	delete conditionalFormat;
+}
+
+int bmx_openxlsx_xlconditionalformat_empty(MaxXLConditionalFormat * conditionalFormat) {
+	return conditionalFormat->empty();
+}
+
+BBString * bmx_openxlsx_xlconditionalformat_sqref(MaxXLConditionalFormat * conditionalFormat) {
+	return conditionalFormat->sqref();
+}
+
+MaxXLCfRules * bmx_openxlsx_xlconditionalformat_cfrules(MaxXLConditionalFormat * conditionalFormat) {
+	return conditionalFormat->cfRules();
+}
+
+int bmx_openxlsx_xlconditionalformat_setsqref(MaxXLConditionalFormat * conditionalFormat, BBString * newSqref) {
+	return conditionalFormat->setSqref(newSqref);
+}
+
+///////////////////////////////////////////////////////////
+
+void bmx_openxlsx_xlcfrules_free(MaxXLCfRules * cfRules) {
+	delete cfRules;
+}
+
+int bmx_openxlsx_xlcfrules_empty(MaxXLCfRules * cfRules) {
+	return cfRules->empty();
+}
+
+unsigned short bmx_openxlsx_xlcfrules_maxpriorityvalue(MaxXLCfRules * cfRules) {
+	return cfRules->maxPriorityValue();
+}
+
+int bmx_openxlsx_xlcfrules_setpriority(MaxXLCfRules * cfRules, size_t cfRuleIndex, unsigned short newPriority) {
+	return cfRules->setPriority(cfRuleIndex, newPriority);
+}
+
+void bmx_openxlsx_xlcfrules_renumberpriorities(MaxXLCfRules * cfRules, unsigned short increment) {
+	cfRules->renumberPriorities(increment);
+}
+
+size_t bmx_openxlsx_xlcfrules_count(MaxXLCfRules * cfRules) {
+	return cfRules->count();
+}
+
+MaxXLCfRule * bmx_openxlsx_xlcfrules_cfrulebyindex(MaxXLCfRules * cfRules, size_t index) {
+	return cfRules->cfRuleByIndex(index);
+}
+
+///////////////////////////////////////////////////////////
+
+void bmx_openxlsx_xlcfrule_free(MaxXLCfRule * cfRule) {
+	delete cfRule;
+}
+
+int bmx_openxlsx_xlcfrule_empty(MaxXLCfRule * cfRule) {
+	return cfRule->empty();
+}
+
+BBString * bmx_openxlsx_xlcfrule_formula(MaxXLCfRule * cfRule) {
+	return cfRule->formula();
+}
+
+uint8_t bmx_openxlsx_xlcfrule_type(MaxXLCfRule * cfRule) {
+	return cfRule->type();
+}
+
+size_t bmx_openxlsx_xlcfrule_dxfid(MaxXLCfRule * cfRule) {
+	return cfRule->dxfId();
+}
+
+unsigned short bmx_openxlsx_xlcfrule_priority(MaxXLCfRule * cfRule) {
+	return cfRule->priority();
+}
+
+int bmx_openxlsx_xlcfrule_stopiftrue(MaxXLCfRule * cfRule) {
+	return cfRule->stopIfTrue();
+}
+
+int bmx_openxlsx_xlcfrule_aboveaverage(MaxXLCfRule * cfRule) {
+	return cfRule->aboveAverage();
+}
+
+int bmx_openxlsx_xlcfrule_percent(MaxXLCfRule * cfRule) {
+	return cfRule->percent();
+}
+
+int bmx_openxlsx_xlcfrule_bottom(MaxXLCfRule * cfRule) {
+	return cfRule->bottom();
+}
+
+uint8_t bmx_openxlsx_xlcfrule_operator(MaxXLCfRule * cfRule) {
+	return cfRule->Operator();
+}
+
+BBString * bmx_openxlsx_xlcfrule_text(MaxXLCfRule * cfRule) {
+	return cfRule->text();
+}
+
+uint8_t bmx_openxlsx_xlcfrule_timeperiod(MaxXLCfRule * cfRule) {
+	return cfRule->timePeriod();
+}
+
+unsigned short bmx_openxlsx_xlcfrule_rank(MaxXLCfRule * cfRule) {
+	return cfRule->rank();
+}
+
+int bmx_openxlsx_xlcfrule_stddev(MaxXLCfRule * cfRule) {
+	return cfRule->stdDev();
+}
+
+int bmx_openxlsx_xlcfrule_equalaverage(MaxXLCfRule * cfRule) {
+	return cfRule->equalAverage();
+}
+
+int bmx_openxlsx_xlcfrule_settype(MaxXLCfRule * cfRule, uint8_t newType) {
+	return cfRule->setType(newType);
+}
+
+int bmx_openxlsx_xlcfrule_setdxfid(MaxXLCfRule * cfRule, size_t newDxfId) {
+	return cfRule->setDxfId(newDxfId);
+}
+
+int bmx_openxlsx_xlcfrule_setstopiftrue(MaxXLCfRule * cfRule, int set) {
+	return cfRule->setStopIfTrue(set);
+}
+
+int bmx_openxlsx_xlcfrule_setaboveaverage(MaxXLCfRule * cfRule, int set) {
+	return cfRule->setAboveAverage(set);
+}
+
+int bmx_openxlsx_xlcfrule_setpercent(MaxXLCfRule * cfRule, int set) {
+	return cfRule->setPercent(set);
+}
+
+int bmx_openxlsx_xlcfrule_setbottom(MaxXLCfRule * cfRule, int set) {
+	return cfRule->setBottom(set);
+}
+
+int bmx_openxlsx_xlcfrule_setoperator(MaxXLCfRule * cfRule, uint8_t newOperator) {
+	return cfRule->setOperator(newOperator);
+}
+
+int bmx_openxlsx_xlcfrule_settext(MaxXLCfRule * cfRule, BBString * newText) {
+	return cfRule->setText(newText);
+}
+
+int bmx_openxlsx_xlcfrule_settimeperiod(MaxXLCfRule * cfRule, uint8_t newTimePeriod) {
+	return cfRule->setTimePeriod(newTimePeriod);
+}
+
+int bmx_openxlsx_xlcfrule_setrank(MaxXLCfRule * cfRule, unsigned short newRank) {
+	return cfRule->setRank(newRank);
+}
+
+int bmx_openxlsx_xlcfrule_setstddev(MaxXLCfRule * cfRule, int set) {
+	return cfRule->setStdDev(set);
+}
+
+int bmx_openxlsx_xlcfrule_setequalaverage(MaxXLCfRule * cfRule, int set) {
+	return cfRule->setEqualAverage(set);
 }

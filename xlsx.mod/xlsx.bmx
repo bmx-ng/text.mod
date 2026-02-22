@@ -441,6 +441,34 @@ Type TXLWorkSheet
 		bmx_openxlsx_xlworksheet_unmergecells_str(worksheetPtr, rangeReference)
 	End Method
 
+	Method GetColumnFormat:Size_T(column:Short)
+		Return bmx_openxlsx_xlworksheet_getcolumnformat(worksheetPtr, column)
+	End Method
+
+	Method GetColumnFormat:Size_T(columnRef:String)
+		Return bmx_openxlsx_xlworksheet_getcolumnformat_str(worksheetPtr, columnRef)
+	End Method
+
+	Method SetColumnFormat(column:Short, cellFormatIndex:Size_T)
+		bmx_openxlsx_xlworksheet_setcolumnformat(worksheetPtr, column, cellFormatIndex)
+	End Method
+
+	Method SetColumnFormat(columnRef:String, cellFormatIndex:Size_T)
+		bmx_openxlsx_xlworksheet_setcolumnformat_str(worksheetPtr, columnRef, cellFormatIndex)
+	End Method
+
+	Method GetRowFormat:Size_T(row:UInt)
+		Return bmx_openxlsx_xlworksheet_getrowformat(worksheetPtr, row)
+	End Method
+
+	Method SetRowFormat(row:UInt, cellFormatIndex:Size_T)
+		bmx_openxlsx_xlworksheet_setrowformat(worksheetPtr, row, cellFormatIndex)
+	End Method
+
+	Method ConditionalFormats:TXLConditionalFormats()
+		Return TXLConditionalFormats._Create(bmx_openxlsx_xlworksheet_conditionalformats(worksheetPtr))
+	End Method
+
 	Method Delete()
 		If worksheetPtr Then
 			bmx_openxlsx_xlworksheet_free(worksheetPtr)
@@ -1948,6 +1976,248 @@ Type TXLNumberFormat
 		If numberFormatPtr Then
 			bmx_openxlsx_xlnumberformat_free(numberFormatPtr)
 			numberFormatPtr = Null
+		End If
+	End Method
+
+End Type
+
+Type TXLConditionalFormats
+
+	Field conditionalFormatsPtr:Byte Ptr
+
+	Function _Create:TXLConditionalFormats(conditionalFormatsPtr:Byte Ptr)
+		If conditionalFormatsPtr Then
+			Local conditionalFormats:TXLConditionalFormats = New TXLConditionalFormats()
+			conditionalFormats.conditionalFormatsPtr = conditionalFormatsPtr
+			Return conditionalFormats
+		End If
+		Return Null
+	End Function
+
+	Method Count:Size_T()
+		Return bmx_openxlsx_xlconditionalformats_count(conditionalFormatsPtr)
+	End Method
+
+	Method ConditionalFormatByIndex:TXLConditionalFormat(index:Size_T)
+		Return TXLConditionalFormat._Create(bmx_openxlsx_xlconditionalformats_conditionalformatbyindex(conditionalFormatsPtr, index))
+	End Method
+
+	Method Delete()
+		If conditionalFormatsPtr Then
+			bmx_openxlsx_xlconditionalformats_free(conditionalFormatsPtr)
+			conditionalFormatsPtr = Null
+		End If
+	End Method
+End Type
+
+Type TXLConditionalFormat
+
+	Field conditionalFormatPtr:Byte Ptr
+
+	Function _Create:TXLConditionalFormat(conditionalFormatPtr:Byte Ptr)
+		If conditionalFormatPtr Then
+			Local conditionalFormat:TXLConditionalFormat = New TXLConditionalFormat()
+			conditionalFormat.conditionalFormatPtr = conditionalFormatPtr
+			Return conditionalFormat
+		End If
+		Return Null
+	End Function
+
+	Method Empty:Int()
+		Return bmx_openxlsx_xlconditionalformat_empty(conditionalFormatPtr)
+	End Method
+
+	Method Sqref:String()
+		Return bmx_openxlsx_xlconditionalformat_sqref(conditionalFormatPtr)
+	End Method
+
+	Method CfRules:TXLCfRules()
+		Return TXLCfRules._Create(bmx_openxlsx_xlconditionalformat_cfrules(conditionalFormatPtr))
+	End Method
+
+	Method SetSqref:Int(newSqref:String)
+		Return bmx_openxlsx_xlconditionalformat_setsqref(conditionalFormatPtr, newSqref)
+	End Method
+
+	Method Delete()
+		If conditionalFormatPtr Then
+			bmx_openxlsx_xlconditionalformat_free(conditionalFormatPtr)
+			conditionalFormatPtr = Null
+		End If
+	End Method
+
+End Type
+
+Type TXLCfRules
+
+	Field cfRulesPtr:Byte Ptr
+
+	Function _Create:TXLCfRules(cfRulesPtr:Byte Ptr)
+		If cfRulesPtr Then
+			Local cfRules:TXLCfRules = New TXLCfRules()
+			cfRules.cfRulesPtr = cfRulesPtr
+			Return cfRules
+		End If
+		Return Null
+	End Function
+
+	Method Empty:Int()
+		Return bmx_openxlsx_xlcfrules_empty(cfRulesPtr)
+	End Method
+
+	Method MaxPriorityValue:Short()
+		Return bmx_openxlsx_xlcfrules_maxpriorityvalue(cfRulesPtr)
+	End Method
+
+	Method SetPriority:Int(cfRuleIndex:Size_T, newPriority:Short)
+		Return bmx_openxlsx_xlcfrules_setpriority(cfRulesPtr, cfRuleIndex, newPriority)
+	End Method
+
+	Method RenumberPriorities(increment:Short = 1)
+		bmx_openxlsx_xlcfrules_renumberpriorities(cfRulesPtr, increment)
+	End Method
+
+	Method Count:Size_T()
+		Return bmx_openxlsx_xlcfrules_count(cfRulesPtr)
+	End Method
+
+	Method CfRuleByIndex:TXLCfRule(index:Size_T)
+		Return TXLCfRule._Create(bmx_openxlsx_xlcfrules_cfrulebyindex(cfRulesPtr, index))
+	End Method
+
+	Method Delete()
+		If cfRulesPtr Then
+			bmx_openxlsx_xlcfrules_free(cfRulesPtr)
+			cfRulesPtr = Null
+		End If
+	End Method
+End Type
+
+Type TXLCfRule
+
+	Field cfRulePtr:Byte Ptr
+
+	Function _Create:TXLCfRule(cfRulePtr:Byte Ptr)
+		If cfRulePtr Then
+			Local cfRule:TXLCfRule = New TXLCfRule()
+			cfRule.cfRulePtr = cfRulePtr
+			Return cfRule
+		End If
+		Return Null
+	End Function
+
+	Method Empty:Int()
+		Return bmx_openxlsx_xlcfrule_empty(cfRulePtr)
+	End Method
+
+	Method Formula:String()
+		Return bmx_openxlsx_xlcfrule_formula(cfRulePtr)
+	End Method
+
+	Method CfType:EXLCfType()
+		Return bmx_openxlsx_xlcfrule_type(cfRulePtr)
+	End Method
+
+	Method DxfId:Size_T()
+		Return bmx_openxlsx_xlcfrule_dxfid(cfRulePtr)
+	End Method
+
+	Method Priority:Short()
+		Return bmx_openxlsx_xlcfrule_priority(cfRulePtr)
+	End Method
+
+	Method StopIfTrue:Int()
+		Return bmx_openxlsx_xlcfrule_stopiftrue(cfRulePtr)
+	End Method
+
+	Method AboveAverage:Int()
+		Return bmx_openxlsx_xlcfrule_aboveaverage(cfRulePtr)
+	End Method
+
+	Method Percent:Int()
+		Return bmx_openxlsx_xlcfrule_percent(cfRulePtr)
+	End Method
+
+	Method Bottom:Int()
+		Return bmx_openxlsx_xlcfrule_bottom(cfRulePtr)
+	End Method
+
+	Method RuleOperator:EXLCfOperator()
+		Return bmx_openxlsx_xlcfrule_operator(cfRulePtr)
+	End Method
+
+	Method Text:String()
+		Return bmx_openxlsx_xlcfrule_text(cfRulePtr)
+	End Method
+
+	Method TimePeriod:EXLCfTimePeriod()
+		Return bmx_openxlsx_xlcfrule_timeperiod(cfRulePtr)
+	End Method
+
+	Method Rank:Short()
+		Return bmx_openxlsx_xlcfrule_rank(cfRulePtr)
+	End Method
+
+	Method StdDev:Int()
+		Return bmx_openxlsx_xlcfrule_stddev(cfRulePtr)
+	End Method
+
+	Method EqualAverage:Int()
+		Return bmx_openxlsx_xlcfrule_equalaverage(cfRulePtr)
+	End Method
+
+	Method SetType:Int(newType:EXLCfType)
+		Return bmx_openxlsx_xlcfrule_settype(cfRulePtr, newType)
+	End Method
+
+	Method SetDxfId:Int(newDxfId:Size_T)
+		Return bmx_openxlsx_xlcfrule_setdxfid(cfRulePtr, newDxfId)
+	End Method
+
+	Method SetStopIfTrue:Int(set:Int = True)
+		Return bmx_openxlsx_xlcfrule_setstopiftrue(cfRulePtr, set)
+	End Method
+
+	Method SetAboveAverage:Int(set:Int = True)
+		Return bmx_openxlsx_xlcfrule_setaboveaverage(cfRulePtr, set)
+	End Method
+
+	Method SetPercent:Int(set:Int = True)
+		Return bmx_openxlsx_xlcfrule_setpercent(cfRulePtr, set)
+	End Method
+
+	Method SetBottom:Int(set:Int = True)
+		Return bmx_openxlsx_xlcfrule_setbottom(cfRulePtr, set)
+	End Method
+
+	Method SetRuleOperator:Int(newOperator:EXLCfOperator)
+		Return bmx_openxlsx_xlcfrule_setoperator(cfRulePtr, newOperator)
+	End Method
+
+	Method SetText:Int(newText:String)
+		Return bmx_openxlsx_xlcfrule_settext(cfRulePtr, newText)
+	End Method
+
+	Method SetTimePeriod:Int(newTimePeriod:EXLCfTimePeriod)
+		Return bmx_openxlsx_xlcfrule_settimeperiod(cfRulePtr, newTimePeriod)
+	End Method
+
+	Method SetRank:Int(newRank:Short)
+		Return bmx_openxlsx_xlcfrule_setrank(cfRulePtr, newRank)
+	End Method
+
+	Method SetStdDev:Int(set:Int = True)
+		Return bmx_openxlsx_xlcfrule_setstddev(cfRulePtr, set)
+	End Method
+
+	Method SetEqualAverage:Int(set:Int = True)
+		Return bmx_openxlsx_xlcfrule_setequalaverage(cfRulePtr, set)
+	End Method
+
+	Method Delete()
+		If cfRulePtr Then
+			bmx_openxlsx_xlcfrule_free(cfRulePtr)
+			cfRulePtr = Null
 		End If
 	End Method
 

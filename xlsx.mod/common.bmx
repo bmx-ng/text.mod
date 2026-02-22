@@ -119,6 +119,13 @@ Extern
 	Function bmx_openxlsx_xlworksheet_mergecells_str(worksheet:Byte Ptr, range:String, emptyHiddenCells:Int)
 	Function bmx_openxlsx_xlworksheet_unmergecells(worksheet:Byte Ptr, range:Byte Ptr)
 	Function bmx_openxlsx_xlworksheet_unmergecells_str(worksheet:Byte Ptr, range:String)
+	Function bmx_openxlsx_xlworksheet_conditionalformats:Byte Ptr(worksheet:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_getcolumnformat:Size_T(worksheet:Byte Ptr, column:Short)
+	Function bmx_openxlsx_xlworksheet_getcolumnformat_str:Size_T(worksheet:Byte Ptr, columnRef:String)
+	Function bmx_openxlsx_xlworksheet_setcolumnformat(worksheet:Byte Ptr, column:Short, cellFormatIndex:Size_T)
+	Function bmx_openxlsx_xlworksheet_setcolumnformat_str(worksheet:Byte Ptr, columnRef:String, cellFormatIndex:Size_T)
+	Function bmx_openxlsx_xlworksheet_getrowformat:Size_T(worksheet:Byte Ptr, row:UInt)
+	Function bmx_openxlsx_xlworksheet_setrowformat(worksheet:Byte Ptr, row:UInt, cellFormatIndex:Size_T)
 
 	Function bmx_openxlsx_xlcell_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlcell_setvalue_double(cell:Byte Ptr, value:Double)
@@ -381,6 +388,53 @@ Extern
 	Function bmx_openxlsx_xlnumberformat_setnumberformatid:Int(numberFormat:Byte Ptr, newNumberFormatId:UInt)
 	Function bmx_openxlsx_xlnumberformat_setformatcode:Int(numberFormat:Byte Ptr, newFormatCode:String)
 
+	Function bmx_openxlsx_xlconditionalformats_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlconditionalformats_count:Size_T(conditionalFormats:Byte Ptr)
+	Function bmx_openxlsx_xlconditionalformats_conditionalformatbyindex:Byte Ptr(conditionalFormats:Byte Ptr, index:Size_T)
+
+	Function bmx_openxlsx_xlconditionalformat_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlconditionalformat_empty:Int(conditionalFormat:Byte Ptr)
+	Function bmx_openxlsx_xlconditionalformat_sqref:String(conditionalFormat:Byte Ptr)
+	Function bmx_openxlsx_xlconditionalformat_cfrules:Byte Ptr(conditionalFormat:Byte Ptr)
+	Function bmx_openxlsx_xlconditionalformat_setsqref:Int(conditionalFormat:Byte Ptr, newSqref:String)
+
+	Function bmx_openxlsx_xlcfrules_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlcfrules_empty:Int(cfRulesPtr:Byte Ptr)
+	Function bmx_openxlsx_xlcfrules_maxpriorityvalue:Short(cfRulesPtr:Byte Ptr)
+	Function bmx_openxlsx_xlcfrules_setpriority:Int(cfRulesPtr:Byte Ptr, cfRuleIndex:Size_T, newPriority:Short)
+	Function bmx_openxlsx_xlcfrules_renumberpriorities(cfRulesPtr:Byte Ptr, increment:Short)
+	Function bmx_openxlsx_xlcfrules_count:Size_T(cfRulesPtr:Byte Ptr)
+	Function bmx_openxlsx_xlcfrules_cfrulebyindex:Byte Ptr(cfRulesPtr:Byte Ptr, index:Size_T)
+
+	Function bmx_openxlsx_xlcfrule_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_empty:Int(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_formula:String(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_type:EXLCfType(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_dxfid:Size_T(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_priority:Short(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_stopiftrue:Int(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_aboveaverage:Int(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_percent:Int(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_bottom:Int(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_operator:EXLCfOperator(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_text:String(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_timeperiod:EXLCfTimePeriod(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_rank:Short(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_stddev:Int(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_equalaverage:Int(cfRule:Byte Ptr)
+	Function bmx_openxlsx_xlcfrule_settype:Int(cfRule:Byte Ptr, newType:EXLCfType)
+	Function bmx_openxlsx_xlcfrule_setdxfid:Int(cfRule:Byte Ptr, newDxfId:Size_T)
+	Function bmx_openxlsx_xlcfrule_setstopiftrue:Int(cfRule:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcfrule_setaboveaverage:Int(cfRule:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcfrule_setpercent:Int(cfRule:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcfrule_setbottom:Int(cfRule:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcfrule_setoperator:Int(cfRule:Byte Ptr, newOperator:EXLCfOperator)
+	Function bmx_openxlsx_xlcfrule_settext:Int(cfRule:Byte Ptr, newText:String)
+	Function bmx_openxlsx_xlcfrule_settimeperiod:Int(cfRule:Byte Ptr, newTimePeriod:EXLCfTimePeriod)
+	Function bmx_openxlsx_xlcfrule_setrank:Int(cfRule:Byte Ptr, newRank:Short)
+	Function bmx_openxlsx_xlcfrule_setstddev:Int(cfRule:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcfrule_setequalaverage:Int(cfRule:Byte Ptr, set:Int)
+
 End Extern
 
 Rem
@@ -533,4 +587,56 @@ Enum EXLAlignmentStyle:Byte
 	XLAlignJustify          =   7
 	XLAlignCenterContinuous =   8
 	XLAlignDistributed      =   9
+End Enum
+
+Enum EXLCfType:Byte
+	Expression        =   0
+	CellIs            =   1
+	ColorScale        =   2
+	DataBar           =   3
+	IconSet           =   4
+	Top10             =   5
+	UniqueValues      =   6
+	DuplicateValues   =   7
+	ContainsText      =   8
+	NotContainsText   =   9
+	BeginsWith        =  10
+	EndsWith          =  11
+	ContainsBlanks    =  12
+	NotContainsBlanks =  13
+	ContainsErrors    =  14
+	NotContainsErrors =  15
+	TimePeriod        =  16
+	AboveAverage      =  17
+	Invalid           = 255
+End Enum
+
+Enum EXLCfOperator:Byte
+	LessThan           =   0
+	LessThanOrEqual    =   1
+	Equal              =   2
+	NotEqual           =   3
+	GreaterThanOrEqual =   4
+	GreaterThan        =   5
+	Between            =   6
+	NotBetween         =   7
+	ContainsText       =   8
+	NotContains        =   9
+	BeginsWith         =  10
+	EndsWith           =  11
+	Invalid            = 255
+End Enum
+
+Enum EXLCfTimePeriod:Byte
+	Today     =   0
+	Yesterday =   1
+	Tomorrow  =   2
+	Last7Days =   3
+	ThisMonth =   4
+	LastMonth =   5
+	NextMonth =   6
+	ThisWeek  =   7
+	LastWeek  =   8
+	NextWeek  =   9
+	Invalid   = 255
 End Enum
