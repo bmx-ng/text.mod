@@ -47,6 +47,7 @@ Extern
 	Function bmx_openxlsx_xldocument_setproperty(document:Byte Ptr, property:EXLProperty, value:String)
 	Function bmx_openxlsx_xldocument_deleteproperty(document:Byte Ptr, property:EXLProperty)
 	Function bmx_openxlsx_xldocument_isopen:Int(document:Byte Ptr)
+	Function bmx_openxlsx_xldocument_styles:Byte Ptr(document:Byte Ptr)
 
 	Function bmx_openxlsx_xlworkbook_worksheet:Byte Ptr(document:Byte Ptr, name:String)
 	Function bmx_openxlsx_xlworkbook_free(handle:Byte Ptr)
@@ -199,6 +200,187 @@ Extern
 	Function bmx_openxlsx_xlcolumn_setwidth(column:Byte Ptr, width:Float)
 	Function bmx_openxlsx_xlcolumn_ishidden:Int(column:Byte Ptr)
 	Function bmx_openxlsx_xlcolumn_sethidden(column:Byte Ptr, state:Int)
+
+	Function bmx_openxlsx_xlstyles_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlstyles_fonts:Byte Ptr(styles:Byte Ptr)
+	Function bmx_openxlsx_xlstyles_fills:Byte Ptr(styles:Byte Ptr)
+	Function bmx_openxlsx_xlstyles_borders:Byte Ptr(styles:Byte Ptr)
+	Function bmx_openxlsx_xlstyles_cellformats:Byte Ptr(styles:Byte Ptr)
+	Function bmx_openxlsx_xlstyles_cellstyles:Byte Ptr(styles:Byte Ptr)
+	Function bmx_openxlsx_xlstyles_numberformats:Byte Ptr(styles:Byte Ptr)
+
+	Function bmx_openxlsx_xlfonts_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlfonts_count:Size_T(fonts:Byte Ptr)
+	Function bmx_openxlsx_xlfonts_fontbyindex:Byte Ptr(fonts:Byte Ptr, index:Size_T)
+	
+	Function bmx_openxlsx_xlfont_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlfont_fontname:String(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_fontcharset:Size_T(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_fontfamily:Size_T(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_fontsize:Size_T(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_fontcolor:SColor8(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_bold:Int(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_italic:Int(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_strikethrough:Int(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_underline:EXLUnderlineStyle(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_scheme:EXLFontSchemeStyle(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_vertalign:EXLVerticalAlignRunStyle(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_outline:Int(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_shadow:Int(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_condense:Int(font:Byte Ptr)
+	Function bmx_openxlsx_xlfont_setfontname:Int(font:Byte Ptr, newName:String)
+	Function bmx_openxlsx_xlfont_setfontcharset:Int(font:Byte Ptr, newCharset:Size_T)
+	Function bmx_openxlsx_xlfont_setfontfamily:Int(font:Byte Ptr, newFamily:Size_T)
+	Function bmx_openxlsx_xlfont_setfontsize:Int(font:Byte Ptr, newSize:Size_T)
+	Function bmx_openxlsx_xlfont_setfontcolor:Int(font:Byte Ptr, newColor:SColor8)
+	Function bmx_openxlsx_xlfont_setbold:Int(font:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlfont_setitalic:Int(font:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlfont_setstrikethrough:Int(font:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlfont_setunderline:Int(font:Byte Ptr, underline:EXLUnderlineStyle)
+	Function bmx_openxlsx_xlfont_setscheme:Int(font:Byte Ptr, scheme:EXLFontSchemeStyle)
+	Function bmx_openxlsx_xlfont_setvertalign:Int(font:Byte Ptr, vertAlign:EXLVerticalAlignRunStyle)
+	Function bmx_openxlsx_xlfont_setoutline:Int(font:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlfont_setshadow:Int(font:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlfont_setcondense:Int(font:Byte Ptr, set:Int)
+
+	Function bmx_openxlsx_xlfills_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlfills_count:Size_T(fills:Byte Ptr)
+	Function bmx_openxlsx_xlfills_fillbyindex:Byte Ptr(fills:Byte Ptr, index:Size_T)
+
+	Function bmx_openxlsx_xlfill_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlfill_filltype:EXLFillType(fill:Byte Ptr)
+	Function bmx_openxlsx_xlfill_setfilltype:Int(fill:Byte Ptr, fillType:EXLFillType, force:Int)
+
+	Function bmx_openxlsx_xlborders_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlborders_count:Size_T(borders:Byte Ptr)
+	Function bmx_openxlsx_xlborders_borderbyindex:Byte Ptr(borders:Byte Ptr, index:Size_T)
+
+	Function bmx_openxlsx_xlborder_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlborder_diagonalup:Int(border:Byte Ptr)
+	Function bmx_openxlsx_xlborder_diagonaldown:Int(border:Byte Ptr)
+	Function bmx_openxlsx_xlborder_outline:Int(border:Byte Ptr)
+	Function bmx_openxlsx_xlborder_left:Byte Ptr(border:Byte Ptr)
+	Function bmx_openxlsx_xlborder_right:Byte Ptr(border:Byte Ptr)
+	Function bmx_openxlsx_xlborder_top:Byte Ptr(border:Byte Ptr)
+	Function bmx_openxlsx_xlborder_bottom:Byte Ptr(border:Byte Ptr)
+	Function bmx_openxlsx_xlborder_diagonal:Byte Ptr(border:Byte Ptr)
+	Function bmx_openxlsx_xlborder_vertical:Byte Ptr(border:Byte Ptr)
+	Function bmx_openxlsx_xlborder_horizontal:Byte Ptr(border:Byte Ptr)
+	Function bmx_openxlsx_xlborder_setdiagonalup:Int(border:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlborder_setdiagonaldown:Int(border:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlborder_setoutline:Int(border:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlborder_setline:Int(border:Byte Ptr, lineType:EXLLineType, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double)
+	Function bmx_openxlsx_xlborder_setleft:Int(border:Byte Ptr, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double)
+	Function bmx_openxlsx_xlborder_setright:Int(border:Byte Ptr, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double)
+	Function bmx_openxlsx_xlborder_settop:Int(border:Byte Ptr, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double)
+	Function bmx_openxlsx_xlborder_setbottom:Int(border:Byte Ptr, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double)
+	Function bmx_openxlsx_xlborder_setdiagonal:Int(border:Byte Ptr, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double)
+	Function bmx_openxlsx_xlborder_setvertical:Int(border:Byte Ptr, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double)
+	Function bmx_openxlsx_xlborder_sethorizontal:Int(border:Byte Ptr, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double)
+
+	Function bmx_openxlsx_xlline_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlline_style:EXLLineStyle(line:Byte Ptr)
+	Function bmx_openxlsx_xlline_color:Byte Ptr(line:Byte Ptr)
+
+	Function bmx_openxlsx_xldatabarcolor_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xldatabarcolor_rgb:SColor8(databarColor:Byte Ptr)
+	Function bmx_openxlsx_xldatabarcolor_tint:Double(databarColor:Byte Ptr)
+	Function bmx_openxlsx_xldatabarcolor_automatic:Int(databarColor:Byte Ptr)
+	Function bmx_openxlsx_xldatabarcolor_indexed:UInt(databarColor:Byte Ptr)
+	Function bmx_openxlsx_xldatabarcolor_theme:UInt(databarColor:Byte Ptr)
+	Function bmx_openxlsx_xldatabarcolor_setrgb:Int(databarColor:Byte Ptr, newColor:SColor8)
+	Function bmx_openxlsx_xldatabarcolor_setautomatic:Int(databarColor:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xldatabarcolor_setindexed:Int(databarColor:Byte Ptr, newIndex:UInt)
+	Function bmx_openxlsx_xldatabarcolor_settheme:Int(databarColor:Byte Ptr, newTheme:UInt)
+
+	Function bmx_openxlsx_xlcellformats_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlcellformats_count:Size_T(cellFormats:Byte Ptr)
+	Function bmx_openxlsx_xlcellformats_cellformatbyindex:Byte Ptr(cellFormats:Byte Ptr, index:Size_T)
+
+	Function bmx_openxlsx_xlcellformat_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_numberformatid:UInt(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_fontindex:Size_T(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_fillindex:Size_T(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_borderindex:Size_T(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_xfid:Size_T(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_applynumberformat:Int(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_applyfont:Int(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_applyfill:Int(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_applyborder:Int(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_applyalignment:Int(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_applyprotection:Int(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_quoteprefix:Int(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_pivotbutton:Int(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_locked:Int(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_hidden:Int(cellFormat:Byte Ptr)
+	Function bmx_openxlsx_xlcellformat_alignment:Byte Ptr(cellFormat:Byte Ptr, createIfMissing:Int)
+	Function bmx_openxlsx_xlcellformat_setnumberformatid:Int(cellFormat:Byte Ptr, newNumFmtId:UInt)
+	Function bmx_openxlsx_xlcellformat_setfontindex:Int(cellFormat:Byte Ptr, newFontIndex:Size_T)
+	Function bmx_openxlsx_xlcellformat_setfillindex:Int(cellFormat:Byte Ptr, newFillIndex:Size_T)
+	Function bmx_openxlsx_xlcellformat_setborderindex:Int(cellFormat:Byte Ptr, newBorderIndex:Size_T)
+	Function bmx_openxlsx_xlcellformat_setxfid:Int(cellFormat:Byte Ptr, newXfId:Size_T)
+	Function bmx_openxlsx_xlcellformat_setapplynumberformat:Int(cellFormat:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellformat_setapplyfont:Int(cellFormat:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellformat_setapplyfill:Int(cellFormat:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellformat_setapplyborder:Int(cellFormat:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellformat_setapplyalignment:Int(cellFormat:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellformat_setapplyprotection:Int(cellFormat:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellformat_setquoteprefix:Int(cellFormat:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellformat_setpivotbutton:Int(cellFormat:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellformat_setlocked:Int(cellFormat:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellformat_sethidden:Int(cellFormat:Byte Ptr, set:Int)
+
+	Function bmx_openxlsx_xlalignment_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlalignment_horizontal:EXLAlignmentStyle(alignment:Byte Ptr)
+	Function bmx_openxlsx_xlalignment_vertical:EXLAlignmentStyle(alignment:Byte Ptr)
+	Function bmx_openxlsx_xlalignment_textrotation:Short(alignment:Byte Ptr)
+	Function bmx_openxlsx_xlalignment_wraptext:Int(alignment:Byte Ptr)
+	Function bmx_openxlsx_xlalignment_indent:UInt(alignment:Byte Ptr)
+	Function bmx_openxlsx_xlalignment_relativeindent:Int(alignment:Byte Ptr)
+	Function bmx_openxlsx_xlalignment_justifylastline:Int(alignment:Byte Ptr)
+	Function bmx_openxlsx_xlalignment_shrinktofit:Int(alignment:Byte Ptr)
+	Function bmx_openxlsx_xlalignment_readingorder:UInt(alignment:Byte Ptr)
+	Function bmx_openxlsx_xlalignment_sethorizontal:Int(alignment:Byte Ptr, newStyle:EXLAlignmentStyle)
+	Function bmx_openxlsx_xlalignment_setvertical:Int(alignment:Byte Ptr, newStyle:EXLAlignmentStyle)
+	Function bmx_openxlsx_xlalignment_settextrotation:Int(alignment:Byte Ptr, rotation:Short)
+	Function bmx_openxlsx_xlalignment_setwraptext:Int(alignment:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlalignment_setindent:Int(alignment:Byte Ptr, newIndent:UInt)
+	Function bmx_openxlsx_xlalignment_setrelativeindent:Int(alignment:Byte Ptr, newIndent:Int)
+	Function bmx_openxlsx_xlalignment_setjustifylastline:Int(alignment:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlalignment_setshrinktofit:Int(alignment:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlalignment_setreadingorder:Int(alignment:Byte Ptr, newReadingOrder:UInt)
+
+	Function bmx_openxlsx_xlcellstyles_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlcellstyles_count:Size_T(cellStyles:Byte Ptr)
+	Function bmx_openxlsx_xlcellstyles_cellstylebyindex:Byte Ptr(cellStyles:Byte Ptr, index:Size_T)
+
+	Function bmx_openxlsx_xlcellstyle_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlcellstyle_empty:Int(cellStyle:Byte Ptr)
+	Function bmx_openxlsx_xlcellstyle_name:String(cellStyle:Byte Ptr)
+	Function bmx_openxlsx_xlcellstyle_xfid:Size_T(cellStyle:Byte Ptr)
+	Function bmx_openxlsx_xlcellstyle_builtinid:UInt(cellStyle:Byte Ptr)
+	Function bmx_openxlsx_xlcellstyle_outlinestyle:UInt(cellStyle:Byte Ptr)
+	Function bmx_openxlsx_xlcellstyle_hidden:Int(cellStyle:Byte Ptr)
+	Function bmx_openxlsx_xlcellstyle_custombuiltin:Int(cellStyle:Byte Ptr)
+	Function bmx_openxlsx_xlcellstyle_setname:Int(cellStyle:Byte Ptr, newName:String)
+	Function bmx_openxlsx_xlcellstyle_setxfid:Int(cellStyle:Byte Ptr, newXfId:Size_T)
+	Function bmx_openxlsx_xlcellstyle_setbuiltinid:Int(cellStyle:Byte Ptr, newBuiltinId:UInt)
+	Function bmx_openxlsx_xlcellstyle_setoutlinestyle:Int(cellStyle:Byte Ptr, newOutlineStyle:UInt)
+	Function bmx_openxlsx_xlcellstyle_sethidden:Int(cellStyle:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellstyle_setcustombuiltin:Int(cellStyle:Byte Ptr, set:Int)
+
+	Function bmx_openxlsx_xlnumberformats_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlnumberformats_count:Size_T(numberFormats:Byte Ptr)
+	Function bmx_openxlsx_xlnumberformats_numberformatbyindex:Byte Ptr(numberFormats:Byte Ptr, index:Size_T)
+	Function bmx_openxlsx_xlnumberformats_numberformatbyid:Byte Ptr(numberFormats:Byte Ptr, numFmtId:UInt)
+	Function bmx_openxlsx_xlnumberformats_numberformatidfromindex:UInt(numberFormats:Byte Ptr, index:Size_T)
+
+	Function bmx_openxlsx_xlnumberformat_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlnumberformat_numberformatid:UInt(numberFormat:Byte Ptr)
+	Function bmx_openxlsx_xlnumberformat_formatcode:String(numberFormat:Byte Ptr)
+	Function bmx_openxlsx_xlnumberformat_setnumberformatid:Int(numberFormat:Byte Ptr, newNumberFormatId:UInt)
+	Function bmx_openxlsx_xlnumberformat_setformatcode:Int(numberFormat:Byte Ptr, newFormatCode:String)
+
 End Extern
 
 Rem
@@ -253,4 +435,102 @@ Enum EXLProperty
 	HyperlinkBase
 	HyperlinksChanged
 	AppVersion
+End Enum
+
+Enum EXLUnderlineStyle:Byte
+	XLUnderlineNone    = 0
+	XLUnderlineSingle  = 1
+	XLUnderlineDouble  = 2
+	XLUnderlineInvalid = 255
+End Enum
+
+Enum EXLFontSchemeStyle:Byte
+	XLFontSchemeNone    =   0
+	XLFontSchemeMajor   =   1
+	XLFontSchemeMinor   =   2
+	XLFontSchemeInvalid = 255
+End Enum
+
+Enum EXLVerticalAlignRunStyle:Byte
+	XLBaseline                =   0
+	XLSubscript               =   1
+	XLSuperscript             =   2
+	XLVerticalAlignRunInvalid = 255
+End Enum
+
+Enum EXLFillType:Byte
+	XLGradientFill     =   0
+	XLPatternFill      =   1
+	XLFillTypeInvalid  = 255
+End Enum
+
+Enum EXLGradientType:Byte
+	XLGradientLinear      =   0
+	XLGradientPath        =   1
+	XLGradientTypeInvalid = 255
+End Enum
+
+Enum EXLPatternType:Byte
+	XLPatternNone            =   0
+	XLPatternSolid           =   1
+	XLPatternMediumGray      =   2
+	XLPatternDarkGray        =   3
+	XLPatternLightGray       =   4
+	XLPatternDarkHorizontal  =   5
+	XLPatternDarkVertical    =   6
+	XLPatternDarkDown        =   7
+	XLPatternDarkUp          =   8
+	XLPatternDarkGrid        =   9
+	XLPatternDarkTrellis     =  10
+	XLPatternLightHorizontal =  11
+	XLPatternLightVertical   =  12
+	XLPatternLightDown       =  13
+	XLPatternLightUp         =  14
+	XLPatternLightGrid       =  15
+	XLPatternLightTrellis    =  16
+	XLPatternGray125         =  17
+	XLPatternGray0625        =  18
+	XLPatternTypeInvalid     = 255
+End Enum
+
+Enum EXLLineType:Byte
+	XLLineLeft       =   0
+	XLLineRight      =   1
+	XLLineTop        =   2
+	XLLineBottom     =   3
+	XLLineDiagonal   =   4
+	XLLineVertical   =   5
+	XLLineHorizontal =   6
+	XLLineInvalid    = 255
+End Enum
+
+Enum EXLLineStyle:Byte
+	XLLineStyleNone             =   0
+	XLLineStyleThin             =   1
+	XLLineStyleMedium           =   2
+	XLLineStyleDashed           =   3
+	XLLineStyleDotted           =   4
+	XLLineStyleThick            =   5
+	XLLineStyleDouble           =   6
+	XLLineStyleHair             =   7
+	XLLineStyleMediumDashed     =   8
+	XLLineStyleDashDot          =   9
+	XLLineStyleMediumDashDot    =  10
+	XLLineStyleDashDotDot       =  11
+	XLLineStyleMediumDashDotDot =  12
+	XLLineStyleSlantDashDot     =  13
+	XLLineStyleInvalid          = 255
+End Enum
+
+Enum EXLAlignmentStyle:Byte
+	XLAlignGeneral          =   0
+	XLAlignLeft             =   1
+	XLAlignRight            =   2
+	XLAlignCenter           =   3
+	XLAlignTop              =   4
+	XLAlignBottom           =   5
+	XLAlignFill             =   6
+	XLAlignJustify          =   7
+	XLAlignCenterContinuous =   8
+	XLAlignDistributed      =   9
 End Enum
