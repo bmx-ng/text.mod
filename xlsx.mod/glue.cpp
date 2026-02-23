@@ -61,6 +61,8 @@ class MaxXLConditionalFormats;
 class MaxXLConditionalFormat;
 class MaxXLCfRules;
 class MaxXLCfRule;
+class MaxXLGradientStops;
+class MaxXLGradientStop;
 
 extern "C" {
 
@@ -94,7 +96,8 @@ extern "C" {
 	int bmx_openxlsx_xldocument_isopen(MaxXLDocument * doc);
 	MaxXLStyles * bmx_openxlsx_xldocument_styles(MaxXLDocument * doc);
 
-	MaxXLWorkSheet * bmx_openxlsx_xlworkbook_worksheet(MaxXLWorkbook * workbook, BBString * name);
+	MaxXLWorkSheet * bmx_openxlsx_xlworkbook_worksheet(MaxXLWorkbook * workbook, unsigned short index);
+	MaxXLWorkSheet * bmx_openxlsx_xlworkbook_worksheet_str(MaxXLWorkbook * workbook, BBString * name);
 	void bmx_openxlsx_xlworkbook_free(MaxXLWorkbook * workbook);
 	BBArray * bmx_openxlsx_xlworkbook_worksheetnames(MaxXLWorkbook * workbook);
 	void bmx_openxlsx_xlworkbook_addworksheet(MaxXLWorkbook * workbook, BBString * name);
@@ -125,6 +128,7 @@ extern "C" {
 	MaxXLCellRange * bmx_openxlsx_xlworksheet_range(MaxXLWorkSheet * worksheet);
 	MaxXLCellRange * bmx_openxlsx_xlworksheet_range_str(MaxXLWorkSheet * worksheet, BBString * topLeft, BBString * bottomRight);
 	MaxXLCellRange * bmx_openxlsx_xlworksheet_range_ref(MaxXLWorkSheet * worksheet, MaxXLCellReference * topLeft, MaxXLCellReference * bottomRight);
+	MaxXLCellRange * bmx_openxlsx_xlworksheet_range_refstr(MaxXLWorkSheet * worksheet, BBString * rangeReference);
 	MaxXLRow * bmx_openxlsx_xlworksheet_row(MaxXLWorkSheet * worksheet, unsigned int rowNumber);
 	MaxXLRowRange * bmx_openxlsx_xlworksheet_rows(MaxXLWorkSheet * worksheet);
 	MaxXLRowRange * bmx_openxlsx_xlworksheet_rows_count(MaxXLWorkSheet * worksheet, unsigned int rowCount);
@@ -192,6 +196,8 @@ extern "C" {
 	void bmx_openxlsx_xlcell_clearformula(MaxXLCell * cell);
 	int bmx_openxlsx_xlcell_empty(MaxXLCell * cell);
 	int bmx_openxlsx_xlcell_valuetype(MaxXLCell * cell);
+	size_t bmx_openxlsx_xlcell_cellformat(MaxXLCell * cell);
+	int bmx_openxlsx_xlcell_setcellformat(MaxXLCell * cell, size_t cellFormatIndex);
 
 	MaxXLCellReference * bmx_openxlsx_xlcellreference_new_celladdress(BBString * cellAddress);
 	MaxXLCellReference * bmx_openxlsx_xlcellreference_new_rowcolumn(unsigned int row, unsigned short column);
@@ -204,6 +210,10 @@ extern "C" {
 	void bmx_openxlsx_xlcellreference_setrowcolumn(MaxXLCellReference * cellReference, unsigned int row, unsigned short column);
 	BBString * bmx_openxlsx_xlcellreference_address(MaxXLCellReference * cellReference);
 	void bmx_openxlsx_xlcellreference_setaddress(MaxXLCellReference * cellReference, BBString * address);
+	BBString * bmx_openxlsx_xlcellreference_rowasstring(unsigned int row);
+	unsigned int bmx_openxlsx_xlcellreference_rowasnumber(BBString * row);
+	BBString * bmx_openxlsx_xlcellreference_columnasstring(unsigned short column);
+	unsigned short bmx_openxlsx_xlcellreference_columnasnumber(BBString * column);
 
 	void bmx_openxlsx_xlcellrange_free(MaxXLCellRange * cellRange);
 	BBString * bmx_openxlsx_xlcellrange_address(MaxXLCellRange * cellRange);
@@ -213,6 +223,12 @@ extern "C" {
 	unsigned short bmx_openxlsx_xlcellrange_numcolumns(MaxXLCellRange * cellRange);
 	MaxXLCellRangeIterator * bmx_openxlsx_xlcellrange_iterator(MaxXLCellRange * cellRange);
 	BBULONG bmx_openxlsx_xlcellrange_distance(MaxXLCellRange * cellRange);
+	void bmx_openxlsx_xlcellrange_setvalue_double(MaxXLCellRange * cellRange, double value);
+	void bmx_openxlsx_xlcellrange_setvalue_long(MaxXLCellRange * cellRange, BBLONG value);
+	void bmx_openxlsx_xlcellrange_setvalue_ulong(MaxXLCellRange * cellRange, BBULONG value);
+	void bmx_openxlsx_xlcellrange_setvalue_string(MaxXLCellRange * cellRange, BBString * value);
+	void bmx_openxlsx_xlcellrange_setvalue_bool(MaxXLCellRange * cellRange, int value);
+	int bmx_openxlsx_xlcellrange_setformat(MaxXLCellRange * cellRange, size_t formatIndex);
 
 	void bmx_openxlsx_xlcellrange_iterator_free(MaxXLCellRangeIterator * iter);
 	int bmx_openxlsx_xlcellrange_iterator_hasnext(MaxXLCellRangeIterator * iter);
@@ -242,6 +258,11 @@ extern "C" {
 
 	void bmx_openxlsx_xlrowdatarange_free(MaxXLRowDataRange * rowDataRange);
 	MaxXLRowDataIterator * bmx_openxlsx_xlrowdatarange_iterator(MaxXLRowDataRange * rowDataRange);
+	void bmx_openxlsx_xlrowdatarange_setvalue_double(MaxXLRowDataRange * rowDataRange, double value);
+	void bmx_openxlsx_xlrowdatarange_setvalue_long(MaxXLRowDataRange * rowDataRange, BBLONG value);
+	void bmx_openxlsx_xlrowdatarange_setvalue_ulong(MaxXLRowDataRange * rowDataRange, BBULONG value);
+	void bmx_openxlsx_xlrowdatarange_setvalue_string(MaxXLRowDataRange * rowDataRange, BBString * value);
+	void bmx_openxlsx_xlrowdatarange_setvalue_bool(MaxXLRowDataRange * rowDataRange, int value);
 
 	void bmx_openxlsx_xlrowdatarange_iterator_free(MaxXLRowDataIterator * iter);
 	int bmx_openxlsx_xlrowdatarange_iterator_hasnext(MaxXLRowDataIterator * iter);
@@ -264,6 +285,7 @@ extern "C" {
 	void bmx_openxlsx_xlfonts_free(MaxXLFonts * fonts);
 	size_t bmx_openxlsx_xlfonts_count(MaxXLFonts * fonts);
 	MaxXLFont * bmx_openxlsx_xlfonts_fontbyindex(MaxXLFonts * fonts, size_t index);
+	size_t bmx_openxlsx_xlfonts_create(MaxXLFonts * fonts, MaxXLFont * copyFrom);
 
 	void bmx_openxlsx_xlfont_free(MaxXLFont * font);
 	BBString * bmx_openxlsx_xlfont_fontname(MaxXLFont * font);
@@ -294,18 +316,41 @@ extern "C" {
 	int bmx_openxlsx_xlfont_setoutline(MaxXLFont * font, int set);
 	int bmx_openxlsx_xlfont_setshadow(MaxXLFont * font, int set);
 	int bmx_openxlsx_xlfont_setcondense(MaxXLFont * font, int set);
+	BBString * bmx_openxlsx_xlfont_summary(MaxXLFont * font);
 
 	void bmx_openxlsx_xlfills_free(MaxXLFills * fills);
 	size_t bmx_openxlsx_xlfills_count(MaxXLFills * fills);
 	MaxXLFill * bmx_openxlsx_xlfills_fillbyindex(MaxXLFills * fills, size_t index);
+	size_t bmx_openxlsx_xlfills_create(MaxXLFills * fills, MaxXLFill * copyFrom);
 
 	void bmx_openxlsx_xlfill_free(MaxXLFill * fill);
 	int bmx_openxlsx_xlfill_filltype(MaxXLFill * fill);
 	int bmx_openxlsx_xlfill_setfilltype(MaxXLFill * fill, uint8_t fillType, int force);
+	uint8_t bmx_openxlsx_xlfill_gradienttype(MaxXLFill * fill);
+	double bmx_openxlsx_xlfill_degree(MaxXLFill * fill);
+	double bmx_openxlsx_xlfill_left(MaxXLFill * fill);
+	double bmx_openxlsx_xlfill_right(MaxXLFill * fill);
+	double bmx_openxlsx_xlfill_top(MaxXLFill * fill);
+	double bmx_openxlsx_xlfill_bottom(MaxXLFill * fill);
+	MaxXLGradientStops * bmx_openxlsx_xlfill_stops(MaxXLFill * fill);
+	uint8_t bmx_openxlsx_xlfill_patterntype(MaxXLFill * fill);
+	SColor8 bmx_openxlsx_xlfill_color(MaxXLFill * fill);
+	SColor8 bmx_openxlsx_xlfill_backgroundcolor(MaxXLFill * fill);
+	int bmx_openxlsx_xlfill_setgradienttype(MaxXLFill * fill, uint8_t newType);
+	int bmx_openxlsx_xlfill_setdegree(MaxXLFill * fill, double newDegree);
+	int bmx_openxlsx_xlfill_setleft(MaxXLFill * fill, double newLeft);
+	int bmx_openxlsx_xlfill_setright(MaxXLFill * fill, double newRight);
+	int bmx_openxlsx_xlfill_settop(MaxXLFill * fill, double newTop);
+	int bmx_openxlsx_xlfill_setbottom(MaxXLFill * fill, double newBottom);
+	int bmx_openxlsx_xlfill_setpatterntype(MaxXLFill * fill, uint8_t newPatternType);
+	int bmx_openxlsx_xlfill_setcolor(MaxXLFill * fill, SColor8 newColor);
+	int bmx_openxlsx_xlfill_setbackgroundcolor(MaxXLFill * fill, SColor8 newColor);
+	BBString * bmx_openxlsx_xlfill_summary(MaxXLFill * fill);
 
 	void bmx_openxlsx_xlborders_free(MaxXLBorders * borders);
 	size_t bmx_openxlsx_xlborders_count(MaxXLBorders * borders);
 	MaxXLBorder * bmx_openxlsx_xlborders_borderbyindex(MaxXLBorders * borders, size_t index);
+	size_t bmx_openxlsx_xlborders_create(MaxXLBorders * borders, MaxXLBorder * copyFrom);
 
 	void bmx_openxlsx_xlborder_free(MaxXLBorder * border);
 	int bmx_openxlsx_xlborder_diagonalup(MaxXLBorder * border);
@@ -329,10 +374,12 @@ extern "C" {
 	int bmx_openxlsx_xlborder_setdiagonal(MaxXLBorder * border, uint8_t lineStyle, SColor8 lineColor, double lineTint);
 	int bmx_openxlsx_xlborder_setvertical(MaxXLBorder * border, uint8_t lineStyle, SColor8 lineColor, double lineTint);
 	int bmx_openxlsx_xlborder_sethorizontal(MaxXLBorder * border, uint8_t lineStyle, SColor8 lineColor, double lineTint);
+	BBString * bmx_openxlsx_xlborder_summary(MaxXLBorder * border);
 
 	void bmx_openxlsx_xlline_free(MaxXLLine * line);
 	uint8_t bmx_openxlsx_xlline_style(MaxXLLine * line);
 	MaxXLDataBarColor * bmx_openxlsx_xlline_color(MaxXLLine * line);
+	BBString * bmx_openxlsx_xlline_summary(MaxXLLine * line);
 
 	void bmx_openxlsx_xldatabarcolor_free(MaxXLDataBarColor * color);
 	SColor8 bmx_openxlsx_xldatabarcolor_rgb(MaxXLDataBarColor * databarColor);
@@ -344,10 +391,13 @@ extern "C" {
 	int bmx_openxlsx_xldatabarcolor_setautomatic(MaxXLDataBarColor * databarColor, int set);
 	int bmx_openxlsx_xldatabarcolor_setindexed(MaxXLDataBarColor * databarColor, unsigned int newIndex);
 	int bmx_openxlsx_xldatabarcolor_settheme(MaxXLDataBarColor * databarColor, unsigned int newTheme);
+	int bmx_openxlsx_xldatabarcolor_settint(MaxXLDataBarColor * databarColor, double newTint);
+	BBString * bmx_openxlsx_xldatabarcolor_summary(MaxXLDataBarColor * databarColor);
 
 	void bmx_openxlsx_xlcellformats_free(MaxXLCellFormats * cellFormats);
 	size_t bmx_openxlsx_xlcellformats_count(MaxXLCellFormats * cellFormats);
 	MaxXLCellFormat * bmx_openxlsx_xlcellformats_cellformatbyindex(MaxXLCellFormats * cellFormats, size_t index);
+	size_t bmx_openxlsx_xlcellformats_create(MaxXLCellFormats * cellFormats, MaxXLCellFormat * copyFrom);
 
 	void bmx_openxlsx_xlcellformat_free(MaxXLCellFormat * cellFormat);
 	unsigned int bmx_openxlsx_xlcellformat_numberformatid(MaxXLCellFormat * cellFormat);
@@ -381,6 +431,7 @@ extern "C" {
 	int bmx_openxlsx_xlcellformat_setpivotbutton(MaxXLCellFormat * cellFormat, int set);
 	int bmx_openxlsx_xlcellformat_setlocked(MaxXLCellFormat * cellFormat, int set);
 	int bmx_openxlsx_xlcellformat_sethidden(MaxXLCellFormat * cellFormat, int set);
+	BBString * bmx_openxlsx_xlcellformat_summary(MaxXLCellFormat * cellFormat);
 
 	void bmx_openxlsx_xlalignment_free(MaxXLAlignment * alignment);
 	uint8_t bmx_openxlsx_xlalignment_horizontal(MaxXLAlignment * alignment);
@@ -401,10 +452,12 @@ extern "C" {
 	int bmx_openxlsx_xlalignment_setjustifylastline(MaxXLAlignment * alignment, int set);
 	int bmx_openxlsx_xlalignment_setshrinktofit(MaxXLAlignment * alignment, int set);
 	int bmx_openxlsx_xlalignment_setreadingorder(MaxXLAlignment * alignment, unsigned int newReadingOrder);
+	BBString * bmx_openxlsx_xlalignment_summary(MaxXLAlignment * alignment);
 
 	void bmx_openxlsx_xlcellstyles_free(MaxXLCellStyles * cellStyles);
 	size_t bmx_openxlsx_xlcellstyles_count(MaxXLCellStyles * cellStyles);
 	MaxXLCellStyle * bmx_openxlsx_xlcellstyles_cellstylebyindex(MaxXLCellStyles * cellStyles, size_t index);
+	size_t bmx_openxlsx_xlcellstyles_create(MaxXLCellStyles * cellStyles, MaxXLCellStyle * copyFrom);
 
 	void bmx_openxlsx_xlcellstyle_free(MaxXLCellStyle * cellStyle);
 	int bmx_openxlsx_xlcellstyle_empty(MaxXLCellStyle * cellStyle);
@@ -420,22 +473,26 @@ extern "C" {
 	int bmx_openxlsx_xlcellstyle_setoutlinestyle(MaxXLCellStyle * cellStyle, unsigned int newOutlineStyle);
 	int bmx_openxlsx_xlcellstyle_sethidden(MaxXLCellStyle * cellStyle, int set);
 	int bmx_openxlsx_xlcellstyle_setcustombuiltin(MaxXLCellStyle * cellStyle, int set);
+	BBString * bmx_openxlsx_xlcellstyle_summary(MaxXLCellStyle * cellStyle);
 
 	void bmx_openxlsx_xlnumberformats_free(MaxXLNumberFormats * numberFormats);
 	size_t bmx_openxlsx_xlnumberformats_count(MaxXLNumberFormats * numberFormats);
 	MaxXLNumberFormat * bmx_openxlsx_xlnumberformats_numberformatbyindex(MaxXLNumberFormats * numberFormats, size_t index);
 	MaxXLNumberFormat * bmx_openxlsx_xlnumberformats_numberformatbyid(MaxXLNumberFormats * numberFormats, unsigned int numFmtId);
 	unsigned int bmx_openxlsx_xlnumberformats_numberformatidfromindex(MaxXLNumberFormats * numberFormats, size_t index);
+	size_t bmx_openxlsx_xlnumberformats_create(MaxXLNumberFormats * numberFormats, MaxXLNumberFormat * copyFrom);
 
 	void bmx_openxlsx_xlnumberformat_free(MaxXLNumberFormat * numberFormat);
 	unsigned int bmx_openxlsx_xlnumberformat_numberformatid(MaxXLNumberFormat * numberFormat);
 	BBString * bmx_openxlsx_xlnumberformat_formatcode(MaxXLNumberFormat * numberFormat);
 	int bmx_openxlsx_xlnumberformat_setnumberformatid(MaxXLNumberFormat * numberFormat, unsigned int newNumberFormatId);
 	int bmx_openxlsx_xlnumberformat_setformatcode(MaxXLNumberFormat * numberFormat, BBString * newFormatCode);
+	BBString * bmx_openxlsx_xlnumberformat_summary(MaxXLNumberFormat * numberFormat);
 
 	void bmx_openxlsx_xlconditionalformats_free(MaxXLConditionalFormats * conditionalFormats);
 	size_t bmx_openxlsx_xlconditionalformats_count(MaxXLConditionalFormats * conditionalFormats);
 	MaxXLConditionalFormat * bmx_openxlsx_xlconditionalformats_conditionalformatbyindex(MaxXLConditionalFormats * conditionalFormats, size_t index);
+	size_t bmx_openxlsx_xlconditionalformats_create(MaxXLConditionalFormats * conditionalFormats, MaxXLConditionalFormat * copyFrom);
 
 	void bmx_openxlsx_xlconditionalformat_free(MaxXLConditionalFormat * conditionalFormat);
 	int bmx_openxlsx_xlconditionalformat_empty(MaxXLConditionalFormat * conditionalFormat);
@@ -450,6 +507,7 @@ extern "C" {
 	void bmx_openxlsx_xlcfrules_renumberpriorities(MaxXLCfRules * cfRules, unsigned short increment);
 	size_t bmx_openxlsx_xlcfrules_count(MaxXLCfRules * cfRules);
 	MaxXLCfRule * bmx_openxlsx_xlcfrules_cfrulebyindex(MaxXLCfRules * cfRules, size_t index);
+	size_t bmx_openxlsx_xlcfrules_create(MaxXLCfRules * cfRules, MaxXLCfRule * copyFrom);
 
 	void bmx_openxlsx_xlcfrule_free(MaxXLCfRule * cfRule);
 	int bmx_openxlsx_xlcfrule_empty(MaxXLCfRule * cfRule);
@@ -479,6 +537,17 @@ extern "C" {
 	int bmx_openxlsx_xlcfrule_setrank(MaxXLCfRule * cfRule, unsigned short newRank);
 	int bmx_openxlsx_xlcfrule_setstddev(MaxXLCfRule * cfRule, int set);
 	int bmx_openxlsx_xlcfrule_setequalaverage(MaxXLCfRule * cfRule, int set);
+
+	void bmx_openxlsx_xlgradientstops_free(MaxXLGradientStops * gradientStops);
+	size_t bmx_openxlsx_xlgradientstops_count(MaxXLGradientStops * gradientStops);
+	MaxXLGradientStop * bmx_openxlsx_xlgradientstops_stopbyindex(MaxXLGradientStops * gradientStops, size_t index);
+	size_t bmx_openxlsx_xlgradientstops_create(MaxXLGradientStops * gradientStops, MaxXLGradientStop * copyFrom);
+
+	void bmx_openxlsx_xlgradientstop_free(MaxXLGradientStop * gradientStop);
+	MaxXLDataBarColor * bmx_openxlsx_xlgradientstop_color(MaxXLGradientStop * gradientStop);
+	double bmx_openxlsx_xlgradientstop_position(MaxXLGradientStop * gradientStop);
+	int bmx_openxlsx_xlgradientstop_setposition(MaxXLGradientStop * gradientStop, double newPosition);
+	BBString * bmx_openxlsx_xlgradientstop_summary(MaxXLGradientStop * gradientStop);
 }
 
 ///////////////////////////////////////////////////////////
@@ -705,6 +774,14 @@ public:
 		return (int)cell.value().type();
 	}
 
+	size_t cellFormat() const {
+		return (size_t)cell.cellFormat();
+	}
+
+	int setCellFormat(size_t cellFormatIndex) {
+		return cell.setCellFormat(cellFormatIndex) ? 1 : 0;
+	}
+
 	OpenXLSX::XLCell cell;
 };
 
@@ -769,6 +846,31 @@ public:
 		return std::distance(range.begin(), range.end());
 	}
 
+	void setValueDouble(double value) {
+		range = value;
+	}
+
+	void setValueLong(BBLONG value) {
+		range = value;
+	}
+
+	void setValueULong(BBULONG value) {
+		range = value;
+	}
+
+	void setValueString(BBString * value) {
+		std::string str = toStdString(value);
+		range = str;
+	}
+
+	void setValueBool(int value) {
+		range = (bool)value;
+	}
+
+	int setFormat(size_t cellFormatIndex) {
+		return range.setFormat(cellFormatIndex) ? 1 : 0;
+	}
+
 	OpenXLSX::XLCellRange range;
 };
 
@@ -807,6 +909,27 @@ public:
 
 	MaxXLRowDataIterator * iterator() {
 		return new MaxXLRowDataIterator(range);
+	}
+
+	void setValueDouble(double value) {
+		range = value;
+	}
+
+	void setValueLong(BBLONG value) {
+		range = value;
+	}
+
+	void setValueULong(BBULONG value) {
+		range = value;
+	}
+
+	void setValueString(BBString * value) {
+		std::string str = toStdString(value);
+		range = str;
+	}
+
+	void setValueBool(int value) {
+		range = (bool)value;
 	}
 
 	OpenXLSX::XLRowDataRange range;
@@ -1101,6 +1224,28 @@ public:
 		return nullptr;
 	}
 
+	size_t create(MaxXLCfRule * copyFrom) {
+		if (copyFrom) {
+			try {
+				return cfRules.create(copyFrom->cfRule);
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		else {
+			try {
+				return cfRules.create();
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		return 0;
+	}
+
 	OpenXLSX::XLCfRules cfRules;
 };
 
@@ -1153,6 +1298,28 @@ public:
 			throwXLException(e);
 		}
 		return nullptr;
+	}
+
+	size_t create(MaxXLConditionalFormat * copyFrom) {
+		if (copyFrom) {
+			try {
+				return conditionalFormats.create(copyFrom->conditionalFormat);
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		else {
+			try {
+				return conditionalFormats.create();
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		return 0;
 	}
 
 	OpenXLSX::XLConditionalFormats conditionalFormats;
@@ -1243,6 +1410,11 @@ public:
 
 	MaxXLCellRange * range(MaxXLCellReference * topLeft, MaxXLCellReference * bottomRight) {
 		return new MaxXLCellRange(worksheet.range(topLeft->ref, bottomRight->ref));
+	}
+
+	MaxXLCellRange * range(BBString * rangeReference) {
+		std::string rr = toStdString(rangeReference);
+		return new MaxXLCellRange(worksheet.range(rr));
 	}
 
 	MaxXLRow * row(unsigned int rowNumber) {
@@ -1500,6 +1672,18 @@ public:
 
 	OpenXLSX::XLWorkbook workbook;
 
+	MaxXLWorkSheet * worksheet(unsigned short index) {
+		try
+		{
+			MaxXLWorkSheet * sheet = new MaxXLWorkSheet(workbook.worksheet(index));
+			return sheet;
+		}
+		catch (const OpenXLSX::XLInputError& e)
+		{
+			throwXLInputError(e);
+		}
+	}
+
 	MaxXLWorkSheet * worksheet(BBString* name) {
 		try
 		{
@@ -1736,6 +1920,10 @@ public:
 		return font.setCondense((bool)set) ? 1 : 0;
 	}
 
+	BBString * summary() const {
+		return fromStdString(font.summary());
+	}
+
 	OpenXLSX::XLFont font;
 };
 
@@ -1760,6 +1948,28 @@ public:
 			throwXLException(e);
 		}
 		return nullptr;
+	}
+
+	size_t create(MaxXLFont * copyFrom) {
+		if (copyFrom) {
+			try {
+				return fonts.create(copyFrom->font);
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		else {
+			try {
+				return fonts.create();
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		return 0;
 	}
 
 	OpenXLSX::XLFonts & fonts;
@@ -1788,6 +1998,10 @@ public:
 	int setFormatCode(BBString * newFormatCode) {
 		std::string fc = toStdString(newFormatCode);
 		return numberFormat.setFormatCode(fc) ? 1 : 0;
+	}
+
+	BBString * summary() const {
+		return fromStdString(numberFormat.summary());
 	}
 
 	OpenXLSX::XLNumberFormat numberFormat;
@@ -1838,52 +2052,29 @@ public:
 		return 0;
 	}
 
+	size_t create(MaxXLNumberFormat * copyFrom) {
+		if (copyFrom) {
+			try {
+				return numberFormats.create(copyFrom->numberFormat);
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		else {
+			try {
+				return numberFormats.create();
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		return 0;
+	}
+
 	OpenXLSX::XLNumberFormats & numberFormats;
-};
-
-///////////////////////////////////////////////////////////
-
-class MaxXLFill
-{
-public:
-	MaxXLFill(OpenXLSX::XLFill fill) : fill(fill) {
-	}
-
-	int fillType() const {
-		return (int)fill.fillType();
-	}
-
-	int setFillType(uint8_t fillType, int force) {
-		return fill.setFillType((OpenXLSX::XLFillType)fillType, (bool)force) ? 1 : 0;
-	}
-
-	OpenXLSX::XLFill fill;
-};
-
-///////////////////////////////////////////////////////////
-
-class MaxXLFills
-{
-public:
-	MaxXLFills(OpenXLSX::XLFills& fills) : fills(fills) {
-	}
-
-	size_t count() const {
-		return fills.count();
-	}
-
-	MaxXLFill * fillByIndex(size_t index) {
-		try {
-			return new MaxXLFill(fills.fillByIndex(index));
-		}
-		catch (const OpenXLSX::XLException& e)
-		{
-			throwXLException(e);
-		}
-		return nullptr;
-	}
-
-	OpenXLSX::XLFills & fills;
 };
 
 ///////////////////////////////////////////////////////////
@@ -1939,7 +2130,235 @@ public:
 		return color.setTheme(newTheme) ? 1 : 0;
 	}
 
+	BBString * summary() const {
+		return fromStdString(color.summary());
+	}
+
 	OpenXLSX::XLDataBarColor color;
+};
+
+///////////////////////////////////////////////////////////
+
+class MaxXLGradientStop
+{
+public:
+	MaxXLGradientStop(OpenXLSX::XLGradientStop gradientStop) : gradientStop(gradientStop) {
+	}
+
+	MaxXLDataBarColor * color() {
+		return new MaxXLDataBarColor(gradientStop.color());
+	}
+
+	double position() const {
+		return gradientStop.position();
+	}
+
+	int setPosition(double newPosition) {
+		return gradientStop.setPosition(newPosition) ? 1 : 0;
+	}
+
+	BBString * summary() const {
+		return fromStdString(gradientStop.summary());
+	}
+
+	OpenXLSX::XLGradientStop gradientStop;
+};
+
+///////////////////////////////////////////////////////////
+
+class MaxXLGradientStops
+{
+public:
+	MaxXLGradientStops(OpenXLSX::XLGradientStops gradientStops) : gradientStops(gradientStops) {
+	}
+
+	size_t count() const {
+		return gradientStops.count();
+	}
+
+	MaxXLGradientStop * stopByIndex(size_t index) {
+		try {
+			return new MaxXLGradientStop(gradientStops.stopByIndex(index));
+		}
+		catch (const OpenXLSX::XLException& e)
+		{
+			throwXLException(e);
+		}
+		return nullptr;
+	}
+
+	size_t create(MaxXLGradientStop * copyFrom) {
+		if (copyFrom) {
+			try {
+				return gradientStops.create(copyFrom->gradientStop);
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		else {
+			try {
+				return gradientStops.create();
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		return 0;
+	}
+
+	OpenXLSX::XLGradientStops gradientStops;
+};
+
+///////////////////////////////////////////////////////////
+
+class MaxXLFill
+{
+public:
+	MaxXLFill(OpenXLSX::XLFill fill) : fill(fill) {
+	}
+
+	int fillType() const {
+		return (int)fill.fillType();
+	}
+
+	int setFillType(uint8_t fillType, int force) {
+		return fill.setFillType((OpenXLSX::XLFillType)fillType, (bool)force) ? 1 : 0;
+	}
+
+	uint8_t gradientType() {
+		return (uint8_t)fill.gradientType();
+	}
+
+	double degree() {
+		return fill.degree();
+	}
+
+	double left() {
+		return fill.left();
+	}
+
+	double right() {
+		return fill.right();
+	}
+
+	double top() {
+		return fill.top();
+	}
+
+	double bottom() {
+		return fill.bottom();
+	}
+
+	MaxXLGradientStops * stops() {
+		return new MaxXLGradientStops(fill.stops());
+	}
+
+	uint8_t patternType() {
+		return (uint8_t)fill.patternType();
+	}
+
+	SColor8 color() {
+		OpenXLSX::XLColor c = fill.color();
+		return SColor8{c.blue(), c.green(), c.red(), c.alpha()};
+	}
+
+	SColor8 backgroundColor() {
+		OpenXLSX::XLColor c = fill.backgroundColor();
+		return SColor8{c.blue(), c.green(), c.red(), c.alpha()};
+	}
+
+	int setGradientType(uint8_t newType) {
+		return fill.setGradientType((OpenXLSX::XLGradientType)newType) ? 1 : 0;
+	}
+
+	int setDegree(double newDegree) {
+		return fill.setDegree(newDegree) ? 1 : 0;
+	}
+
+	int setLeft(double newLeft) {
+		return fill.setLeft(newLeft) ? 1 : 0;
+	}
+
+	int setRight(double newRight) {
+		return fill.setRight(newRight) ? 1 : 0;
+	}
+
+	int setTop(double newTop) {
+		return fill.setTop(newTop) ? 1 : 0;
+	}
+
+	int setBottom(double newBottom) {
+		return fill.setBottom(newBottom) ? 1 : 0;
+	}
+
+	int setPatternType(uint8_t newPatternType) {
+		return fill.setPatternType((OpenXLSX::XLPatternType)newPatternType) ? 1 : 0;
+	}
+
+	int setColor(SColor8 newColor) {
+		return fill.setColor(OpenXLSX::XLColor(newColor.a, newColor.r, newColor.g, newColor.b)) ? 1 : 0;
+	}
+
+	int setBackgroundColor(SColor8 newColor) {
+		return fill.setBackgroundColor(OpenXLSX::XLColor(newColor.a, newColor.r, newColor.g, newColor.b)) ? 1 : 0;
+	}
+
+	BBString * summary() {
+		return fromStdString(fill.summary());
+	}
+
+	OpenXLSX::XLFill fill;
+};
+
+///////////////////////////////////////////////////////////
+
+class MaxXLFills
+{
+public:
+	MaxXLFills(OpenXLSX::XLFills& fills) : fills(fills) {
+	}
+
+	size_t count() const {
+		return fills.count();
+	}
+
+	MaxXLFill * fillByIndex(size_t index) {
+		try {
+			return new MaxXLFill(fills.fillByIndex(index));
+		}
+		catch (const OpenXLSX::XLException& e)
+		{
+			throwXLException(e);
+		}
+		return nullptr;
+	}
+
+	size_t create(MaxXLFill * copyFrom) {
+		if (copyFrom) {
+			try {
+				return fills.create(copyFrom->fill);
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		else {
+			try {
+				return fills.create();
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		return 0;
+	}
+
+	OpenXLSX::XLFills & fills;
 };
 
 ///////////////////////////////////////////////////////////
@@ -1956,6 +2375,10 @@ public:
 
 	MaxXLDataBarColor * color() {
 		return new MaxXLDataBarColor(line.color());
+	}
+
+	BBString * summary() {
+		return fromStdString(line.summary());
 	}
 
 	OpenXLSX::XLLine line;
@@ -2061,6 +2484,10 @@ public:
 		return border.setHorizontal((OpenXLSX::XLLineStyle)lineStyle, lc, lineTint) ? 1 : 0;
 	}
 
+	BBString * summary() {
+		return fromStdString(border.summary());
+	}
+
 	OpenXLSX::XLBorder border;
 };
 
@@ -2085,6 +2512,28 @@ public:
 			throwXLException(e);
 		}
 		return nullptr;
+	}
+
+	size_t create(MaxXLBorder * copyFrom) {
+		if (copyFrom) {
+			try {
+				return borders.create(copyFrom->border);
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		else {
+			try {
+				return borders.create();
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		return 0;
 	}
 
 	OpenXLSX::XLBorders & borders;
@@ -2168,6 +2617,10 @@ public:
 
 	int setReadingOrder(unsigned int newReadingOrder) {
 		return alignment.setReadingOrder(newReadingOrder) ? 1 : 0;
+	}
+
+	BBString * summary() {
+		return fromStdString(alignment.summary());
 	}
 
 	OpenXLSX::XLAlignment alignment;
@@ -2305,6 +2758,10 @@ public:
 		return cellFormat.setHidden((bool)set) ? 1 : 0;
 	}
 
+	BBString * summary() {
+		return fromStdString(cellFormat.summary());
+	}
+
 	OpenXLSX::XLCellFormat cellFormat;
 };
 
@@ -2329,6 +2786,28 @@ public:
 			throwXLException(e);
 		}
 		return nullptr;
+	}
+
+	size_t create(MaxXLCellFormat * copyFrom) {
+		if (copyFrom) {
+			try {
+				return cellFormats.create(copyFrom->cellFormat);
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		else {
+			try {
+				return cellFormats.create();
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		return 0;
 	}
 
 	OpenXLSX::XLCellFormats & cellFormats;
@@ -2395,6 +2874,10 @@ public:
 		return cellStyle.setCustomBuiltin((bool)set) ? 1 : 0;
 	}
 
+	BBString * summary() const {
+		return fromStdString(cellStyle.summary());
+	}
+
 	OpenXLSX::XLCellStyle cellStyle;
 };
 
@@ -2419,6 +2902,28 @@ public:
 			throwXLException(e);
 		}
 		return nullptr;
+	}
+
+	size_t create(MaxXLCellStyle * copyFrom) {
+		if (copyFrom) {
+			try {
+				return cellStyles.create(copyFrom->cellStyle);
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		else {
+			try {
+				return cellStyles.create();
+			}
+			catch (const OpenXLSX::XLException& e)
+			{
+				throwXLException(e);
+			}
+		}
+		return 0;
 	}
 
 	OpenXLSX::XLCellStyles & cellStyles;
@@ -2640,7 +3145,11 @@ MaxXLStyles * bmx_openxlsx_xldocument_styles(MaxXLDocument * doc) {
 
 ///////////////////////////////////////////////////////////
 
-MaxXLWorkSheet * bmx_openxlsx_xlworkbook_worksheet(MaxXLWorkbook * workbook, BBString * name) {
+MaxXLWorkSheet * bmx_openxlsx_xlworkbook_worksheet(MaxXLWorkbook * workbook, unsigned short index) {
+	return workbook->worksheet(index);
+}
+
+MaxXLWorkSheet * bmx_openxlsx_xlworkbook_worksheet_str(MaxXLWorkbook * workbook, BBString * name) {
 	return workbook->worksheet(name);
 }
 
@@ -2772,6 +3281,10 @@ MaxXLCellRange * bmx_openxlsx_xlworksheet_range_str(MaxXLWorkSheet * worksheet, 
 
 MaxXLCellRange * bmx_openxlsx_xlworksheet_range_ref(MaxXLWorkSheet * worksheet, MaxXLCellReference * topLeft, MaxXLCellReference * bottomRight) {
 	return worksheet->range(topLeft, bottomRight);
+}
+
+MaxXLCellRange * bmx_openxlsx_xlworksheet_range_refstr(MaxXLWorkSheet * worksheet, BBString * rangeReference) {
+	return worksheet->range(rangeReference);
 }
 
 MaxXLRow * bmx_openxlsx_xlworksheet_row(MaxXLWorkSheet * worksheet, unsigned int rowNumber) {
@@ -3040,6 +3553,14 @@ int bmx_openxlsx_xlcell_valuetype(MaxXLCell * cell) {
 	return cell->type();
 }
 
+size_t bmx_openxlsx_xlcell_cellformat(MaxXLCell * cell) {
+	return cell->cellFormat();
+}
+
+int bmx_openxlsx_xlcell_setcellformat(MaxXLCell * cell, size_t cellFormatIndex) {
+	return cell->setCellFormat(cellFormatIndex) ? 1 : 0;
+}
+
 ///////////////////////////////////////////////////////////
 
 MaxXLCellReference * bmx_openxlsx_xlcellreference_new_celladdress(BBString * cellAddress) {
@@ -3088,6 +3609,23 @@ void bmx_openxlsx_xlcellreference_setaddress(MaxXLCellReference * cellReference,
 	cellReference->setAddress(address);
 }
 
+BBString * bmx_openxlsx_xlcellreference_rowasstring(unsigned int row) {
+	return fromStdString(OpenXLSX::XLCellReference::rowAsString(row));
+}
+unsigned int bmx_openxlsx_xlcellreference_rowasnumber(BBString * row) {
+	std::string r = toStdString(row);
+	return OpenXLSX::XLCellReference::rowAsNumber(r);
+}
+
+BBString * bmx_openxlsx_xlcellreference_columnasstring(unsigned short column) {
+	return fromStdString(OpenXLSX::XLCellReference::columnAsString(column));
+}
+
+unsigned short bmx_openxlsx_xlcellreference_columnasnumber(BBString * column) {
+	std::string c = toStdString(column);
+	return OpenXLSX::XLCellReference::columnAsNumber(c);
+}
+
 ///////////////////////////////////////////////////////////
 
 void bmx_openxlsx_xlcellrange_free(MaxXLCellRange * cellRange) {
@@ -3119,6 +3657,30 @@ MaxXLCellRangeIterator * bmx_openxlsx_xlcellrange_iterator(MaxXLCellRange * cell
 
 BBULONG bmx_openxlsx_xlcellrange_distance(MaxXLCellRange * cellRange) {
 	return cellRange->distance();
+}
+
+void bmx_openxlsx_xlcellrange_setvalue_double(MaxXLCellRange * cellRange, double value) {
+	cellRange->setValueDouble(value);
+}
+
+void bmx_openxlsx_xlcellrange_setvalue_long(MaxXLCellRange * cellRange, BBLONG value) {
+	cellRange->setValueLong(value);
+}
+
+void bmx_openxlsx_xlcellrange_setvalue_ulong(MaxXLCellRange * cellRange, BBULONG value) {
+	cellRange->setValueULong(value);
+}
+
+void bmx_openxlsx_xlcellrange_setvalue_string(MaxXLCellRange * cellRange, BBString * value) {
+	cellRange->setValueString(value);
+}
+
+void bmx_openxlsx_xlcellrange_setvalue_bool(MaxXLCellRange * cellRange, int value) {
+	cellRange->setValueBool(value);
+}
+
+int bmx_openxlsx_xlcellrange_setformat(MaxXLCellRange * cellRange, size_t formatIndex) {
+	return cellRange->setFormat(formatIndex);
 }
 
 ///////////////////////////////////////////////////////////
@@ -3226,6 +3788,26 @@ MaxXLRowDataIterator * bmx_openxlsx_xlrowdatarange_iterator(MaxXLRowDataRange * 
 	return rowDataRange->iterator();
 }
 
+void bmx_openxlsx_xlrowdatarange_setvalue_double(MaxXLRowDataRange * rowDataRange, double value) {
+	rowDataRange->setValueDouble(value);
+}
+
+void bmx_openxlsx_xlrowdatarange_setvalue_long(MaxXLRowDataRange * rowDataRange, BBLONG value) {
+	rowDataRange->setValueLong(value);
+}
+
+void bmx_openxlsx_xlrowdatarange_setvalue_ulong(MaxXLRowDataRange * rowDataRange, BBULONG value) {
+	rowDataRange->setValueULong(value);
+}
+
+void bmx_openxlsx_xlrowdatarange_setvalue_string(MaxXLRowDataRange * rowDataRange, BBString * value) {
+	rowDataRange->setValueString(value);
+}
+
+void bmx_openxlsx_xlrowdatarange_setvalue_bool(MaxXLRowDataRange * rowDataRange, int value) {
+	rowDataRange->setValueBool(value);
+}
+
 ///////////////////////////////////////////////////////////
 
 void bmx_openxlsx_xlrowdatarange_iterator_free(MaxXLRowDataIterator * iter) {
@@ -3304,6 +3886,10 @@ size_t bmx_openxlsx_xlfonts_count(MaxXLFonts * fonts) {
 
 MaxXLFont * bmx_openxlsx_xlfonts_fontbyindex(MaxXLFonts * fonts, size_t index) {
 	return fonts->fontByIndex(index);
+}
+
+size_t bmx_openxlsx_xlfonts_create(MaxXLFonts * fonts, MaxXLFont * copyFrom) {
+	return fonts->create(copyFrom);
 }
 
 ///////////////////////////////////////////////////////////
@@ -3424,6 +4010,10 @@ int bmx_openxlsx_xlfont_setcondense(MaxXLFont * font, int set) {
 	return font->setCondense(set);
 }
 
+BBString * bmx_openxlsx_xlfont_summary(MaxXLFont * font) {
+	return font->summary();
+}
+
 ///////////////////////////////////////////////////////////
 
 void bmx_openxlsx_xlfills_free(MaxXLFills * fills) {
@@ -3436,6 +4026,10 @@ size_t bmx_openxlsx_xlfills_count(MaxXLFills * fills) {
 
 MaxXLFill * bmx_openxlsx_xlfills_fillbyindex(MaxXLFills * fills, size_t index) {
 	return fills->fillByIndex(index);
+}
+
+size_t bmx_openxlsx_xlfills_create(MaxXLFills * fills, MaxXLFill * copyFrom) {
+	return fills->create(copyFrom);
 }
 
 ///////////////////////////////////////////////////////////
@@ -3452,6 +4046,86 @@ int bmx_openxlsx_xlfill_setfilltype(MaxXLFill * fill, uint8_t fillType, int forc
 	return fill->setFillType(fillType, force);
 }
 
+uint8_t bmx_openxlsx_xlfill_gradienttype(MaxXLFill * fill) {
+	return fill->gradientType();
+}
+
+double bmx_openxlsx_xlfill_degree(MaxXLFill * fill) {
+	return fill->degree();
+}
+
+double bmx_openxlsx_xlfill_left(MaxXLFill * fill) {
+	return fill->left();
+}
+
+double bmx_openxlsx_xlfill_right(MaxXLFill * fill) {
+	return fill->right();
+}
+
+double bmx_openxlsx_xlfill_top(MaxXLFill * fill) {
+	return fill->top();
+}
+
+double bmx_openxlsx_xlfill_bottom(MaxXLFill * fill) {
+	return fill->bottom();
+}
+
+MaxXLGradientStops * bmx_openxlsx_xlfill_stops(MaxXLFill * fill) {
+	return fill->stops();
+}
+
+uint8_t bmx_openxlsx_xlfill_patterntype(MaxXLFill * fill) {
+	return fill->patternType();
+}
+
+SColor8 bmx_openxlsx_xlfill_color(MaxXLFill * fill) {
+	return fill->color();
+}
+
+SColor8 bmx_openxlsx_xlfill_backgroundcolor(MaxXLFill * fill) {
+	return fill->backgroundColor();
+}
+
+int bmx_openxlsx_xlfill_setgradienttype(MaxXLFill * fill, uint8_t newType) {
+	return fill->setGradientType(newType);
+}
+
+int bmx_openxlsx_xlfill_setdegree(MaxXLFill * fill, double newDegree) {
+	return fill->setDegree(newDegree);
+}
+
+int bmx_openxlsx_xlfill_setleft(MaxXLFill * fill, double newLeft) {
+	return fill->setLeft(newLeft);
+}
+
+int bmx_openxlsx_xlfill_setright(MaxXLFill * fill, double newRight) {
+	return fill->setRight(newRight);
+}
+
+int bmx_openxlsx_xlfill_settop(MaxXLFill * fill, double newTop) {
+	return fill->setTop(newTop);
+}
+
+int bmx_openxlsx_xlfill_setbottom(MaxXLFill * fill, double newBottom) {
+	return fill->setBottom(newBottom);
+}
+
+int bmx_openxlsx_xlfill_setpatterntype(MaxXLFill * fill, uint8_t newPatternType) {
+	return fill->setPatternType(newPatternType);
+}
+
+int bmx_openxlsx_xlfill_setcolor(MaxXLFill * fill, SColor8 newColor) {
+	return fill->setColor(newColor);
+}
+
+int bmx_openxlsx_xlfill_setbackgroundcolor(MaxXLFill * fill, SColor8 newColor) {
+	return fill->setBackgroundColor(newColor);
+}
+
+BBString * bmx_openxlsx_xlfill_summary(MaxXLFill * fill) {
+	return fill->summary();
+}
+
 ///////////////////////////////////////////////////////////
 
 void bmx_openxlsx_xlborders_free(MaxXLBorders * borders) {
@@ -3464,6 +4138,10 @@ size_t bmx_openxlsx_xlborders_count(MaxXLBorders * borders) {
 
 MaxXLBorder * bmx_openxlsx_xlborders_borderbyindex(MaxXLBorders * borders, size_t index) {
 	return borders->borderByIndex(index);
+}
+
+size_t bmx_openxlsx_xlborders_create(MaxXLBorders * borders, MaxXLBorder * copyFrom) {
+	return borders->create(copyFrom);
 }
 
 ///////////////////////////////////////////////////////////
@@ -3556,6 +4234,10 @@ int bmx_openxlsx_xlborder_sethorizontal(MaxXLBorder * border, uint8_t lineStyle,
 	return border->setHorizontal(lineStyle, lineColor, lineTint);
 }
 
+BBString * bmx_openxlsx_xlborder_summary(MaxXLBorder * border) {
+	return border->summary();
+}
+
 ///////////////////////////////////////////////////////////
 
 void bmx_openxlsx_xlline_free(MaxXLLine * line) {
@@ -3568,6 +4250,10 @@ uint8_t bmx_openxlsx_xlline_style(MaxXLLine * line) {
 
 MaxXLDataBarColor * bmx_openxlsx_xlline_color(MaxXLLine * line) {
 	return line->color();
+}
+
+BBString * bmx_openxlsx_xlline_summary(MaxXLLine * line) {
+	return line->summary();
 }
 
 ///////////////////////////////////////////////////////////
@@ -3612,6 +4298,14 @@ int bmx_openxlsx_xldatabarcolor_settheme(MaxXLDataBarColor * databarColor, unsig
 	return databarColor->setTheme(newTheme);
 }
 
+int bmx_openxlsx_xldatabarcolor_settint(MaxXLDataBarColor * databarColor, double newTint) {
+	return databarColor->setTint(newTint);
+}
+
+BBString * bmx_openxlsx_xldatabarcolor_summary(MaxXLDataBarColor * databarColor) {
+	return databarColor->summary();
+}
+
 ///////////////////////////////////////////////////////////
 
 void bmx_openxlsx_xlcellformats_free(MaxXLCellFormats * cellFormats) {
@@ -3624,6 +4318,10 @@ size_t bmx_openxlsx_xlcellformats_count(MaxXLCellFormats * cellFormats) {
 
 MaxXLCellFormat * bmx_openxlsx_xlcellformats_cellformatbyindex(MaxXLCellFormats * cellFormats, size_t index) {
 	return cellFormats->cellFormatByIndex(index);
+}
+
+size_t bmx_openxlsx_xlcellformats_create(MaxXLCellFormats * cellFormats, MaxXLCellFormat * copyFrom) {
+	return cellFormats->create(copyFrom);
 }
 
 ///////////////////////////////////////////////////////////
@@ -3756,6 +4454,10 @@ int bmx_openxlsx_xlcellformat_sethidden(MaxXLCellFormat * cellFormat, int set) {
 	return cellFormat->setHidden(set);
 }
 
+BBString * bmx_openxlsx_xlcellformat_summary(MaxXLCellFormat * cellFormat) {
+	return cellFormat->summary();
+}
+
 ///////////////////////////////////////////////////////////
 
 void bmx_openxlsx_xlalignment_free(MaxXLAlignment * alignment) {
@@ -3834,6 +4536,10 @@ int bmx_openxlsx_xlalignment_setreadingorder(MaxXLAlignment * alignment, unsigne
 	return alignment->setReadingOrder(newReadingOrder);
 }
 
+BBString * bmx_openxlsx_xlalignment_summary(MaxXLAlignment * alignment) {
+	return alignment->summary();
+}
+
 ///////////////////////////////////////////////////////////
 
 void bmx_openxlsx_xlcellstyles_free(MaxXLCellStyles * cellStyles) {
@@ -3846,6 +4552,10 @@ size_t bmx_openxlsx_xlcellstyles_count(MaxXLCellStyles * cellStyles) {
 
 MaxXLCellStyle * bmx_openxlsx_xlcellstyles_cellstylebyindex(MaxXLCellStyles * cellStyles, size_t index) {
 	return cellStyles->cellStyleByIndex(index);
+}
+
+size_t bmx_openxlsx_xlcellstyles_create(MaxXLCellStyles * cellStyles, MaxXLCellStyle * copyFrom) {
+	return cellStyles->create(copyFrom);
 }
 
 ///////////////////////////////////////////////////////////
@@ -3906,6 +4616,10 @@ int bmx_openxlsx_xlcellstyle_setcustombuiltin(MaxXLCellStyle * cellStyle, int se
 	return cellStyle->setCustomBuiltin(set);
 }
 
+BBString * bmx_openxlsx_xlcellstyle_summary(MaxXLCellStyle * cellStyle) {
+	return cellStyle->summary();
+}
+
 ///////////////////////////////////////////////////////////
 
 void bmx_openxlsx_xlnumberformats_free(MaxXLNumberFormats * numberFormats) {
@@ -3926,6 +4640,10 @@ MaxXLNumberFormat * bmx_openxlsx_xlnumberformats_numberformatbyid(MaxXLNumberFor
 
 unsigned int bmx_openxlsx_xlnumberformats_numberformatidfromindex(MaxXLNumberFormats * numberFormats, size_t index) {
 	return numberFormats->numberFormatIdFromIndex(index);
+}
+
+size_t bmx_openxlsx_xlnumberformats_create(MaxXLNumberFormats * numberFormats, MaxXLNumberFormat * copyFrom) {
+	return numberFormats->create(copyFrom);
 }
 
 ///////////////////////////////////////////////////////////
@@ -3950,6 +4668,10 @@ int bmx_openxlsx_xlnumberformat_setformatcode(MaxXLNumberFormat * numberFormat, 
 	return numberFormat->setFormatCode(newFormatCode);
 }
 
+BBString * bmx_openxlsx_xlnumberformat_summary(MaxXLNumberFormat * numberFormat) {
+	return numberFormat->summary();
+}
+
 ///////////////////////////////////////////////////////////
 
 void bmx_openxlsx_xlconditionalformats_free(MaxXLConditionalFormats * conditionalFormats) {
@@ -3962,6 +4684,10 @@ size_t bmx_openxlsx_xlconditionalformats_count(MaxXLConditionalFormats * conditi
 
 MaxXLConditionalFormat * bmx_openxlsx_xlconditionalformats_conditionalformatbyindex(MaxXLConditionalFormats * conditionalFormats, size_t index) {
 	return conditionalFormats->conditionalFormatByIndex(index);
+}
+
+size_t bmx_openxlsx_xlconditionalformats_create(MaxXLConditionalFormats * conditionalFormats, MaxXLConditionalFormat * copyFrom) {
+	return conditionalFormats->create(copyFrom);
 }
 
 ///////////////////////////////////////////////////////////
@@ -4014,6 +4740,10 @@ size_t bmx_openxlsx_xlcfrules_count(MaxXLCfRules * cfRules) {
 
 MaxXLCfRule * bmx_openxlsx_xlcfrules_cfrulebyindex(MaxXLCfRules * cfRules, size_t index) {
 	return cfRules->cfRuleByIndex(index);
+}
+
+size_t bmx_openxlsx_xlcfrules_create(MaxXLCfRules * cfRules, MaxXLCfRule * copyFrom) {
+	return cfRules->create(copyFrom);
 }
 
 ///////////////////////////////////////////////////////////
@@ -4128,4 +4858,44 @@ int bmx_openxlsx_xlcfrule_setstddev(MaxXLCfRule * cfRule, int set) {
 
 int bmx_openxlsx_xlcfrule_setequalaverage(MaxXLCfRule * cfRule, int set) {
 	return cfRule->setEqualAverage(set);
+}
+
+///////////////////////////////////////////////////////////
+
+void bmx_openxlsx_xlgradientstops_free(MaxXLGradientStops * gradientStops) {
+	delete gradientStops;
+}
+
+size_t bmx_openxlsx_xlgradientstops_count(MaxXLGradientStops * gradientStops) {
+	return gradientStops->count();
+}
+
+MaxXLGradientStop * bmx_openxlsx_xlgradientstops_stopbyindex(MaxXLGradientStops * gradientStops, size_t index) {
+	return gradientStops->stopByIndex(index);
+}
+
+size_t bmx_openxlsx_xlgradientstops_create(MaxXLGradientStops * gradientStops, MaxXLGradientStop * copyFrom) {
+	return gradientStops->create(copyFrom);
+}
+
+///////////////////////////////////////////////////////////
+
+void bmx_openxlsx_xlgradientstop_free(MaxXLGradientStop * gradientStop) {
+	delete gradientStop;
+}
+
+MaxXLDataBarColor * bmx_openxlsx_xlgradientstop_color(MaxXLGradientStop * gradientStop) {
+	return gradientStop->color();
+}
+
+double bmx_openxlsx_xlgradientstop_position(MaxXLGradientStop * gradientStop) {
+	return gradientStop->position();
+}
+
+int bmx_openxlsx_xlgradientstop_setposition(MaxXLGradientStop * gradientStop, double newPosition) {
+	return gradientStop->setPosition(newPosition);
+}
+
+BBString * bmx_openxlsx_xlgradientstop_summary(MaxXLGradientStop * gradientStop) {
+	return gradientStop->summary();
 }

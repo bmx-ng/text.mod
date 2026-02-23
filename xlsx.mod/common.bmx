@@ -49,7 +49,8 @@ Extern
 	Function bmx_openxlsx_xldocument_isopen:Int(document:Byte Ptr)
 	Function bmx_openxlsx_xldocument_styles:Byte Ptr(document:Byte Ptr)
 
-	Function bmx_openxlsx_xlworkbook_worksheet:Byte Ptr(document:Byte Ptr, name:String)
+	Function bmx_openxlsx_xlworkbook_worksheet:Byte Ptr(document:Byte Ptr, index:Short)
+	Function bmx_openxlsx_xlworkbook_worksheet_str:Byte Ptr(document:Byte Ptr, name:String)
 	Function bmx_openxlsx_xlworkbook_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlworkbook_worksheetnames:String[](workbook:Byte Ptr)
 	Function bmx_openxlsx_xlworkbook_addworksheet(workbook:Byte Ptr, name:String)
@@ -80,6 +81,7 @@ Extern
 	Function bmx_openxlsx_xlworksheet_range:Byte Ptr(worksheet:Byte Ptr)
 	Function bmx_openxlsx_xlworksheet_range_str:Byte Ptr(worksheet:Byte Ptr, topLeft:String, bottomRight:String)
 	Function bmx_openxlsx_xlworksheet_range_ref:Byte Ptr(worksheet:Byte Ptr, topLeft:Byte Ptr, bottomRight:Byte Ptr)
+	Function bmx_openxlsx_xlworksheet_range_refstr:Byte Ptr(worksheet:Byte Ptr, rangeReference:String)
 	Function bmx_openxlsx_xlworksheet_row:Byte Ptr(worksheet:Byte Ptr, rowNumber:UInt)
 	Function bmx_openxlsx_xlworksheet_rows:Byte Ptr(worksheet:Byte Ptr)
 	Function bmx_openxlsx_xlworksheet_rows_count:Byte Ptr(worksheet:Byte Ptr, rowCount:UInt)
@@ -146,7 +148,10 @@ Extern
 	Function bmx_openxlsx_xlcell_setformula(cell:Byte Ptr, formula:String)
 	Function bmx_openxlsx_xlcell_clearformula(cell:Byte Ptr)
 	Function bmx_openxlsx_xlcell_valuetype:EXLValueType(cell:Byte Ptr)
-	
+	Function bmx_openxlsx_xlcell_empty:Int(cell:Byte Ptr)
+	Function bmx_openxlsx_xlcell_cellformat:Size_T(cell:Byte Ptr)
+	Function bmx_openxlsx_xlcell_setcellformat:Int(cell:Byte Ptr, cellFormatIndex:Size_T)
+
 	Function bmx_openxlsx_xlcellreference_new_celladdress:Byte Ptr(cellAddress:String)
 	Function bmx_openxlsx_xlcellreference_new_rowcolumn:Byte Ptr(row:UInt, column:Short)
 	Function bmx_openxlsx_xlcellreference_new_rowcolumn_str:Byte Ptr(row:UInt, column:String)
@@ -158,7 +163,10 @@ Extern
 	Function bmx_openxlsx_xlcellreference_setrowcolumn(cellReference:Byte Ptr, row:UInt, column:Short)
 	Function bmx_openxlsx_xlcellreference_address:String(cellReference:Byte Ptr)
 	Function bmx_openxlsx_xlcellreference_setaddress(cellReference:Byte Ptr, address:String)
-	Function bmx_openxlsx_xlcell_empty:Int(cell:Byte Ptr)
+	Function bmx_openxlsx_xlcellreference_rowasstring:String(row:UInt)
+	Function bmx_openxlsx_xlcellreference_rowasnumber:UInt(row:String)
+	Function bmx_openxlsx_xlcellreference_columnasstring:String(column:Short)
+	Function bmx_openxlsx_xlcellreference_columnasnumber:Short(column:String)
 
 	Function bmx_openxlsx_xlcellrange_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlcellrange_address:String(cellRange:Byte Ptr)
@@ -168,6 +176,12 @@ Extern
 	Function bmx_openxlsx_xlcellrange_numcolumns:Short(cellRange:Byte Ptr)
 	Function bmx_openxlsx_xlcellrange_iterator:Byte Ptr(cellRange:Byte Ptr)
 	Function bmx_openxlsx_xlcellrange_distance:ULong(cellRange:Byte Ptr)
+	Function bmx_openxlsx_xlcellrange_setvalue_double(cellRange:Byte Ptr, value:Double)
+	Function bmx_openxlsx_xlcellrange_setvalue_long(cellRange:Byte Ptr, value:Long)
+	Function bmx_openxlsx_xlcellrange_setvalue_ulong(cellRange:Byte Ptr, value:ULong)
+	Function bmx_openxlsx_xlcellrange_setvalue_string(cellRange:Byte Ptr, value:String)
+	Function bmx_openxlsx_xlcellrange_setvalue_bool(cellRange:Byte Ptr, value:Int)
+	Function bmx_openxlsx_xlcellrange_setformat:Int(cellRange:Byte Ptr, formatIndex:Size_T)
 
 	Function bmx_openxlsx_xlcellrange_iterator_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlcellrange_iterator_hasnext:Int(iterator:Byte Ptr)
@@ -197,6 +211,11 @@ Extern
 
 	Function bmx_openxlsx_xlrowdatarange_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlrowdatarange_iterator:Byte Ptr(rowDataRange:Byte Ptr)
+	Function bmx_openxlsx_xlrowdatarange_setvalue_double(rowDataRange:Byte Ptr, value:Double)
+	Function bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRange:Byte Ptr, value:Long)
+	Function bmx_openxlsx_xlrowdatarange_setvalue_ulong(rowDataRange:Byte Ptr, value:ULong)
+	Function bmx_openxlsx_xlrowdatarange_setvalue_string(rowDataRange:Byte Ptr, value:String)
+	Function bmx_openxlsx_xlrowdatarange_setvalue_bool(rowDataRange:Byte Ptr, value:Int)
 
 	Function bmx_openxlsx_xlrowdatarange_iterator_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlrowdatarange_iterator_hasnext:Int(iterator:Byte Ptr)
@@ -219,6 +238,7 @@ Extern
 	Function bmx_openxlsx_xlfonts_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlfonts_count:Size_T(fonts:Byte Ptr)
 	Function bmx_openxlsx_xlfonts_fontbyindex:Byte Ptr(fonts:Byte Ptr, index:Size_T)
+	Function bmx_openxlsx_xlfonts_create:Size_T(fonts:Byte Ptr, copyFrom:Byte Ptr)
 	
 	Function bmx_openxlsx_xlfont_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlfont_fontname:String(font:Byte Ptr)
@@ -249,18 +269,41 @@ Extern
 	Function bmx_openxlsx_xlfont_setoutline:Int(font:Byte Ptr, set:Int)
 	Function bmx_openxlsx_xlfont_setshadow:Int(font:Byte Ptr, set:Int)
 	Function bmx_openxlsx_xlfont_setcondense:Int(font:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlfont_summary:String(font:Byte Ptr)
 
 	Function bmx_openxlsx_xlfills_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlfills_count:Size_T(fills:Byte Ptr)
 	Function bmx_openxlsx_xlfills_fillbyindex:Byte Ptr(fills:Byte Ptr, index:Size_T)
+	Function bmx_openxlsx_xlfills_create:Size_T(fills:Byte Ptr, copyFrom:Byte Ptr)
 
 	Function bmx_openxlsx_xlfill_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlfill_filltype:EXLFillType(fill:Byte Ptr)
 	Function bmx_openxlsx_xlfill_setfilltype:Int(fill:Byte Ptr, fillType:EXLFillType, force:Int)
+	Function bmx_openxlsx_xlfill_gradienttype:EXLGradientType(fill:Byte Ptr)
+	Function bmx_openxlsx_xlfill_degree:Double(fill:Byte Ptr)
+	Function bmx_openxlsx_xlfill_left:Double(fill:Byte Ptr)
+	Function bmx_openxlsx_xlfill_right:Double(fill:Byte Ptr)
+	Function bmx_openxlsx_xlfill_top:Double(fill:Byte Ptr)
+	Function bmx_openxlsx_xlfill_bottom:Double(fill:Byte Ptr)
+	Function bmx_openxlsx_xlfill_stops:Byte Ptr(fill:Byte Ptr)
+	Function bmx_openxlsx_xlfill_patterntype:EXLPatternType(fill:Byte Ptr)
+	Function bmx_openxlsx_xlfill_color:SColor8(fill:Byte Ptr)
+	Function bmx_openxlsx_xlfill_backgroundcolor:SColor8(fill:Byte Ptr)
+	Function bmx_openxlsx_xlfill_setgradienttype:Int(fill:Byte Ptr, newType:EXLGradientType)
+	Function bmx_openxlsx_xlfill_setdegree:Int(fill:Byte Ptr, newDegree:Double)
+	Function bmx_openxlsx_xlfill_setleft:Int(fill:Byte Ptr, newLeft:Double)
+	Function bmx_openxlsx_xlfill_setright:Int(fill:Byte Ptr, newRight:Double)
+	Function bmx_openxlsx_xlfill_settop:Int(fill:Byte Ptr, newTop:Double)
+	Function bmx_openxlsx_xlfill_setbottom:Int(fill:Byte Ptr, newBottom:Double)
+	Function bmx_openxlsx_xlfill_setpatterntype:Int(fill:Byte Ptr, newPatternType:EXLPatternType)
+	Function bmx_openxlsx_xlfill_setcolor:Int(fill:Byte Ptr, newColor:SColor8)
+	Function bmx_openxlsx_xlfill_setbackgroundcolor:Int(fill:Byte Ptr, newColor:SColor8)
+	Function bmx_openxlsx_xlfill_summary:String(fill:Byte Ptr)
 
 	Function bmx_openxlsx_xlborders_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlborders_count:Size_T(borders:Byte Ptr)
 	Function bmx_openxlsx_xlborders_borderbyindex:Byte Ptr(borders:Byte Ptr, index:Size_T)
+	Function bmx_openxlsx_xlborders_create:Size_T(borders:Byte Ptr, copyFrom:Byte Ptr)
 
 	Function bmx_openxlsx_xlborder_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlborder_diagonalup:Int(border:Byte Ptr)
@@ -284,10 +327,12 @@ Extern
 	Function bmx_openxlsx_xlborder_setdiagonal:Int(border:Byte Ptr, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double)
 	Function bmx_openxlsx_xlborder_setvertical:Int(border:Byte Ptr, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double)
 	Function bmx_openxlsx_xlborder_sethorizontal:Int(border:Byte Ptr, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double)
+	Function bmx_openxlsx_xlborder_summary:String(border:Byte Ptr)
 
 	Function bmx_openxlsx_xlline_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlline_style:EXLLineStyle(line:Byte Ptr)
 	Function bmx_openxlsx_xlline_color:Byte Ptr(line:Byte Ptr)
+	Function bmx_openxlsx_xlline_summary:String(line:Byte Ptr)
 
 	Function bmx_openxlsx_xldatabarcolor_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xldatabarcolor_rgb:SColor8(databarColor:Byte Ptr)
@@ -299,10 +344,13 @@ Extern
 	Function bmx_openxlsx_xldatabarcolor_setautomatic:Int(databarColor:Byte Ptr, set:Int)
 	Function bmx_openxlsx_xldatabarcolor_setindexed:Int(databarColor:Byte Ptr, newIndex:UInt)
 	Function bmx_openxlsx_xldatabarcolor_settheme:Int(databarColor:Byte Ptr, newTheme:UInt)
+	Function bmx_openxlsx_xldatabarcolor_settint:Int(databarColor:Byte Ptr, newTint:Double)
+	Function bmx_openxlsx_xldatabarcolor_summary:String(databarColor:Byte Ptr)
 
 	Function bmx_openxlsx_xlcellformats_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlcellformats_count:Size_T(cellFormats:Byte Ptr)
 	Function bmx_openxlsx_xlcellformats_cellformatbyindex:Byte Ptr(cellFormats:Byte Ptr, index:Size_T)
+	Function bmx_openxlsx_xlcellformats_create:Size_T(cellFormats:Byte Ptr, copyFrom:Byte Ptr)
 
 	Function bmx_openxlsx_xlcellformat_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlcellformat_numberformatid:UInt(cellFormat:Byte Ptr)
@@ -336,6 +384,7 @@ Extern
 	Function bmx_openxlsx_xlcellformat_setpivotbutton:Int(cellFormat:Byte Ptr, set:Int)
 	Function bmx_openxlsx_xlcellformat_setlocked:Int(cellFormat:Byte Ptr, set:Int)
 	Function bmx_openxlsx_xlcellformat_sethidden:Int(cellFormat:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellformat_summary:String(cellFormat:Byte Ptr)
 
 	Function bmx_openxlsx_xlalignment_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlalignment_horizontal:EXLAlignmentStyle(alignment:Byte Ptr)
@@ -356,10 +405,12 @@ Extern
 	Function bmx_openxlsx_xlalignment_setjustifylastline:Int(alignment:Byte Ptr, set:Int)
 	Function bmx_openxlsx_xlalignment_setshrinktofit:Int(alignment:Byte Ptr, set:Int)
 	Function bmx_openxlsx_xlalignment_setreadingorder:Int(alignment:Byte Ptr, newReadingOrder:UInt)
+	Function bmx_openxlsx_xlalignment_summary:String(alignment:Byte Ptr)
 
 	Function bmx_openxlsx_xlcellstyles_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlcellstyles_count:Size_T(cellStyles:Byte Ptr)
 	Function bmx_openxlsx_xlcellstyles_cellstylebyindex:Byte Ptr(cellStyles:Byte Ptr, index:Size_T)
+	Function bmx_openxlsx_xlcellstyles_create:Size_T(cellStyles:Byte Ptr, copyFrom:Byte Ptr)
 
 	Function bmx_openxlsx_xlcellstyle_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlcellstyle_empty:Int(cellStyle:Byte Ptr)
@@ -375,22 +426,26 @@ Extern
 	Function bmx_openxlsx_xlcellstyle_setoutlinestyle:Int(cellStyle:Byte Ptr, newOutlineStyle:UInt)
 	Function bmx_openxlsx_xlcellstyle_sethidden:Int(cellStyle:Byte Ptr, set:Int)
 	Function bmx_openxlsx_xlcellstyle_setcustombuiltin:Int(cellStyle:Byte Ptr, set:Int)
+	Function bmx_openxlsx_xlcellstyle_summary:String(cellStyle:Byte Ptr)
 
 	Function bmx_openxlsx_xlnumberformats_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlnumberformats_count:Size_T(numberFormats:Byte Ptr)
 	Function bmx_openxlsx_xlnumberformats_numberformatbyindex:Byte Ptr(numberFormats:Byte Ptr, index:Size_T)
 	Function bmx_openxlsx_xlnumberformats_numberformatbyid:Byte Ptr(numberFormats:Byte Ptr, numFmtId:UInt)
 	Function bmx_openxlsx_xlnumberformats_numberformatidfromindex:UInt(numberFormats:Byte Ptr, index:Size_T)
+	Function bmx_openxlsx_xlnumberformats_create:Size_T(numberFormats:Byte Ptr, copyFrom:Byte Ptr)
 
 	Function bmx_openxlsx_xlnumberformat_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlnumberformat_numberformatid:UInt(numberFormat:Byte Ptr)
 	Function bmx_openxlsx_xlnumberformat_formatcode:String(numberFormat:Byte Ptr)
 	Function bmx_openxlsx_xlnumberformat_setnumberformatid:Int(numberFormat:Byte Ptr, newNumberFormatId:UInt)
 	Function bmx_openxlsx_xlnumberformat_setformatcode:Int(numberFormat:Byte Ptr, newFormatCode:String)
+	Function bmx_openxlsx_xlnumberformat_summary:String(numberFormat:Byte Ptr)
 
 	Function bmx_openxlsx_xlconditionalformats_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlconditionalformats_count:Size_T(conditionalFormats:Byte Ptr)
 	Function bmx_openxlsx_xlconditionalformats_conditionalformatbyindex:Byte Ptr(conditionalFormats:Byte Ptr, index:Size_T)
+	Function bmx_openxlsx_xlconditionalformats_create:Size_T(conditionalFormats:Byte Ptr, copyFrom:Byte Ptr)
 
 	Function bmx_openxlsx_xlconditionalformat_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlconditionalformat_empty:Int(conditionalFormat:Byte Ptr)
@@ -405,6 +460,7 @@ Extern
 	Function bmx_openxlsx_xlcfrules_renumberpriorities(cfRulesPtr:Byte Ptr, increment:Short)
 	Function bmx_openxlsx_xlcfrules_count:Size_T(cfRulesPtr:Byte Ptr)
 	Function bmx_openxlsx_xlcfrules_cfrulebyindex:Byte Ptr(cfRulesPtr:Byte Ptr, index:Size_T)
+	Function bmx_openxlsx_xlcfrules_create:Size_T(cfRulesPtr:Byte Ptr, copyFrom:Byte Ptr)
 
 	Function bmx_openxlsx_xlcfrule_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlcfrule_empty:Int(cfRule:Byte Ptr)
@@ -435,7 +491,25 @@ Extern
 	Function bmx_openxlsx_xlcfrule_setstddev:Int(cfRule:Byte Ptr, set:Int)
 	Function bmx_openxlsx_xlcfrule_setequalaverage:Int(cfRule:Byte Ptr, set:Int)
 
+	Function bmx_openxlsx_xlgradientstops_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlgradientstops_count:Size_T(gradientStops:Byte Ptr)
+	Function bmx_openxlsx_xlgradientstops_stopbyindex:Byte Ptr(gradientStops:Byte Ptr, index:Size_T)
+	Function bmx_openxlsx_xlgradientstops_create:Size_T(gradientStops:Byte Ptr, copyFrom:Byte Ptr)
+
+	Function bmx_openxlsx_xlgradientstop_free(handle:Byte Ptr)
+	Function bmx_openxlsx_xlgradientstop_color:Byte Ptr(gradientStop:Byte Ptr)
+	Function bmx_openxlsx_xlgradientstop_position:Double(gradientStop:Byte Ptr)
+	Function bmx_openxlsx_xlgradientstop_setposition:Int(gradientStop:Byte Ptr, newPosition:Double)
+	Function bmx_openxlsx_xlgradientstop_summary:String(gradientStop:Byte Ptr)
+	
 End Extern
+
+Const XLDefaultFontColor:String = "FF000000"
+Const XLDefaultFontSize:UInt = 11
+Const XLDefaultFontName:String = "Arial"
+Const XLForceFillType:Int = True
+Const XLDeleteProperty:UInt = $ffffffff
+Const XLCreateIfMissing:Int = True
 
 Rem
 bbdoc: The maximum number of columns in an XLSX worksheet.

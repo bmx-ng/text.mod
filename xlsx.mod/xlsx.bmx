@@ -160,7 +160,11 @@ Type TXLWorkbook
 	End Method
 
 	Method Worksheet:TXLWorkSheet(name:String)
-		Return TXLWorkSheet._Create(bmx_openxlsx_xlworkbook_worksheet(workbookPtr, name))
+		Return TXLWorkSheet._Create(bmx_openxlsx_xlworkbook_worksheet_str(workbookPtr, name))
+	End Method
+
+	Method Worksheet:TXLWorkSheet(index:Short)
+		Return TXLWorkSheet._Create(bmx_openxlsx_xlworkbook_worksheet(workbookPtr, index))
 	End Method
 
 	Method WorksheetNames:String[]()
@@ -259,6 +263,10 @@ Type TXLWorkSheet
 
 	Method Range:TXLCellRange(topLeft:TXLCellReference, bottomRight:TXLCellReference)
 		Return TXLCellRange._Create(bmx_openxlsx_xlworksheet_range_ref(worksheetPtr, topLeft.referencePtr, bottomRight.referencePtr))
+	End Method
+
+	Method Range:TXLCellRange(rangeReference:String)
+		Return TXLCellRange._Create(bmx_openxlsx_xlworksheet_range_refstr(worksheetPtr, rangeReference))
 	End Method
 
 	Method Row:TXLRow(rowNumber:UInt)
@@ -515,6 +523,70 @@ Type TXLCellRange Implements IIterable<TXLCell>
 		Return bmx_openxlsx_xlcellrange_numcolumns(rangePtr)
 	End Method
 
+	Method SetValue(value:Float)
+		bmx_openxlsx_xlcellrange_setvalue_double(rangePtr, value)
+	End Method
+
+	Method SetValueFloat(value:Float)
+		bmx_openxlsx_xlcellrange_setvalue_double(rangePtr, value)
+	End Method
+
+	Method SetValue(value:Double)
+		bmx_openxlsx_xlcellrange_setvalue_double(rangePtr, value)
+	End Method
+
+	Method SetValueDouble(value:Double)
+		bmx_openxlsx_xlcellrange_setvalue_double(rangePtr, value)
+	End Method
+
+	Method SetValue(value:Int)
+		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, Long(value))
+	End Method
+
+	Method SetValueInt(value:Int)
+		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, Long(value))
+	End Method
+
+	Method SetValue(value:Long)
+		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, value)
+	End Method
+
+	Method SetValueLong(value:Long)
+		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, value)
+	End Method
+
+	Method SetValue(value:UInt)
+		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, Long(value))
+	End Method
+
+	Method SetValueUInt(value:UInt)
+		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, Long(value))
+	End Method
+
+	Method SetValue(value:ULong)
+		bmx_openxlsx_xlcellrange_setvalue_ulong(rangePtr, value)
+	End Method
+
+	Method SetValueULong(value:ULong)
+		bmx_openxlsx_xlcellrange_setvalue_ulong(rangePtr, value)
+	End Method
+
+	Method SetValue(value:String)
+		bmx_openxlsx_xlcellrange_setvalue_string(rangePtr, value)
+	End Method
+
+	Method SetValueString(value:String)
+		bmx_openxlsx_xlcellrange_setvalue_string(rangePtr, value)
+	End Method
+
+	Method SetValueBool(value:Int)
+		bmx_openxlsx_xlcellrange_setvalue_bool(rangePtr, value)
+	End Method
+
+	Method SetFormat:Int(formatIndex:Size_T)
+		bmx_openxlsx_xlcellrange_setformat(rangePtr, formatIndex)
+	End Method
+
 	Method Distance:ULong()
 		If _distance Then
 			Return _distance
@@ -704,6 +776,14 @@ Type TXLCell
 	Method ClearFormula()
 		bmx_openxlsx_xlcell_clearformula(cellPtr)
 	End Method
+
+	Method CellFormat:Size_T()
+		Return bmx_openxlsx_xlcell_cellformat(cellPtr)
+	End Method
+
+	Method SetCellFormat:Int(cellFormatIndex:Size_T)
+		Return bmx_openxlsx_xlcell_setcellformat(cellPtr, cellFormatIndex)
+	End Method
 	
 	Method Delete()
 		If cellPtr Then
@@ -765,6 +845,22 @@ Type TXLCellReference
 	Method SetAddress(address:String)
 		bmx_openxlsx_xlcellreference_setaddress(referencePtr, address)
 	End Method
+
+	Function RowAsString:String(row:UInt)
+		Return bmx_openxlsx_xlcellreference_rowasstring(row)
+	End Function
+
+	Function RowAsNumber:UInt(row:String)
+		Return bmx_openxlsx_xlcellreference_rowasnumber(row)
+	End Function
+
+	Function ColumnAsString:String(column:Short)
+		Return bmx_openxlsx_xlcellreference_columnasstring(column)
+	End Function
+
+	Function ColumnAsNumber:Short(column:String)
+		Return bmx_openxlsx_xlcellreference_columnasnumber(column)
+	End Function
 
 	Method Delete()
 		If referencePtr Then
@@ -983,6 +1079,66 @@ Type TXLRowDataRange Implements IIterable<TXLCell>
 		Return TXLRowDataIterator._Create(Self, bmx_openxlsx_xlrowdatarange_iterator(rowDataRangePtr))
 	End Method
 
+	Method SetValue(value:Float)
+		bmx_openxlsx_xlrowdatarange_setvalue_double(rowDataRangePtr, value)
+	End Method
+
+	Method SetValueFloat(value:Float)
+		bmx_openxlsx_xlrowdatarange_setvalue_double(rowDataRangePtr, value)
+	End Method
+
+	Method SetValue(value:Double)
+		bmx_openxlsx_xlrowdatarange_setvalue_double(rowDataRangePtr, value)
+	End Method
+
+	Method SetValueDouble(value:Double)
+		bmx_openxlsx_xlrowdatarange_setvalue_double(rowDataRangePtr, value)
+	End Method
+
+	Method SetValue(value:Int)
+		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, Long(value))
+	End Method
+
+	Method SetValueInt(value:Int)
+		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, Long(value))
+	End Method
+
+	Method SetValue(value:Long)
+		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, value)
+	End Method
+
+	Method SetValueLong(value:Long)
+		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, value)
+	End Method
+
+	Method SetValue(value:UInt)
+		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, Long(value))
+	End Method
+
+	Method SetValueUInt(value:UInt)
+		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, Long(value))
+	End Method
+
+	Method SetValue(value:ULong)
+		bmx_openxlsx_xlrowdatarange_setvalue_ulong(rowDataRangePtr, value)
+	End Method
+
+	Method SetValueULong(value:ULong)
+		bmx_openxlsx_xlrowdatarange_setvalue_ulong(rowDataRangePtr, value)
+	End Method
+
+	Method SetValue(value:String)
+		bmx_openxlsx_xlrowdatarange_setvalue_string(rowDataRangePtr, value)
+	End Method
+
+	Method SetValueString(value:String)
+		bmx_openxlsx_xlrowdatarange_setvalue_string(rowDataRangePtr, value)
+	End Method
+
+	Method SetValueBool(value:Int)
+		bmx_openxlsx_xlrowdatarange_setvalue_bool(rowDataRangePtr, value)
+	End Method
+
 	Method Delete()
 		If rowDataRangePtr Then
 			bmx_openxlsx_xlrowdatarange_free(rowDataRangePtr)
@@ -1100,6 +1256,14 @@ Type TXLFonts
 		Return FontByIndex(index)
 	End Method
 
+	Method Create:Size_T(copyFrom:TXLFont = Null)
+		If copyFrom Then
+			Return bmx_openxlsx_xlfonts_create(fontsPtr, copyFrom.fontPtr)
+		Else
+			Return bmx_openxlsx_xlfonts_create(fontsPtr, Null)
+		End If
+	End Method
+
 	Method Delete()
 		If fontsPtr Then
 			bmx_openxlsx_xlfonts_free(fontsPtr)
@@ -1198,15 +1362,15 @@ Type TXLFont
 		Return bmx_openxlsx_xlfont_setfontcolor(fontPtr, newColor)
 	End Method
 
-	Method SetBold:Int(set:Int)
+	Method SetBold:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setbold(fontPtr, set)
 	End Method
 
-	Method SetItalic:Int(set:Int)
+	Method SetItalic:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setitalic(fontPtr, set)
 	End Method
 
-	Method SetStrikethrough:Int(set:Int)
+	Method SetStrikethrough:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setstrikethrough(fontPtr, set)
 	End Method
 
@@ -1222,16 +1386,20 @@ Type TXLFont
 		Return bmx_openxlsx_xlfont_setvertalign(fontPtr, vertAlign)
 	End Method
 
-	Method SetOutline:Int(set:Int)
+	Method SetOutline:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setoutline(fontPtr, set)
 	End Method
 
-	Method SetShadow:Int(set:Int)
+	Method SetShadow:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setshadow(fontPtr, set)
 	End Method
 
-	Method SetCondense:Int(set:Int)
+	Method SetCondense:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setcondense(fontPtr, set)
+	End Method
+
+	Method Summary:String()
+		Return bmx_openxlsx_xlfont_summary(fontPtr)
 	End Method
 
 	Method Delete()
@@ -1264,6 +1432,18 @@ Type TXLFills
 		Return TXLFill._Create(bmx_openxlsx_xlfills_fillbyindex(fillsPtr, index))
 	End Method
 
+	Method Operator[]:TXLFill(index:Size_T)
+		Return FillByIndex(index)
+	End Method
+
+	Method Create:Size_T(copyFrom:TXLFill = Null)
+		If copyFrom Then
+			Return bmx_openxlsx_xlfills_create(fillsPtr, copyFrom.fillPtr)
+		Else
+			Return bmx_openxlsx_xlfills_create(fillsPtr, Null)
+		End If
+	End Method
+
 	Method Delete()
 		If fillsPtr Then
 			bmx_openxlsx_xlfills_free(fillsPtr)
@@ -1294,6 +1474,86 @@ Type TXLFill
 		Return bmx_openxlsx_xlfill_setfilltype(fillPtr, fillType, force)
 	End Method
 
+	Method GradientType:EXLGradientType()
+		Return bmx_openxlsx_xlfill_gradienttype(fillPtr)
+	End Method
+
+	Method Degree:Double()
+		Return bmx_openxlsx_xlfill_degree(fillPtr)
+	End Method
+
+	Method Left:Double()
+		Return bmx_openxlsx_xlfill_left(fillPtr)
+	End Method
+
+	Method Right:Double()
+		Return bmx_openxlsx_xlfill_right(fillPtr)
+	End Method
+
+	Method Top:Double()
+		Return bmx_openxlsx_xlfill_top(fillPtr)
+	End Method
+
+	Method Bottom:Double()
+		Return bmx_openxlsx_xlfill_bottom(fillPtr)
+	End Method
+
+	Method Stops:TXLGradientStops()
+		Return TXLGradientStops._Create(bmx_openxlsx_xlfill_stops(fillPtr))
+	End Method
+
+	Method PatternType:EXLPatternType()
+		Return bmx_openxlsx_xlfill_patterntype(fillPtr)
+	End Method
+
+	Method Color:SColor8()
+		Return bmx_openxlsx_xlfill_color(fillPtr)
+	End Method
+
+	Method BackgroundColor:SColor8()
+		Return bmx_openxlsx_xlfill_backgroundcolor(fillPtr)
+	End Method
+
+	Method SetGradientType:Int(newType:EXLGradientType)
+		Return bmx_openxlsx_xlfill_setgradienttype(fillPtr, newType)
+	End Method
+
+	Method SetDegree:Int(newDegree:Double)
+		Return bmx_openxlsx_xlfill_setdegree(fillPtr, newDegree)
+	End Method
+
+	Method SetLeft:Int(newLeft:Double)
+		Return bmx_openxlsx_xlfill_setleft(fillPtr, newLeft)
+	End Method
+
+	Method SetRight:Int(newRight:Double)
+		Return bmx_openxlsx_xlfill_setright(fillPtr, newRight)
+	End Method
+
+	Method SetTop:Int(newTop:Double)
+		Return bmx_openxlsx_xlfill_settop(fillPtr, newTop)
+	End Method
+
+	Method SetBottom:Int(newBottom:Double)
+		Return bmx_openxlsx_xlfill_setbottom(fillPtr, newBottom)
+	End Method
+
+	Method SetPatternType:Int(newPatternType:EXLPatternType)
+		Return bmx_openxlsx_xlfill_setpatterntype(fillPtr, newPatternType)
+	End Method
+
+	Method SetColor:Int(newColor:SColor8)
+		Return bmx_openxlsx_xlfill_setcolor(fillPtr, newColor)
+	End Method
+
+	Method SetBackgroundColor:Int(newColor:SColor8)
+		Return bmx_openxlsx_xlfill_setbackgroundcolor(fillPtr, newColor)
+	End Method
+
+	Method Summary:String()
+		Return bmx_openxlsx_xlfill_summary(fillPtr)
+	End Method
+
 	Method Delete()
 		If fillPtr Then
 			bmx_openxlsx_xlfill_free(fillPtr)
@@ -1301,6 +1561,84 @@ Type TXLFill
 		End If
 	End Method
 
+End Type
+
+Type TXLGradientStops
+
+	Field stopsPtr:Byte Ptr
+
+	Function _Create:TXLGradientStops(stopsPtr:Byte Ptr)
+		If stopsPtr Then
+			Local stops:TXLGradientStops = New TXLGradientStops()
+			stops.stopsPtr = stopsPtr
+			Return stops
+		End If
+		Return Null
+	End Function
+
+	Method Count:Size_T()
+		Return bmx_openxlsx_xlgradientstops_count(stopsPtr)
+	End Method
+
+	Method StopByIndex:TXLGradientStop(index:Size_T)
+		Return TXLGradientStop._Create(bmx_openxlsx_xlgradientstops_stopbyindex(stopsPtr, index))
+	End Method
+
+	Method Operator[]:TXLGradientStop(index:Size_T)
+		Return StopByIndex(index)
+	End Method
+
+	Method Create:Size_T(copyFrom:TXLGradientStop = Null)
+		If copyFrom Then
+			Return bmx_openxlsx_xlgradientstops_create(stopsPtr, copyFrom.stopPtr)
+		Else
+			Return bmx_openxlsx_xlgradientstops_create(stopsPtr, Null)
+		End If
+	End Method
+
+	Method Delete()
+		If stopsPtr Then
+			bmx_openxlsx_xlgradientstops_free(stopsPtr)
+			stopsPtr = Null
+		End If
+	End Method
+End Type
+
+Type TXLGradientStop
+
+	Field stopPtr:Byte Ptr
+
+	Function _Create:TXLGradientStop(stopPtr:Byte Ptr)
+		If stopPtr Then
+			Local stop:TXLGradientStop = New TXLGradientStop()
+			stop.stopPtr = stopPtr
+			Return stop
+		End If
+		Return Null
+	End Function
+
+	Method Color:TXLDataBarColor()
+		Return TXLDataBarColor._Create(bmx_openxlsx_xlgradientstop_color(stopPtr))
+	End Method
+
+	Method Position:Double()
+		Return bmx_openxlsx_xlgradientstop_position(stopPtr)
+	End Method
+
+	Method SetPosition:Int(newPosition:Double)
+		Return bmx_openxlsx_xlgradientstop_setposition(stopPtr, newPosition)
+	End Method
+
+	Method Summary:String()
+		Return bmx_openxlsx_xlgradientstop_summary(stopPtr)
+	End Method
+
+	Method Delete()
+		If stopPtr Then
+			bmx_openxlsx_xlgradientstop_free(stopPtr)
+			stopPtr = Null
+		End If
+	End Method
 End Type
 
 Type TXLBorders
@@ -1322,6 +1660,18 @@ Type TXLBorders
 
 	Method BorderByIndex:TXLBorder(index:Size_T)
 		Return TXLBorder._Create(bmx_openxlsx_xlborders_borderbyindex(bordersPtr, index))
+	End Method
+
+	Method Operator[]:TXLBorder(index:Size_T)
+		Return BorderByIndex(index)
+	End Method
+
+	Method Create:Size_T(copyFrom:TXLBorder = Null)
+		If copyFrom Then
+			Return bmx_openxlsx_xlborders_create(bordersPtr, copyFrom.borderPtr)
+		Else
+			Return bmx_openxlsx_xlborders_create(bordersPtr, Null)
+		End If
 	End Method
 
 	Method Delete()
@@ -1430,6 +1780,10 @@ Type TXLBorder
 		Return bmx_openxlsx_xlborder_sethorizontal(borderPtr, lineStyle, lineColor, lineTint)
 	End Method
 
+	Method Summary:String()
+		Return bmx_openxlsx_xlborder_summary(borderPtr)
+	End Method
+
 	Method Delete()
 		If borderPtr Then
 			bmx_openxlsx_xlborder_free(borderPtr)
@@ -1458,6 +1812,10 @@ Type TXLLine
 
 	Method Color:TXLDataBarColor()
 		Return TXLDataBarColor._Create(bmx_openxlsx_xlline_color(linePtr))
+	End Method
+
+	Method Summary:String()
+		Return bmx_openxlsx_xlline_summary(linePtr)
 	End Method
 
 	Method Delete()
@@ -1510,6 +1868,10 @@ Type TXLDataBarColor
 		Return SetRgb(newColor)
 	End Method
 
+	Method SetTInt:Int(newTint:Double)
+		Return bmx_openxlsx_xldatabarcolor_settint(colorPtr, newTint)
+	End Method
+
 	Method SetAutomatic:Int(set:Int = True)
 		Return bmx_openxlsx_xldatabarcolor_setautomatic(colorPtr, set)
 	End Method
@@ -1520,6 +1882,10 @@ Type TXLDataBarColor
 
 	Method SetTheme:Int(newTheme:UInt)
 		Return bmx_openxlsx_xldatabarcolor_settheme(colorPtr, newTheme)
+	End Method
+
+	Method Summary:String()
+		Return bmx_openxlsx_xldatabarcolor_summary(colorPtr)
 	End Method
 
 	Method Delete()
@@ -1550,6 +1916,18 @@ Type TXLCellFormats
 
 	Method CellFormatByIndex:TXLCellFormat(index:Size_T)
 		Return TXLCellFormat._Create(bmx_openxlsx_xlcellformats_cellformatbyindex(cellFormatsPtr, index))
+	End Method
+
+	Method Operator[]:TXLCellFormat(index:Size_T)
+		Return CellFormatByIndex(index)
+	End Method
+
+	Method Create:Size_T(copyFrom:TXLCellFormat = Null)
+		If copyFrom Then
+			Return bmx_openxlsx_xlcellformats_create(cellFormatsPtr, copyFrom.cellFormatPtr)
+		Else
+			Return bmx_openxlsx_xlcellformats_create(cellFormatsPtr, Null)
+		End If
 	End Method
 
 	Method Delete()
@@ -1698,6 +2076,10 @@ Type TXLCellFormat
 		Return bmx_openxlsx_xlcellformat_sethidden(cellFormatPtr, set)
 	End Method
 
+	Method Summary:String()
+		Return bmx_openxlsx_xlcellformat_summary(cellFormatPtr)
+	End Method
+
 	Method Delete()
 		If cellFormatPtr Then
 			bmx_openxlsx_xlcellformat_free(cellFormatPtr)
@@ -1792,6 +2174,10 @@ Type TXLAlignment
 		Return bmx_openxlsx_xlalignment_setreadingorder(alignmentPtr, newReadingOrder)
 	End Method
 
+	Method Summary:String()
+		Return bmx_openxlsx_xlalignment_summary(alignmentPtr)
+	End Method
+
 	Method Delete()
 		If alignmentPtr Then
 			bmx_openxlsx_xlalignment_free(alignmentPtr)
@@ -1820,6 +2206,18 @@ Type TXLCellStyles
 
 	Method CellStyleByIndex:TXLCellStyle(index:Size_T)
 		Return TXLCellStyle._Create(bmx_openxlsx_xlcellstyles_cellstylebyindex(cellStylesPtr, index))
+	End Method
+
+	Method Operator[]:TXLCellStyle(index:Size_T)
+		Return CellStyleByIndex(index)
+	End Method
+
+	Method Create:Size_T(copyFrom:TXLCellStyle = Null)
+		If copyFrom Then
+			Return bmx_openxlsx_xlcellstyles_create(cellStylesPtr, copyFrom.cellStylePtr)
+		Else
+			Return bmx_openxlsx_xlcellstyles_create(cellStylesPtr, Null)
+		End If
 	End Method
 
 	Method Delete()
@@ -1896,6 +2294,10 @@ Type TXLCellStyle
 		Return bmx_openxlsx_xlcellstyle_setcustombuiltin(cellStylePtr, set)
 	End Method
 
+	Method Summary:String()
+		Return bmx_openxlsx_xlcellstyle_summary(cellStylePtr)
+	End Method
+
 	Method Delete()
 		If cellStylePtr Then
 			bmx_openxlsx_xlcellstyle_free(cellStylePtr)
@@ -1932,6 +2334,18 @@ Type TXLNumberFormats
 
 	Method NumberFormatIdFromIndex:UInt(index:Size_T)
 		Return bmx_openxlsx_xlnumberformats_numberformatidfromindex(numberFormatsPtr, index)
+	End Method
+
+	Method Operator[]:TXLNumberFormat(index:Size_T)
+		Return NumberFormatByIndex(index)
+	End Method
+
+	Method Create:Size_T(copyFrom:TXLNumberFormat = Null)
+		If copyFrom Then
+			Return bmx_openxlsx_xlnumberformats_create(numberFormatsPtr, copyFrom.numberFormatPtr)
+		Else
+			Return bmx_openxlsx_xlnumberformats_create(numberFormatsPtr, Null)
+		End If
 	End Method
 
 	Method Delete()
@@ -1972,6 +2386,10 @@ Type TXLNumberFormat
 		Return bmx_openxlsx_xlnumberformat_setformatcode(numberFormatPtr, newFormatCode)
 	End Method
 
+	Method Summary:String()
+		Return bmx_openxlsx_xlnumberformat_summary(numberFormatPtr)
+	End Method
+
 	Method Delete()
 		If numberFormatPtr Then
 			bmx_openxlsx_xlnumberformat_free(numberFormatPtr)
@@ -2000,6 +2418,18 @@ Type TXLConditionalFormats
 
 	Method ConditionalFormatByIndex:TXLConditionalFormat(index:Size_T)
 		Return TXLConditionalFormat._Create(bmx_openxlsx_xlconditionalformats_conditionalformatbyindex(conditionalFormatsPtr, index))
+	End Method
+
+	Method Operator[]:TXLConditionalFormat(index:Size_T)
+		Return ConditionalFormatByIndex(index)
+	End Method
+
+	Method Create:Size_T(copyFrom:TXLConditionalFormat = Null)
+		If copyFrom Then
+			Return bmx_openxlsx_xlconditionalformats_create(conditionalFormatsPtr, copyFrom.conditionalFormatPtr)
+		Else
+			Return bmx_openxlsx_xlconditionalformats_create(conditionalFormatsPtr, Null)
+		End If
 	End Method
 
 	Method Delete()
@@ -2083,6 +2513,18 @@ Type TXLCfRules
 
 	Method CfRuleByIndex:TXLCfRule(index:Size_T)
 		Return TXLCfRule._Create(bmx_openxlsx_xlcfrules_cfrulebyindex(cfRulesPtr, index))
+	End Method
+
+	Method Operator[]:TXLCfRule(index:Size_T)
+		Return CfRuleByIndex(index)
+	End Method
+
+	Method Create:Size_T(copyFrom:TXLCfRule = Null)
+		If copyFrom Then
+			Return bmx_openxlsx_xlcfrules_create(cfRulesPtr, copyFrom.cfRulePtr)
+		Else
+			Return bmx_openxlsx_xlcfrules_create(cfRulesPtr, Null)
+		End If
 	End Method
 
 	Method Delete()
