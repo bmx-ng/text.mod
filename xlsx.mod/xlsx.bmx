@@ -28,6 +28,11 @@
 ' 
 SuperStrict
 
+Rem
+bbdoc: Text/Xlsx
+about: A module for reading and writing Excel .xlsx files, based on the OpenXLSX library. 
+Provides classes for working with Excel documents, workbooks, worksheets, cells and ranges, as well as styles and formatting.
+End Rem
 Module Text.Xlsx
 
 ModuleInfo "Version: 1.00"
@@ -45,6 +50,11 @@ ModuleInfo "CC_OPTS: -DOPENXLSX_STATIC_DEFINE"
 Import "common.bmx"
 
 
+Rem
+bbdoc: Encapsulates the concept of an excel file.
+about: It is different from the #TXLWorkbook, in that an #TXLDocument holds an #TXLWorkbook 
+together with its metadata, as well as methods for opening, closing and saving the document
+End Rem
 Type TXLDocument
 
 	Field docPtr:Byte Ptr
@@ -53,54 +63,97 @@ Type TXLDocument
 		docPtr = bmx_openxlsx_xldocument_new()
 	End Method
 
+	Rem
+	bbdoc: Gets the underlying workbook object.
+	End Rem
 	Method Workbook:TXLWorkbook()
 		Return TXLWorkbook._Create(bmx_openxlsx_xldocument_workbook(docPtr))
 	End Method
 
+	Rem
+	bbdoc: Attempts to open an existing document with the specified @filename.
+	End Rem
 	Method Open(filename:String)
 		bmx_openxlsx_xldocument_open(docPtr, filename)
 	End Method
 
+	Rem
+	bbdoc: Creates a new document with the specified filename.
+	about: If @forceOverwrite is non-zero, any existing file with the same name will be overwritten.
+	End Rem
 	Method Create(filename:String, forceOverwrite:Int)
 		bmx_openxlsx_xldocument_create(docPtr, filename, forceOverwrite)
 	End Method
 
+	Rem
+	bbdoc: Saves the current document using the current filename, overwriting the existing file.
+	about: May throw a #TXLException or #TXLRuntimeError.
+	End Rem
 	Method Save()
 		bmx_openxlsx_xldocument_save(docPtr)
 	End Method
 
+	Rem
+	bbdoc: Saves the document with a new name.
+	about: If a file exists with that name, it will be overwritten if @forceOverwrite is non-zero, otherwise an error will be raised.
+	May throw a #TXLException or #TXLRuntimeError.
+	End Rem
 	Method SaveAs(filename:String, forceOverwrite:Int)
 		bmx_openxlsx_xldocument_saveas(docPtr, filename, forceOverwrite)
 	End Method
 
+	Rem
+	bbdoc: Closes the current document.
+	End Rem
 	Method Close()
 		bmx_openxlsx_xldocument_close(docPtr)
 	End Method
 
+	Rem
+	bbdoc: Determines if the document is currently open.
+	End Rem
 	Method IsOpen:Int()
 		Return bmx_openxlsx_xldocument_isopen(docPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the filename of the current document, e.g. "spreadsheet.xlsx".
+	End Rem
 	Method Name:String()
 		Return bmx_openxlsx_xldocument_name(docPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the full path of the current document, e.g. "drive/blah/spreadsheet.xlsx"
+	End Rem
 	Method Path:String()
 		Return bmx_openxlsx_xldocument_path(docPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the value of a document property, e.g. Title, Author, etc.
+	End Rem
 	Method Property:String(prop:EXLProperty)
 		Return bmx_openxlsx_xldocument_property(docPtr, prop)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of a document property, e.g. Title, Author, etc.
+	End Rem
 	Method SetProperty(prop:EXLProperty, value:String)
 		bmx_openxlsx_xldocument_setproperty(docPtr, prop, value)
 	End Method
 
+	Rem
+	bbdoc: Deletes a document property, e.g. Title, Author, etc.
+	End Rem
 	Method DeleteProperty(prop:EXLProperty)
 		bmx_openxlsx_xldocument_deleteproperty(docPtr, prop)
 	End Method
 
+	Rem
+	bbdoc: Gets the styles collection for the document, which can be used to create and manage cell styles.
+	End Rem
 	Method Styles:TXLStyles()
 		Return TXLStyles._Create(bmx_openxlsx_xldocument_styles(docPtr))
 	End Method
@@ -114,6 +167,10 @@ Type TXLDocument
 
 End Type
 
+Rem
+bbdoc: Represents a workbook within an Excel document.
+about: A workbook contains one or more worksheets, as well as methods for managing those worksheets.
+End Rem
 Type TXLWorkbook
 
 	Field workbookPtr:Byte Ptr
