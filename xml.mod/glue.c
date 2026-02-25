@@ -263,7 +263,7 @@ int bmx_mxmlElementGetAttrCount(mxml_node_t * node) {
 }
 
 BBString * bmx_mxmlElementGetAttrByIndex(mxml_node_t * node, int index, BBString ** name) {
-	char * n;
+	const char * n;
 	char * v = mxmlElementGetAttrByIndex(node, index, &n);
 	if (v) {
 		*name = bbStringFromUTF8String(n);
@@ -275,7 +275,7 @@ BBString * bmx_mxmlElementGetAttrByIndex(mxml_node_t * node, int index, BBString
 }
 
 BBString * bmx_mxmlElementGetAttrByIndexNoName(mxml_node_t * node, int index) {
-    char * n;
+    const char * n;
     char * v = mxmlElementGetAttrByIndex(node, index, &n);
     if (v) {
         return bbStringFromUTF8String(v);
