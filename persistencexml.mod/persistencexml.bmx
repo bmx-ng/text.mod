@@ -102,6 +102,10 @@ Type TPersist
 	Field _inited:Int
 
 	Field _sb:TStringBuilder = New TStringBuilder()
+	' progress callback support
+	Field _progressCallback(progress:Int, userData:Object)
+	Field _progressUserData:Object
+	Field _progressTotal:Int ' doesn't clamp at 100, it's up to the caller to manage this
 
 	Rem
 	bbdoc: Serializes the specified Object into a String.
@@ -119,6 +123,7 @@ Type TPersist
 			lastNode = Null
 		End If
 		objectMap.Clear()
+		_progressTotal = 0
 	End Method
 	
 	Rem
@@ -182,6 +187,19 @@ Type TPersist
 	Method ToString:String()
 		If doc Then
 			Return doc.ToStringFormat(format)
+		End If
+	End Method
+
+	Method SetProgressCallback(callback(progress:Int, userData:Object), userData:Object)
+		_progressCallback = callback
+		_progressUserData = userData
+	End Method
+
+	Method DoProgress(progress:String)
+		Local prog:Int = progress.ToInt()
+		If prog Then
+			_progressTotal :+ prog
+			_progressCallback(_progressTotal, _progressUserData)
 		End If
 	End Method
 	
@@ -880,6 +898,13 @@ Type TPersist
 							End If
 					End Select
 					
+					If _progressCallback Then
+						Local prog:String = fieldObj.MetaData("progress")
+						If prog Then
+							DoProgress(prog)
+						End If
+					End If
+
 				End If
 			Next
 		End If
