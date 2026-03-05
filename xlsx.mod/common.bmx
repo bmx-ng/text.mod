@@ -226,6 +226,8 @@ Extern
 	Function bmx_openxlsx_xlcolumn_setwidth(column:Byte Ptr, width:Float)
 	Function bmx_openxlsx_xlcolumn_ishidden:Int(column:Byte Ptr)
 	Function bmx_openxlsx_xlcolumn_sethidden(column:Byte Ptr, state:Int)
+	Function bmx_openxlsx_xlcolumn_format:Size_T(column:Byte Ptr)
+	Function bmx_openxlsx_xlcolumn_setformat:Int(column:Byte Ptr, cellFormatIndex:Size_T)
 
 	Function bmx_openxlsx_xlstyles_free(handle:Byte Ptr)
 	Function bmx_openxlsx_xlstyles_fonts:Byte Ptr(styles:Byte Ptr)

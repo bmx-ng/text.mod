@@ -1284,6 +1284,11 @@ Type TXLCell
 	End Method
 End Type
 
+Rem
+bbdoc: Represents a reference to a single cell in a worksheet.
+about: This is used to specify the location of a cell, e.g. as the top-left or bottom-right corner of a cell range.
+It does not represent an actual cell and does not have any value or formatting properties.
+End Rem
 Type TXLCellReference
 
 	Field referencePtr:Byte Ptr
@@ -1297,58 +1302,107 @@ Type TXLCellReference
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Creates a new cell reference from the specified cell address string, e.g. "A1".
+	End Rem
 	Method New(cellAddress:String)
 		referencePtr = bmx_openxlsx_xlcellreference_new_celladdress(cellAddress)
 	End Method
 
+	Rem
+	bbdoc: Creates a new cell reference from the specified row and column numbers.
+	about: Row numbers are 1-based, so the first row is row 1. Column numbers are also 1-based, so the first column is column 1 (which corresponds to column "A").
+	End Rem
 	Method New(row:UInt, column:Short)
 		referencePtr = bmx_openxlsx_xlcellreference_new_rowcolumn(row, column)
 	End Method
 
+	Rem
+	bbdoc: Creates a new cell reference from the specified row number and column reference string.
+	about: Row numbers are 1-based, so the first row is row 1. The column reference should be a string in the same format as Excel column references, e.g. "A", "B", ..., "Z", "AA", etc.
+	End Rem
 	Method New(row:UInt, column:String)
 		referencePtr = bmx_openxlsx_xlcellreference_new_rowcolumn_str(row, column)
 	End Method
 
+	Rem
+	bbdoc: Gets the row number of the cell reference.
+	about: Row numbers are 1-based, so the first row is row 1.
+	End Rem
 	Method Row:UInt()
 		Return bmx_openxlsx_xlcellreference_row(referencePtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the row number of the cell reference.
+	about: Row numbers are 1-based, so the first row is row 1.
+	End Rem
 	Method SetRow(row:UInt)
 		bmx_openxlsx_xlcellreference_setrow(referencePtr, row)
 	End Method
 
+	Rem
+	bbdoc: Gets the column number of the cell reference.
+	about: Column numbers are 1-based, so the first column is column 1 (which corresponds to column "A").
+	End Rem
 	Method Column:Short()
 		Return bmx_openxlsx_xlcellreference_column(referencePtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the column number of the cell reference.
+	about: Column numbers are 1-based, so the first column is column 1 (which corresponds to column "A").
+	End Rem
 	Method SetColumn(column:Short)
 		bmx_openxlsx_xlcellreference_setcolumn(referencePtr, column)
 	End Method
 
+	Rem
+	bbdoc: Sets the row and column numbers of the cell reference.
+	about: Row numbers are 1-based, so the first row is row 1. Column numbers are also 1-based, so the first column is column 1 (which corresponds to column "A").
+	End Rem
 	Method SetRowAndColumn(row:UInt, column:Short)
 		bmx_openxlsx_xlcellreference_setrowcolumn(referencePtr, row, column)
 	End Method
 
+	Rem
+	bbdoc: Gets the address of the cell reference, e.g. "A1".
+	End Rem
 	Method Address:String()
 		Return bmx_openxlsx_xlcellreference_address(referencePtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the cell reference using the specified cell address string, e.g. "A1".
+	End Rem
 	Method SetAddress(address:String)
 		bmx_openxlsx_xlcellreference_setaddress(referencePtr, address)
 	End Method
 
+	Rem
+	bbdoc: Converts a row number to its corresponding Excel row reference string, e.g. 1 -> "1", 2 -> "2", etc.
+	End Rem
 	Function RowAsString:String(row:UInt)
 		Return bmx_openxlsx_xlcellreference_rowasstring(row)
 	End Function
 
+	Rem
+	bbdoc: Converts a row reference string to its corresponding row number, e.g. "1" -> 1, "2" -> 2, etc.
+	End Rem
 	Function RowAsNumber:UInt(row:String)
 		Return bmx_openxlsx_xlcellreference_rowasnumber(row)
 	End Function
 
+	Rem
+	bbdoc: Converts a column number to its corresponding Excel column reference string, e.g. 1 -> "A", 2 -> "B", ..., 26 -> "Z", 27 -> "AA", etc.
+	End Rem
 	Function ColumnAsString:String(column:Short)
 		Return bmx_openxlsx_xlcellreference_columnasstring(column)
 	End Function
 
+	Rem
+	bbdoc: Converts a column reference string to its corresponding column number, e.g. "A" -> 1, "B" -> 2, ..., "Z" -> 26, "AA" -> 27, etc.
+	End Rem
 	Function ColumnAsNumber:Short(column:String)
 		Return bmx_openxlsx_xlcellreference_columnasnumber(column)
 	End Function
@@ -1362,6 +1416,9 @@ Type TXLCellReference
 
 End Type
 
+Rem
+bbdoc: Represents a single row in a worksheet, encapsulating the properties and behaviours of a spreadsheet row.
+End Rem
 Type TXLRow
 
 	Field rowPtr:Byte Ptr
@@ -1375,50 +1432,98 @@ Type TXLRow
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Determines if the row is empty (i.e. has no cells with values).
+	End Rem
 	Method Empty:Int()
 		Return bmx_openxlsx_xlrow_empty(rowPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the height of the row in points.
+	End Rem
 	Method Height:Float()
 		Return bmx_openxlsx_xlrow_height(rowPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the height of the row in points.
+	about: The height of the row is measured in points, where 1 point is equal to 1/72 of an inch.
+	The default row height in Excel is typically around 15 points, but this can vary based on the font and size used in the cells.
+	Setting the height to 0 will auto-size the row based on the content of the cells in the row.
+	End Rem
 	Method SetHeight(height:Float)
 		bmx_openxlsx_xlrow_setheight(rowPtr, height)
 	End Method
 
+	Rem
+	bbdoc: Gets the descent of the row in points.
+	about: The descent of a row is the distance from the baseline to the bottom of the tallest cell in the row.
+	It is used to determine the spacing between rows when the row height is set to auto-size (i.e. height of 0).
+	The descent is measured in points, where 1 point is equal to 1/72 of an inch.
+	End Rem
 	Method Descent:Float()
 		Return bmx_openxlsx_xlrow_descent(rowPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the descent of the row in points.
+	about: The descent of a row is the distance from the baseline to the bottom of the tallest cell in the row.
+	It is used to determine the spacing between rows when the row height is set to auto-size (i.e. height of 0).
+	The descent is measured in points, where 1 point is equal to 1/72 of an inch.
+	End Rem
 	Method SetDescent(descent:Float)
 		bmx_openxlsx_xlrow_setdescent(rowPtr, descent)
 	End Method
 
+	Rem
+	bbdoc: Checks if the row is hidden.
+	End Rem
 	Method IsHidden:Int()
 		Return bmx_openxlsx_xlrow_ishidden(rowPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the hidden state of the row.
+	about: Setting the state to #True will hide the row, while setting it to #False will make the row visible.
+	End Rem
 	Method SetHidden(state:Int)
 		bmx_openxlsx_xlrow_sethidden(rowPtr, state)
 	End Method
 
+	Rem
+	bbdoc: Gets the row number of the row.
+	about: Row numbers are 1-based, so the first row is row 1.
+	End Rem
 	Method RowNumber:UInt()
 		Return bmx_openxlsx_xlrow_rownumber(rowPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the number of cells in the row that contain values.
+	End Rem
 	Method CellCount:Short()
 		Return bmx_openxlsx_xlrow_cellcount(rowPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets a range representing the cells in the row that contain values.
+	End Rem
 	Method Cells:TXLRowDataRange()
 		Return TXLRowDataRange._Create(bmx_openxlsx_xlrow_cells(rowPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets a range representing the first #cellCount cells in the row that contain values.
+	End Rem
 	Method Cells:TXLRowDataRange(cellCount:Short)
 		Return TXLRowDataRange._Create(bmx_openxlsx_xlrow_cells_count(rowPtr, cellCount))
 	End Method
 
+	Rem
+	bbdoc: Gets a range representing the cells in the row from the specified first cell to the specified last cell, inclusive.
+	about: Cell numbers are 1-based, so the first cell in the row is cell 1 (which corresponds to column "A").
+	End Rem
 	Method Cells:TXLRowDataRange(firstCell:Short, lastCell:Short)
 		Return TXLRowDataRange._Create(bmx_openxlsx_xlrow_cells_range(rowPtr, firstCell, lastCell))
 	End Method
@@ -1432,6 +1537,9 @@ Type TXLRow
 
 End Type
 
+Rem
+bbdoc: Represents a range of rows in a worksheet.
+End Rem
 Type TXLRowRange Implements IIterable<TXLRow>
 
 	Field rowRangePtr:Byte Ptr
@@ -1445,10 +1553,16 @@ Type TXLRowRange Implements IIterable<TXLRow>
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the number of rows in the range.
+	End Rem
 	Method RowCount:UInt()
 		Return bmx_openxlsx_xlrowrange_rowcount(rowRangePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets an iterator for the rows in the range.
+	End Rem
 	Method GetIterator:IIterator<TXLRow>() Override
 		Return TXLRowIterator._Create(Self, bmx_openxlsx_xlrowrange_iterator(rowRangePtr))
 	End Method
@@ -1461,6 +1575,9 @@ Type TXLRowRange Implements IIterable<TXLRow>
 	End Method
 End Type
 
+Rem
+bbdoc: An iterator for iterating over the rows in a #TXLRowRange.
+End Rem
 Type TXLRowIterator Implements IIterator<TXLRow>, ICloseable
 
 	Field _rowRange:TXLRowRange
@@ -1477,10 +1594,16 @@ Type TXLRowIterator Implements IIterator<TXLRow>, ICloseable
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the current row in the iteration.
+	End Rem
 	Method Current:TXLRow() Override
 		Return _current
 	End Method
 
+	Rem
+	bbdoc: Advances the iterator to the next row in the range, returning #True if there is a next row or #False if the end of the range has been reached.
+	End Rem
 	Method MoveNext:Int() Override
 		If bmx_openxlsx_xlrowrange_iterator_hasnext(_iteratorPtr) Then
 			_current = TXLRow._Create(bmx_openxlsx_xlrowrange_iterator_next(_iteratorPtr))
@@ -1490,6 +1613,9 @@ Type TXLRowIterator Implements IIterator<TXLRow>, ICloseable
 		Return False
 	End Method
 
+	Rem
+	bbdoc: Closes the iterator and releases any associated resources.
+	End Rem
 	Method Close() Override
 		If _iteratorPtr Then
 			_rowRange = Null
@@ -1507,6 +1633,9 @@ Type TXLRowIterator Implements IIterator<TXLRow>, ICloseable
 	End Method
 End Type
 
+Rem
+bbdoc: Encapsulates an iterator, for iterating over the cells in a row of a #TXLRowDataRange.
+End Rem
 Type TXLRowDataIterator Implements IIterator<TXLCell>, ICloseable
 
 	Field _rowDataRange:TXLRowDataRange
@@ -1523,10 +1652,16 @@ Type TXLRowDataIterator Implements IIterator<TXLCell>, ICloseable
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the current cell in the iteration.
+	End Rem
 	Method Current:TXLCell() Override
 		Return _current
 	End Method
 
+	Rem
+	bbdoc: Advances the iterator to the next cell in the row, returning #True if there is a next cell or #False if the end of the row has been reached.
+	End Rem
 	Method MoveNext:Int() Override
 		If bmx_openxlsx_xlrowdatarange_iterator_hasnext(_iteratorPtr) Then
 			_current = TXLCell._Create(bmx_openxlsx_xlrowdatarange_iterator_next(_iteratorPtr))
@@ -1536,6 +1671,9 @@ Type TXLRowDataIterator Implements IIterator<TXLCell>, ICloseable
 		Return False
 	End Method
 
+	Rem
+	bbdoc: Closes the iterator and releases any associated resources.
+	End Rem
 	Method Close() Override
 		If _iteratorPtr Then
 			_rowDataRange = Null
@@ -1553,6 +1691,9 @@ Type TXLRowDataIterator Implements IIterator<TXLCell>, ICloseable
 	End Method
 End Type
 
+Rem
+bbdoc: Represents a range of cells in a row.
+End Rem
 Type TXLRowDataRange Implements IIterable<TXLCell>
 
 	Field rowDataRangePtr:Byte Ptr
@@ -1566,66 +1707,114 @@ Type TXLRowDataRange Implements IIterable<TXLCell>
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Get an iterator for the cells in the row data range.
+	End Rem
 	Method GetIterator:IIterator<TXLCell>() Override
 		Return TXLRowDataIterator._Create(Self, bmx_openxlsx_xlrowdatarange_iterator(rowDataRangePtr))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #Float value.
+	End Rem
 	Method SetValue(value:Float)
 		bmx_openxlsx_xlrowdatarange_setvalue_double(rowDataRangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #Float value.
+	End Rem
 	Method SetValueFloat(value:Float)
 		bmx_openxlsx_xlrowdatarange_setvalue_double(rowDataRangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #Double value.
+	End Rem
 	Method SetValue(value:Double)
 		bmx_openxlsx_xlrowdatarange_setvalue_double(rowDataRangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #Double value.
+	End Rem
 	Method SetValueDouble(value:Double)
 		bmx_openxlsx_xlrowdatarange_setvalue_double(rowDataRangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #Int value.
+	End Rem
 	Method SetValue(value:Int)
 		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #Int value.
+	End Rem
 	Method SetValueInt(value:Int)
 		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #Long value.
+	End Rem
 	Method SetValue(value:Long)
 		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #Long value.
+	End Rem
 	Method SetValueLong(value:Long)
 		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #UInt value
+	End Rem
 	Method SetValue(value:UInt)
 		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #UInt value
+	End Rem
 	Method SetValueUInt(value:UInt)
 		bmx_openxlsx_xlrowdatarange_setvalue_long(rowDataRangePtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #ULong value
+	End Rem
 	Method SetValue(value:ULong)
 		bmx_openxlsx_xlrowdatarange_setvalue_ulong(rowDataRangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #ULong value
+	End Rem
 	Method SetValueULong(value:ULong)
 		bmx_openxlsx_xlrowdatarange_setvalue_ulong(rowDataRangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #String value
+	End Rem
 	Method SetValue(value:String)
 		bmx_openxlsx_xlrowdatarange_setvalue_string(rowDataRangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #String value
+	End Rem
 	Method SetValueString(value:String)
 		bmx_openxlsx_xlrowdatarange_setvalue_string(rowDataRangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the row data range to the specified #Int value, where non-zero is treated as #True and zero is treated as #False.
+	End Rem
 	Method SetValueBool(value:Int)
 		bmx_openxlsx_xlrowdatarange_setvalue_bool(rowDataRangePtr, value)
 	End Method
@@ -1639,6 +1828,9 @@ Type TXLRowDataRange Implements IIterable<TXLCell>
 
 End Type
 
+Rem
+bbdoc: Represents a single column in a worksheet, encapsulating the properties and behaviours of a spreadsheet column.
+End Rem
 Type TXLColumn
 
 	Field columnPtr:Byte Ptr
@@ -1652,20 +1844,48 @@ Type TXLColumn
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the width of the column.
+	End Rem
 	Method Width:Float()
 		Return bmx_openxlsx_xlcolumn_width(columnPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the width of the column.
+	End Rem
 	Method SetWidth(width:Float)
 		bmx_openxlsx_xlcolumn_setwidth(columnPtr, width)
 	End Method
 
+	Rem
+	bbdoc: Checks if the column is hidden.
+	End Rem
 	Method IsHidden:Int()
 		Return bmx_openxlsx_xlcolumn_ishidden(columnPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the hidden state of the column.
+	about: Setting the state to #True will hide the column, while setting it to #False will make the column visible.
+	End Rem
 	Method SetHidden(state:Int)
 		bmx_openxlsx_xlcolumn_sethidden(columnPtr, state)
+	End Method
+
+	Rem
+	bbdoc: Gets the array index for the style assigned to the column.
+	End Rem
+	Method Format:Size_T()
+		Return bmx_openxlsx_xlcolumn_format(columnPtr)
+	End Method
+
+	Rem
+	bbdoc: Sets the array index for the style assigned to the column.
+	about: The format index corresponds to a cell format defined in the workbook's styles.
+	End Rem
+	Method SetFormat:Int(cellFormatIndex:Size_T)
+		Return bmx_openxlsx_xlcolumn_setformat(columnPtr, cellFormatIndex)
 	End Method
 
 	Method Delete()
@@ -1677,6 +1897,9 @@ Type TXLColumn
 
 End Type
 
+Rem
+bbdoc: Represents the styles used in a workbook, including fonts, fills, borders, cell formats, cell styles, and number formats.
+End Rem
 Type TXLStyles
 
 	Field stylesPtr:Byte Ptr
@@ -1690,26 +1913,44 @@ Type TXLStyles
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the fonts used in the workbook.
+	End Rem
 	Method Fonts:TXLFonts()
 		Return TXLFonts._Create(bmx_openxlsx_xlstyles_fonts(stylesPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the fills used in the workbook.
+	End Rem
 	Method Fills:TXLFills()
 		Return TXLFills._Create(bmx_openxlsx_xlstyles_fills(stylesPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the borders used in the workbook.
+	End Rem
 	Method Borders:TXLBorders()
 		Return TXLBorders._Create(bmx_openxlsx_xlstyles_borders(stylesPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the cell formats used in the workbook.
+	End Rem
 	Method CellFormats:TXLCellFormats()
 		Return TXLCellFormats._Create(bmx_openxlsx_xlstyles_cellformats(stylesPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the cell styles used in the workbook.
+	End Rem
 	Method CellStyles:TXLCellStyles()
 		Return TXLCellStyles._Create(bmx_openxlsx_xlstyles_cellstyles(stylesPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the number formats used in the workbook.
+	End Rem
 	Method NumberFormats:TXLNumberFormats()
 		Return TXLNumberFormats._Create(bmx_openxlsx_xlstyles_numberformats(stylesPtr))
 	End Method
@@ -1722,6 +1963,9 @@ Type TXLStyles
 	End Method
 End Type
 
+Rem
+bbdoc: Represents the fonts used in a workbook, allowing access to individual fonts and the ability to create new fonts.
+End Rem
 Type TXLFonts
 
 	Field fontsPtr:Byte Ptr
@@ -1735,18 +1979,36 @@ Type TXLFonts
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the number of fonts defined in the workbook.
+	End Rem
 	Method Count:Size_T()
 		Return bmx_openxlsx_xlfonts_count(fontsPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the font at the specified index.
+	about: Font indices are 0-based, so the first font is at index 0. The font at index 0 is the default font for the workbook,
+	and is used for any cells that do not have a specific font assigned to them.
+	End Rem
 	Method FontByIndex:TXLFont(index:Size_T)
 		Return TXLFont._Create(bmx_openxlsx_xlfonts_fontbyindex(fontsPtr, index))
 	End Method
 
+	Rem
+	bbdoc: Gets the font at the specified index.
+	about: Font indices are 0-based, so the first font is at index 0. The font at index 0 is the default font for the workbook,
+	and is used for any cells that do not have a specific font assigned to them.
+	End Rem
 	Method Operator[]:TXLFont(index:Size_T)
 		Return FontByIndex(index)
 	End Method
 
+	Rem
+	bbdoc: Creates a new font in the workbook, optionally copying the properties of an existing font.
+	about: If the copyFrom parameter is provided, the new font will be created with the same properties as the specified font.
+	If @copyFrom is not provided or is Null, the new font will be created with default properties.
+	End Rem
 	Method Create:Size_T(copyFrom:TXLFont = Null)
 		If copyFrom Then
 			Return bmx_openxlsx_xlfonts_create(fontsPtr, copyFrom.fontPtr)
@@ -1764,6 +2026,9 @@ Type TXLFonts
 
 End Type
 
+Rem
+bbdoc: Represents a single font in a workbook, allowing access to its properties and the ability to modify them.
+End Rem
 Type TXLFont
 
 	Field fontPtr:Byte Ptr
@@ -1777,118 +2042,252 @@ Type TXLFont
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the name of the font, e.g. "Calibri".
+	End Rem
 	Method FontName:String()
 		Return bmx_openxlsx_xlfont_fontname(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the character set of the font.
+	about: The character set is represented as a numeric code that corresponds to a specific character encoding used by the font.
+	End Rem
 	Method FontCharset:Size_T()
 		Return bmx_openxlsx_xlfont_fontcharset(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the font family of the font.
+	about: The font family is represented as a numeric code that corresponds to a specific font family used by the font.
+	End Rem
 	Method FontFamily:Size_T()
 		Return bmx_openxlsx_xlfont_fontfamily(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the size of the font in points.
+	End Rem
 	Method FontSize:Size_T()
 		Return bmx_openxlsx_xlfont_fontsize(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the color of the font as an #SColor8 value.
+	End Rem
 	Method FontColor:SColor8()
 		Return bmx_openxlsx_xlfont_fontcolor(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if the font is bold.
+	End Rem
 	Method Bold:Int()
 		Return bmx_openxlsx_xlfont_bold(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if the font is italic.
+	End Rem
 	Method Italic:Int()
 		Return bmx_openxlsx_xlfont_italic(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if the font has strikethrough applied.
+	End Rem
 	Method Strikethrough:Int()
 		Return bmx_openxlsx_xlfont_strikethrough(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the underline style of the font.
+	about: The underline style is represented as an #EXLUnderlineStyle value.
+	End Rem
 	Method Underline:EXLUnderlineStyle()
 		Return bmx_openxlsx_xlfont_underline(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the font scheme of the font.
+	about: The font scheme is represented as an #EXLFontSchemeStyle value, which indicates the intended use of the font in the
+	context of the workbook's theme (e.g. whether it is meant for headings, body text, etc.).
+	End Rem
 	Method Scheme:EXLFontSchemeStyle()
 		Return bmx_openxlsx_xlfont_scheme(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the vertical alignment of the font when used in a run of text.
+	about: The vertical alignment is represented as an #EXLVerticalAlignRunStyle value, which indicates how the text should be
+	vertically aligned relative to the baseline (e.g. normal, superscript, subscript).
+	End Rem
 	Method VertAlign:EXLVerticalAlignRunStyle()
 		Return bmx_openxlsx_xlfont_vertalign(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if the font has an outline.
+	about: An outline font is a font that is drawn with an outline around the characters, rather than being filled in. This can create a hollow or "stroked" appearance for the text.
+	End Rem
 	Method Outline:Int()
 		Return bmx_openxlsx_xlfont_outline(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if the font has a shadow.
+	about: A shadow font is a font that is drawn with a shadow effect, which can create a sense of depth or make the text stand out more on the page.
+	End Rem
 	Method Shadow:Int()
 		Return bmx_openxlsx_xlfont_shadow(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if the font is condensed.
+	about: A condensed font is a font that has a narrower width than a regular font, which can allow more characters to fit in a given space.
+	Condensed fonts are often used for headings or other situations where space is limited.
+	End Rem
 	Method Condense:Int()
 		Return bmx_openxlsx_xlfont_condense(fontPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the name of the font, e.g. "Calibri".
+	returns: #True if the font name was successfully set, or #False if an error occurred (e.g. if the specified font name is not valid or not supported).
+	End Rem
 	Method SetFontName:Int(newName:String)
 		Return bmx_openxlsx_xlfont_setfontname(fontPtr, newName)
 	End Method
 
+	Rem
+	bbdoc: Sets the character set of the font.
+	returns: #True if the font character set was successfully set, or #False if an error occurred (e.g. if the specified character set code is not valid or not supported).
+	about: The character set is represented as a numeric code that corresponds to a specific character encoding used by the font.
+	End Rem
 	Method SetFontCharset:Int(newCharset:Size_T)
 		Return bmx_openxlsx_xlfont_setfontcharset(fontPtr, newCharset)
 	End Method
 
+	Rem
+	bbdoc: Sets the font family of the font.
+	returns: #True if the font family was successfully set, or #False if an error occurred (e.g. if the specified font family code is not valid or not supported).
+	about: The font family is represented as a numeric code that corresponds to a specific font family used by the font.
+	End Rem
 	Method SetFontFamily:Int(newFamily:Size_T)
 		Return bmx_openxlsx_xlfont_setfontfamily(fontPtr, newFamily)
 	End Method
 
+	Rem
+	bbdoc: Sets the size of the font in points.
+	returns: #True if the font size was successfully set, or #False if an error occurred (e.g. if the specified font size is not valid).
+	End Rem
 	Method SetFontSize:Int(newSize:Size_T)
 		Return bmx_openxlsx_xlfont_setfontsize(fontPtr, newSize)
 	End Method
 
+	Rem
+	bbdoc: Sets the color of the font as an #SColor8 value.
+	returns: #True if the font color was successfully set, or #False if an error occurred (e.g. if the specified color value is not valid).
+	End Rem
 	Method SetFontColor:Int(newColor:SColor8)
 		Return bmx_openxlsx_xlfont_setfontcolor(fontPtr, newColor)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the font is bold.
+	returns: #True if the font bold property was successfully set, or #False if an error occurred.
+	about: Setting the value to #True will make the font bold, while setting it to #False will make it not bold.
+	By default, the set parameter is #True, so calling SetBold() without any arguments will make the font bold.
+	End Rem
 	Method SetBold:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setbold(fontPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the font is italic.
+	returns: #True if the font italic property was successfully set, or #False if an error occurred.
+	about: Setting the value to #True will make the font italic, while setting it to #False will make it not italic.
+	By default, the set parameter is #True, so calling SetItalic() without any arguments will make the font italic.
+	End Rem
 	Method SetItalic:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setitalic(fontPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the font has strikethrough applied.
+	returns: #True if the font strikethrough property was successfully set, or #False if an error occurred.
+	about: Setting the value to #True will apply strikethrough to the font, while setting it to #False will remove any strikethrough from the font.
+	By default, the set parameter is #True, so calling SetStrikethrough() without any arguments will apply strikethrough to the font.
+	End Rem
 	Method SetStrikethrough:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setstrikethrough(fontPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the underline style of the font.
+	returns: #True if the font underline style was successfully set, or #False if an error occurred (e.g. if the specified underline style value is not valid).
+	about: The underline style is represented as an #EXLUnderlineStyle value, which indicates the type of underline to apply to the font (e.g. single, double, etc.).
+	By default, the underline style is set to #EXLUnderlineStyle.XLUnderlineSingle, which applies a single underline to the font.
+	To remove any underline from the font, you can set the underline style to #EXLUnderlineStyle.XLUnderlineNone.
+	End Rem
 	Method SetUnderline:Int(underline:EXLUnderlineStyle = EXLUnderlineStyle.XLUnderlineSingle)
 		Return bmx_openxlsx_xlfont_setunderline(fontPtr, underline)
 	End Method
 
+	Rem
+	bbdoc: Sets the font scheme of the font.
+	returns: #True if the font scheme was successfully set, or #False if an error occurred (e.g. if the specified font scheme value is not valid).
+	about: The font scheme is represented as an #EXLFontSchemeStyle value, which indicates the intended use of the font in the context of the workbook's theme (e.g. whether it is meant for headings, body text, etc.).
+	By default, the font scheme is set to #EXLFontSchemeStyle.XLFontSchemeNone, which indicates that the font is not associated with any particular scheme in the workbook's theme.
+	To associate the font with a specific scheme in the workbook's theme, you can set the font scheme to one of the other values in the #EXLFontSchemeStyle enumeration (e.g. #EXLFontSchemeStyle.XLFontSchemeMajor, #EXLFontSchemeStyle.XLFontSchemeMinor, etc.).
+	End Rem
 	Method SetScheme:Int(scheme:EXLFontSchemeStyle)
 		Return bmx_openxlsx_xlfont_setscheme(fontPtr, scheme)
 	End Method
 
+	Rem
+	bbdoc: Sets the vertical alignment of the font when used in a run of text.
+	returns: #True if the font vertical alignment was successfully set, or #False if an error occurred (e.g. if the specified vertical alignment value is not valid).
+	about: The vertical alignment is represented as an #EXLVerticalAlignRunStyle value, which indicates how the text should be vertically aligned relative to the baseline (e.g. normal, superscript, subscript).
+	By default, the vertical alignment is set to #EXLVerticalAlignRunStyle.XLVerticalAlignRunStyleNone, which indicates normal vertical alignment with no special formatting.
+	End Rem
 	Method SetVertAlign:Int(vertAlign:EXLVerticalAlignRunStyle)
 		Return bmx_openxlsx_xlfont_setvertalign(fontPtr, vertAlign)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the font has an outline.
+	returns: #True if the font outline property was successfully set, or #False if an error occurred.
+	about: Setting the value to #True will make the font an outline font, while setting it to #False will make it a regular font.
+	By default, the set parameter is #True, so calling SetOutline() without any arguments will make the font an outline font.
+	End Rem
 	Method SetOutline:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setoutline(fontPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the font has a shadow.
+	returns: #True if the font shadow property was successfully set, or #False if an error occurred.
+	about: Setting the value to #True will apply a shadow effect to the font, while setting it to #False will remove any shadow effect from the font.
+	By default, the set parameter is #True, so calling SetShadow() without any arguments will apply a shadow effect to the font.
+	End Rem
 	Method SetShadow:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setshadow(fontPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the font is condensed.
+	returns: #True if the font condensed property was successfully set, or #False if an error occurred.
+	about: Setting the value to #True will make the font condensed, while setting it to #False will make it a regular width font.
+	By default, the set parameter is #True, so calling SetCondense() without any arguments will make the font condensed.
+	End Rem
 	Method SetCondense:Int(set:Int = True)
 		Return bmx_openxlsx_xlfont_setcondense(fontPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Gets a string summarizing the properties of the font, which can be useful for debugging or logging purposes.
+	End Rem
 	Method Summary:String()
 		Return bmx_openxlsx_xlfont_summary(fontPtr)
 	End Method
@@ -1902,6 +2301,9 @@ Type TXLFont
 
 End Type
 
+Rem
+bbdoc: Represents the fills used in a workbook, allowing access to individual fills and the ability to create new fills.
+End Rem
 Type TXLFills
 
 	Field fillsPtr:Byte Ptr
@@ -1915,18 +2317,36 @@ Type TXLFills
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the number of fills defined in the workbook.
+	End Rem
 	Method Count:Size_T()
 		Return bmx_openxlsx_xlfills_count(fillsPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the fill at the specified index.
+	about: Fill indices are 0-based, so the first fill is at index 0. The fill at index 0 is the default fill for the workbook,
+	and is used for any cells that do not have a specific fill assigned to them.
+	End Rem
 	Method FillByIndex:TXLFill(index:Size_T)
 		Return TXLFill._Create(bmx_openxlsx_xlfills_fillbyindex(fillsPtr, index))
 	End Method
 
+	Rem
+	bbdoc: Gets the fill at the specified index.
+	about: Fill indices are 0-based, so the first fill is at index 0. The fill at index 0 is the default fill for the workbook,
+	and is used for any cells that do not have a specific fill assigned to them.
+	End Rem
 	Method Operator[]:TXLFill(index:Size_T)
 		Return FillByIndex(index)
 	End Method
 
+	Rem
+	bbdoc: Creates a new fill in the workbook, optionally copying the properties of an existing fill.
+	about: If the copyFrom parameter is provided, the new fill will be created with the same properties as the specified fill.
+	If @copyFrom is not provided or is Null, the new fill will be created with default properties.
+	End Rem
 	Method Create:Size_T(copyFrom:TXLFill = Null)
 		If copyFrom Then
 			Return bmx_openxlsx_xlfills_create(fillsPtr, copyFrom.fillPtr)
@@ -1944,6 +2364,9 @@ Type TXLFills
 
 End Type
 
+Rem
+bbdoc: Represents a single fill in a workbook, allowing access to its properties and the ability to modify them.
+End Rem
 Type TXLFill
 
 	Field fillPtr:Byte Ptr
@@ -1957,90 +2380,200 @@ Type TXLFill
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the type of the fill, which indicates whether it is a solid fill, a gradient fill, a pattern fill, etc.
+	about: The fill type is represented as an #EXLFillType value, which can be used to determine which properties of the fill
+	are relevant and how the fill should be rendered in the workbook.
+	End Rem
 	Method FillType:EXLFillType()
 		Return bmx_openxlsx_xlfill_filltype(fillPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the type of the fill, which indicates whether it is a solid fill, a gradient fill, a pattern fill, etc.
+	about: The fill type is represented as an #EXLFillType value, which can be used to determine which properties of the fill are relevant and how the fill should be rendered in the workbook.
+	By default, the fill type is set to #EXLFillType.XLFillNone, which indicates that the fill is not applied to the cell. 
+	Use @force to change the fill type even if the fill already has properties set that are not compatible with the new fill type.
+	End Rem
 	Method SetFillType:Int(fillType:EXLFillType, force:Int = False)
 		Return bmx_openxlsx_xlfill_setfilltype(fillPtr, fillType, force)
 	End Method
 
+	Rem
+	bbdoc: Gets the gradient type of the fill, which indicates the direction or style of the gradient if the fill is a gradient fill.
+	about: The gradient type is represented as an #EXLGradientType value, which can be used to determine how the gradient should be rendered in
+	the workbook (e.g. linear, radial, etc.).
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient, and may not be applicable for other fill types.
+	End Rem
 	Method GradientType:EXLGradientType()
 		Return bmx_openxlsx_xlfill_gradienttype(fillPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the degree of the gradient fill, which indicates the angle of the gradient if the fill is a linear gradient.
+	about: The degree is represented as a double value, where 0 degrees represents a gradient that goes from left to right, 90 degrees represents a gradient that goes from top to bottom, and so on.
+	End Rem
 	Method Degree:Double()
 		Return bmx_openxlsx_xlfill_degree(fillPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the left position of the gradient fill, which indicates the starting point of the gradient if the fill is a linear gradient.
+	about: The left position is represented as a double value between 0 and 1, where 0 represents the left edge of the cell and 1 represents the right edge of the cell.
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient and the gradient type is set to #EXLGradientType.XLGradientLinear.
+	End Rem
 	Method Left:Double()
 		Return bmx_openxlsx_xlfill_left(fillPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the right position of the gradient fill, which indicates the ending point of the gradient if the fill is a linear gradient.
+	about: The right position is represented as a double value between 0 and 1, where 0 represents the left edge of the cell and 1 represents the right edge of the cell.
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient and the gradient type is set to #EXLGradientType.XLGradientLinear.
+	End Rem
 	Method Right:Double()
 		Return bmx_openxlsx_xlfill_right(fillPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the top position of the gradient fill, which indicates the starting point of the gradient if the fill is a linear gradient.
+	about: The top position is represented as a double value between 0 and 1, where 0 represents the top edge of the cell and 1 represents the bottom edge of the cell.
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient and the gradient type is set to #EXLGradientType.XLGradientLinear.
+	End Rem
 	Method Top:Double()
 		Return bmx_openxlsx_xlfill_top(fillPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the bottom position of the gradient fill, which indicates the ending point of the gradient if the fill is a linear gradient.
+	about: The bottom position is represented as a double value between 0 and 1, where 0 represents the top edge of the cell and 1 represents the bottom edge of the cell.
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient and the gradient type is set to #EXLGradientType.XLGradientLinear.
+	End Rem
 	Method Bottom:Double()
 		Return bmx_openxlsx_xlfill_bottom(fillPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the gradient stops of the fill, which represent the individual colors and positions that make up the gradient if the fill is a gradient fill.
+	about: The gradient stops are represented as a #TXLGradientStops object, which provides access to the individual gradient stops and their properties.
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient, and may not be applicable for other fill types.
+	End Rem
 	Method Stops:TXLGradientStops()
 		Return TXLGradientStops._Create(bmx_openxlsx_xlfill_stops(fillPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the pattern type of the fill, which indicates the style of the pattern if the fill is a pattern fill.
+	about: The pattern type is represented as an #EXLPatternType value, which can be used to determine how the pattern should be rendered in the workbook (e.g. solid, stripes, dots, etc.).
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillPattern, and may not be applicable for other fill types.
+	End Rem
 	Method PatternType:EXLPatternType()
 		Return bmx_openxlsx_xlfill_patterntype(fillPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the color of the fill as an #SColor8 value.
+	End Rem
 	Method Color:SColor8()
 		Return bmx_openxlsx_xlfill_color(fillPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the background color of the fill as an #SColor8 value.
+	End Rem
 	Method BackgroundColor:SColor8()
 		Return bmx_openxlsx_xlfill_backgroundcolor(fillPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the gradient type of the fill, which indicates the direction or style of the gradient if the fill is a gradient fill.
+	about: The gradient type is represented as an #EXLGradientType value, which can be used to determine how the gradient should be rendered in the workbook (e.g. linear, radial, etc.).
+	By default, the gradient type is set to #EXLGradientType.XLGradientLinear, which indicates a linear gradient. To change the gradient type to a different style, you can set it to one of the other values in the #EXLGradientType enumeration (e.g. #EXLGradientType.XLGradientRadial, #EXLGradientType.XLGradientRectangular, etc.).
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient, and may not be applicable for other fill types.
+	End Rem
 	Method SetGradientType:Int(newType:EXLGradientType)
 		Return bmx_openxlsx_xlfill_setgradienttype(fillPtr, newType)
 	End Method
 
+	Rem
+	bbdoc: Sets the degree of the gradient fill, which indicates the angle of the gradient if the fill is a linear gradient.
+	returns: #True if the degree was successfully set, or #False if the degree value is out of the valid range (0 to 360 degrees).
+	about: The degree is represented as a double value, where 0 degrees represents a gradient that goes from left to right, 90 degrees represents a gradient that goes from top to bottom, and so on.
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient and the gradient type is set to #EXLGradientType.XLGradientLinear.
+	End Rem
 	Method SetDegree:Int(newDegree:Double)
 		Return bmx_openxlsx_xlfill_setdegree(fillPtr, newDegree)
 	End Method
 
+	Rem
+	bbdoc: Sets the left position of the gradient fill, which indicates the starting point of the gradient if the fill is a linear gradient.
+	returns: #True if the left position was successfully set, or #False if the left position value is out of the valid range (0 to 1).
+	about: The left position is represented as a double value between 0 and 1, where 0 represents the left edge of the cell and 1 represents the right edge of the cell.
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient and the gradient type is set to #EXLGradientType.XLGradientLinear.
+	End Rem
 	Method SetLeft:Int(newLeft:Double)
 		Return bmx_openxlsx_xlfill_setleft(fillPtr, newLeft)
 	End Method
 
+	Rem
+	bbdoc: Sets the right position of the gradient fill, which indicates the ending point of the gradient if the fill is a linear gradient.
+	returns: #True if the right position was successfully set, or #False if the right position value is out of the valid range (0 to 1).
+	about: The right position is represented as a double value between 0 and 1, where 0 represents the left edge of the cell and 1 represents the right edge of the cell.
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient and the gradient type is set to #EXLGradientType.XLGradientLinear.
+	End Rem
 	Method SetRight:Int(newRight:Double)
 		Return bmx_openxlsx_xlfill_setright(fillPtr, newRight)
 	End Method
 
+	Rem
+	bbdoc: Sets the top position of the gradient fill, which indicates the starting point of the gradient if the fill is a linear gradient.
+	returns: #True if the top position was successfully set, or #False if the top position value is out of the valid range (0 to 1).
+	about: The top position is represented as a double value between 0 and 1, where 0 represents the top edge of the cell and 1 represents the bottom edge of the cell.
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient and the gradient type is set to #EXLGradientType.XLGradientLinear.
+	End Rem
 	Method SetTop:Int(newTop:Double)
 		Return bmx_openxlsx_xlfill_settop(fillPtr, newTop)
 	End Method
 
+	Rem
+	bbdoc: Sets the bottom position of the gradient fill, which indicates the ending point of the gradient if the fill is a linear gradient.
+	returns: #True if the bottom position was successfully set, or #False if the bottom position value is out of the valid range (0 to 1).
+	about: The bottom position is represented as a double value between 0 and 1, where 0 represents the top edge of the cell and 1 represents the bottom edge of the cell.
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillGradient and the gradient type is set to #EXLGradientType.XLGradientLinear.
+	End Rem
 	Method SetBottom:Int(newBottom:Double)
 		Return bmx_openxlsx_xlfill_setbottom(fillPtr, newBottom)
 	End Method
 
+	Rem
+	bbdoc: Sets the pattern type of the fill, which indicates the style of the pattern if the fill is a pattern fill.
+	returns: #True if the pattern type was successfully set, or #False if the pattern type value is not a valid #EXLPatternType or if the fill type is not set to #EXLFillType.XLFillPattern.
+	about: The pattern type is represented as an #EXLPatternType value, which can be used to determine how the pattern should be rendered in the workbook (e.g. solid, stripes, dots, etc.).
+	This property is only relevant if the fill type is set to #EXLFillType.XLFillPattern, and may not be applicable for other fill types.
+	End Rem
 	Method SetPatternType:Int(newPatternType:EXLPatternType)
 		Return bmx_openxlsx_xlfill_setpatterntype(fillPtr, newPatternType)
 	End Method
 
+	Rem
+	bbdoc: Sets the color of the fill as an #SColor8 value.
+	returns: #True if the color was successfully set, or #False if the color value is not a valid #SColor8 or if the fill type is not compatible with setting a color (e.g. if the fill type is set to #EXLFillType.XLFillNone).
+	End Rem
 	Method SetColor:Int(newColor:SColor8)
 		Return bmx_openxlsx_xlfill_setcolor(fillPtr, newColor)
 	End Method
 
+	Rem
+	bbdoc: Sets the background color of the fill as an #SColor8 value.
+	returns: #True if the background color was successfully set, or #False if the color value is not a valid #SColor8 or if the fill type is not compatible with setting a background color (e.g. if the fill type is set to #EXLFillType.XLFillNone).
+	End Rem
 	Method SetBackgroundColor:Int(newColor:SColor8)
 		Return bmx_openxlsx_xlfill_setbackgroundcolor(fillPtr, newColor)
 	End Method
 
+	Rem
+	bbdoc: Gets a string summarizing the properties of the fill, which can be useful for debugging or logging purposes.
+	End Rem
 	Method Summary:String()
 		Return bmx_openxlsx_xlfill_summary(fillPtr)
 	End Method
@@ -2054,6 +2587,9 @@ Type TXLFill
 
 End Type
 
+Rem
+bbdoc: Represents the gradient stops used in a gradient fill, allowing access to individual gradient stops and the ability to create new gradient stops.
+End Rem
 Type TXLGradientStops
 
 	Field stopsPtr:Byte Ptr
@@ -2067,18 +2603,33 @@ Type TXLGradientStops
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the number of gradient stops defined in the gradient fill.
+	End Rem
 	Method Count:Size_T()
 		Return bmx_openxlsx_xlgradientstops_count(stopsPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the gradient stop at the specified index.
+	about: Gradient stop indices are 0-based, so the first gradient stop is at index 0. The properties of the gradient stop (e.g. color, position) can be accessed and modified using the returned #TXLGradientStop object.
+	End Rem
 	Method StopByIndex:TXLGradientStop(index:Size_T)
 		Return TXLGradientStop._Create(bmx_openxlsx_xlgradientstops_stopbyindex(stopsPtr, index))
 	End Method
 
+	Rem
+	bbdoc: Gets the gradient stop at the specified index.
+	about: Gradient stop indices are 0-based, so the first gradient stop is at index 0. The properties of the gradient stop (e.g. color, position) can be accessed and modified using the returned #TXLGradientStop object.
+	End Rem
 	Method Operator[]:TXLGradientStop(index:Size_T)
 		Return StopByIndex(index)
 	End Method
 
+	Rem
+	bbdoc: Creates a new gradient stop in the gradient fill, optionally copying the properties of an existing gradient stop.
+	about: If the copyFrom parameter is provided, the new gradient stop will be created with the same properties as the specified gradient stop. If @copyFrom is not provided or is Null, the new gradient stop will be created with default properties (e.g. a default color and position).
+	End Rem
 	Method Create:Size_T(copyFrom:TXLGradientStop = Null)
 		If copyFrom Then
 			Return bmx_openxlsx_xlgradientstops_create(stopsPtr, copyFrom.stopPtr)
@@ -2095,6 +2646,9 @@ Type TXLGradientStops
 	End Method
 End Type
 
+Rem
+bbdoc: Represents a single gradient stop within a gradient fill, allowing access to its properties such as color and position.
+End Rem
 Type TXLGradientStop
 
 	Field stopPtr:Byte Ptr
@@ -2108,18 +2662,35 @@ Type TXLGradientStop
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the color of the gradient stop as an #SColor8 value.
+	End Rem
 	Method Color:TXLDataBarColor()
 		Return TXLDataBarColor._Create(bmx_openxlsx_xlgradientstop_color(stopPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the position of the gradient stop, which indicates where the color of the stop is applied within the gradient.
+	about: The position is represented as a double value between 0 and 1, where 0 represents the start of the gradient and 1
+	represents the end of the gradient. The position determines how the colors of the gradient stops are blended together to
+	create the overall gradient effect in the fill.
+	End Rem
 	Method Position:Double()
 		Return bmx_openxlsx_xlgradientstop_position(stopPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the position of the gradient stop, which indicates where the color of the stop is applied within the gradient.
+	returns: #True if the position was successfully set, or #False if the position value is out of the valid range (0 to 1).
+	about: The position is represented as a double value between 0 and 1, where 0 represents the start of the gradient and 1 represents the end of the gradient. The position determines how the colors of the gradient stops are blended together to create the overall gradient effect in the fill.
+	End Rem
 	Method SetPosition:Int(newPosition:Double)
 		Return bmx_openxlsx_xlgradientstop_setposition(stopPtr, newPosition)
 	End Method
 
+	Rem
+	bbdoc: Gets a string summarizing the properties of the gradient stop, which can be useful for debugging or logging purposes.
+	End Rem
 	Method Summary:String()
 		Return bmx_openxlsx_xlgradientstop_summary(stopPtr)
 	End Method
@@ -2132,6 +2703,9 @@ Type TXLGradientStop
 	End Method
 End Type
 
+Rem
+bbdoc: Represents the borders used in a workbook, allowing access to individual borders and the ability to create new borders.
+End Rem
 Type TXLBorders
 
 	Field bordersPtr:Byte Ptr
@@ -2145,18 +2719,33 @@ Type TXLBorders
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the number of borders defined in the workbook.
+	End Rem
 	Method Count:Size_T()
 		Return bmx_openxlsx_xlborders_count(bordersPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the border at the specified index.
+	about: Border indices are 0-based, so the first border is at index 0. The properties of the border (e.g. line style, color) can be accessed and modified using the returned #TXLBorder object.
+	End Rem
 	Method BorderByIndex:TXLBorder(index:Size_T)
 		Return TXLBorder._Create(bmx_openxlsx_xlborders_borderbyindex(bordersPtr, index))
 	End Method
 
+	Rem
+	bbdoc: Gets the border at the specified index.
+	about: Border indices are 0-based, so the first border is at index 0. The properties of the border (e.g. line style, color) can be accessed and modified using the returned #TXLBorder object.
+	End Rem
 	Method Operator[]:TXLBorder(index:Size_T)
 		Return BorderByIndex(index)
 	End Method
 
+	Rem
+	bbdoc: Creates a new border in the workbook, optionally copying the properties of an existing border.
+	about: If the copyFrom parameter is provided, the new border will be created with the same properties as the specified border. If @copyFrom is not provided or is Null, the new border will be created with default properties (e.g. a default line style and color).
+	End Rem
 	Method Create:Size_T(copyFrom:TXLBorder = Null)
 		If copyFrom Then
 			Return bmx_openxlsx_xlborders_create(bordersPtr, copyFrom.borderPtr)
@@ -2174,6 +2763,9 @@ Type TXLBorders
 
 End Type
 
+Rem
+bbdoc: Represents a border in a workbook, allowing access to its properties and the ability to modify them.
+End Rem
 Type TXLBorder
 
 	Field borderPtr:Byte Ptr
@@ -2187,90 +2779,229 @@ Type TXLBorder
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets whether the diagonal up property of the border is set, which indicates whether a diagonal line is drawn from the top-left corner to the bottom-right corner of the cell.
+	about: If the diagonal up property is set to #True, a diagonal line will be drawn from the top-left corner to the bottom-right corner of the cell. If it is set to #False, no diagonal line will be drawn in that direction.
+	End Rem
 	Method DiagonalUp:Int()
 		Return bmx_openxlsx_xlborder_diagonalup(borderPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the diagonal down property of the border is set, which indicates whether a diagonal line is drawn from the top-right corner to the bottom-left corner of the cell.
+	about: If the diagonal down property is set to #True, a diagonal line will be drawn from the top-right corner to the bottom-left corner of the cell.
+	If it is set to #False, no diagonal line will be drawn in that direction.
+	End Rem
 	Method DiagonalDown:Int()
 		Return bmx_openxlsx_xlborder_diagonaldown(borderPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the outline property of the border is set, which indicates whether an outline is drawn around the cell.
+	about: If the outline property is set to #True, an outline will be drawn around the cell using the line style and color of the border.
+	If it is set to #False, no outline will be drawn around the cell.
+	End Rem
 	Method Outline:Int()
 		Return bmx_openxlsx_xlborder_outline(borderPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the line style and color of the left border of the cell as a #TXLLine object.
+	about: The left border refers to the vertical border on the left side of the cell. The properties of the left border (e.g. line style, color)
+	can be accessed and modified using the returned #TXLLine object.
+	End Rem
 	Method Left:TXLLine()
 		Return TXLLine._Create(bmx_openxlsx_xlborder_left(borderPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the line style and color of the right border of the cell as a #TXLLine object.
+	about: The right border refers to the vertical border on the right side of the cell. The properties of the right border (e.g. line style, color)
+	can be accessed and modified using the returned #TXLLine object.
+	End Rem
 	Method Right:TXLLine()
 		Return TXLLine._Create(bmx_openxlsx_xlborder_right(borderPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the line style and color of the top border of the cell as a #TXLLine object.
+	about: The top border refers to the horizontal border on the top side of the cell. The properties of the top border (e.g. line style, color)
+	can be accessed and modified using the returned #TXLLine object.
+	End Rem
 	Method Top:TXLLine()
 		Return TXLLine._Create(bmx_openxlsx_xlborder_top(borderPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the line style and color of the bottom border of the cell as a #TXLLine object.
+	about: The bottom border refers to the horizontal border on the bottom side of the cell. The properties of the bottom border (e.g. line style, color)
+	can be accessed and modified using the returned #TXLLine object.
+	End Rem
 	Method Bottom:TXLLine()
 		Return TXLLine._Create(bmx_openxlsx_xlborder_bottom(borderPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the line style and color of the diagonal border of the cell as a #TXLLine object.
+	about: The diagonal border refers to the diagonal line that can be drawn across the cell, either from the top-left corner to the bottom-right corner
+	(diagonal up) or from the top-right corner to the bottom-left corner (diagonal down). The properties of the diagonal border (e.g. line style, color)
+	can be accessed and modified using the returned #TXLLine object.
+	Note that the diagonal border is only visible if either the diagonal up or diagonal down property of the border is set to #True.
+	End Rem
 	Method Diagonal:TXLLine()
 		Return TXLLine._Create(bmx_openxlsx_xlborder_diagonal(borderPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the line style and color of the vertical border of the cell as a #TXLLine object.
+	about: The vertical border refers to the vertical lines that can be drawn on either side of the cell (left and right). The properties of the vertical
+	border (e.g. line style, color) can be accessed and modified using the returned #TXLLine object.
+	Note that the vertical border is only visible if the outline property of the border is set to #True.
+	End Rem
 	Method Vertical:TXLLine()
 		Return TXLLine._Create(bmx_openxlsx_xlborder_vertical(borderPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the line style and color of the horizontal border of the cell as a #TXLLine object.
+	about: The horizontal border refers to the horizontal lines that can be drawn on either side of the cell (top and bottom). The properties of the
+	horizontal border (e.g. line style, color) can be accessed and modified using the returned #TXLLine object.
+	Note that the horizontal border is only visible if the outline property of the border is set to #True.
+	End Rem
 	Method Horizontal:TXLLine()
 		Return TXLLine._Create(bmx_openxlsx_xlborder_horizontal(borderPtr))
 	End Method
 
+	Rem
+	bbdoc: Sets the diagonal up property of the border, which indicates whether a diagonal line is drawn from the top-left corner to the bottom-right corner of the cell.
+	returns: #True if the diagonal up property was successfully set, or #False if the set value is not a valid boolean (e.g. not 0 or 1).
+	about: If the diagonal up property is set to #True, a diagonal line will be drawn from the top-left corner to the bottom-right corner of the cell. If it is set to #False, no diagonal line will be drawn in that direction.
+	End Rem
 	Method SetDiagonalUp:Int(set:Int = True)
 		Return bmx_openxlsx_xlborder_setdiagonalup(borderPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the diagonal down property of the border, which indicates whether a diagonal line is drawn from the top-right corner to the bottom-left corner of the cell.
+	returns: #True if the diagonal down property was successfully set, or #False if the set value is not a valid boolean (e.g. not 0 or 1).
+	about: If the diagonal down property is set to #True, a diagonal line will be drawn from the top-right corner to the bottom-left corner of the cell. If it is set to #False, no diagonal line will be drawn in that direction.
+	End Rem
 	Method SetDiagonalDown:Int(set:Int = True)
 		Return bmx_openxlsx_xlborder_setdiagonaldown(borderPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the outline property of the border, which indicates whether an outline is drawn around the cell.
+	returns: #True if the outline property was successfully set, or #False if the set value is not a valid boolean (e.g. not 0 or 1).
+	about: If the outline property is set to #True, an outline will be drawn around the cell using the line style and color of the border. If it is set to #False, no outline will be drawn around the cell.
+	End Rem
 	Method SetOutline:Int(set:Int = True)
 		Return bmx_openxlsx_xlborder_setoutline(borderPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the line style, color, and tint of a specific border type of the cell.
+	returns: #True if the line properties were successfully set, or #False on error.
+	about: The line type is specified using an #EXLLineType value, which indicates which border of the cell to modify (e.g. left, right, top,
+	bottom, diagonal, vertical, horizontal). The line style is specified using an #EXLLineStyle value, which indicates the style of the line
+	(e.g. solid, dashed, dotted, etc.). The line color is specified as an #SColor8 value, which represents the color of the line. The line tint is
+	specified as a double value between -1 and 1, where negative values represent a darker tint and positive values represent a lighter tint. This
+	method allows you to set the line properties for any of the borders of the cell in a single call, rather than having to set each border individually.
+	End Rem
 	Method SetLine:Int(lineType:EXLLineType, lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double = 0.0)
 		Return bmx_openxlsx_xlborder_setline(borderPtr, lineType, lineStyle, lineColor, lineTint)
 	End Method
 
+	Rem
+	bbdoc: Sets the line style, color, and tint of the left border of the cell.
+	returns: #True if the line properties were successfully set, or #False on error.
+	about: The line style is specified using an #EXLLineStyle value, which indicates the style of the line (e.g. solid, dashed, dotted, etc.).
+	The line color is specified as an #SColor8 value, which represents the color of the line. The line tint is specified as a double value
+	between -1 and 1, where negative values represent a darker tint and positive values represent a lighter tint. This method allows you to
+	set the line properties for the left border of the cell directly, without having to specify the line type as in the SetLine method.
+	End Rem
 	Method SetLeft:Int(lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double = 0.0)
 		Return bmx_openxlsx_xlborder_setleft(borderPtr, lineStyle, lineColor, lineTint)
 	End Method
 
+	Rem
+	bbdoc: Sets the line style, color, and tint of the right border of the cell.
+	returns: #True if the line properties were successfully set, or #False on error.
+	about: The line style is specified using an #EXLLineStyle value, which indicates the style of the line (e.g. solid, dashed, dotted, etc.).
+	The line color is specified as an #SColor8 value, which represents the color of the line. The line tint is specified as a double value
+	between -1 and 1, where negative values represent a darker tint and positive values represent a lighter tint. This method allows you to
+	set the line properties for the right border of the cell directly, without having to specify the line type as in the SetLine method.
+	End Rem
 	Method SetRight:Int(lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double = 0.0)
 		Return bmx_openxlsx_xlborder_setright(borderPtr, lineStyle, lineColor, lineTint)
 	End Method
 
+	Rem
+	bbdoc: Sets the line style, color, and tint of the top border of the cell.
+	returns: #True if the line properties were successfully set, or #False on error.
+	about: The line style is specified using an #EXLLineStyle value, which indicates the style of the line (e.g. solid, dashed, dotted, etc.).
+	The line color is specified as an #SColor8 value, which represents the color of the line. The line tint is specified as a double value
+	between -1 and 1, where negative values represent a darker tint and positive values represent a lighter tint. This method allows you to
+	set the line properties for the top border of the cell directly, without having to specify the line type as in the SetLine method.
+	End Rem
 	Method SetTop:Int(lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double = 0.0)
 		Return bmx_openxlsx_xlborder_settop(borderPtr, lineStyle, lineColor, lineTint)
 	End Method
 
+	Rem
+	bbdoc: Sets the line style, color, and tint of the bottom border of the cell.
+	returns: #True if the line properties were successfully set, or #False on error.
+	about: The line style is specified using an #EXLLineStyle value, which indicates the style of the line (e.g. solid, dashed, dotted, etc.).
+	The line color is specified as an #SColor8 value, which represents the color of the line. The line tint is specified as a double value
+	between -1 and 1, where negative values represent a darker tint and positive values represent a lighter tint. This method allows you to
+	set the line properties for the bottom border of the cell directly, without having to specify the line type as in the SetLine method.
+	End Rem
 	Method SetBottom:Int(lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double = 0.0)
 		Return bmx_openxlsx_xlborder_setbottom(borderPtr, lineStyle, lineColor, lineTint)
 	End Method
 
+	Rem
+	bbdoc: Sets the line style, color, and tint of the diagonal border of the cell.
+	returns: #True if the line properties were successfully set, or #False on error.
+	about: The line style is specified using an #EXLLineStyle value, which indicates the style of the line (e.g. solid, dashed, dotted, etc.).
+	The line color is specified as an #SColor8 value, which represents the color of the line. The line tint is specified as a double value between -1 and 1,
+	where negative values represent a darker tint and positive values represent a lighter tint. This method allows you to set the line properties for the
+	diagonal border of the cell directly, without having to specify the line type as in the SetLine method.
+	Note that the diagonal border is only visible if either the diagonal up or diagonal down property of the border is set to #True.
+	End Rem
 	Method SetDiagonal:Int(lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double = 0.0)
 		Return bmx_openxlsx_xlborder_setdiagonal(borderPtr, lineStyle, lineColor, lineTint)
 	End Method
 
+	Rem
+	bbdoc: Sets the line style, color, and tint of the vertical border of the cell.
+	returns: #True if the line properties were successfully set, or #False on error.
+	about: The line style is specified using an #EXLLineStyle value, which indicates the style of the line (e.g. solid, dashed, dotted, etc.).
+	The line color is specified as an #SColor8 value, which represents the color of the line. The line tint is specified as a double value
+	between -1 and 1, where negative values represent a darker tint and positive values represent a lighter tint. This method allows you to set
+	the line properties for the vertical border of the cell directly, without having to specify the line type as in the SetLine method.
+	Note that the vertical border is only visible if the outline property of the border is set to #True.
+	End Rem
 	Method SetVertical:Int(lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double = 0.0)
 		Return bmx_openxlsx_xlborder_setvertical(borderPtr, lineStyle, lineColor, lineTint)
 	End Method
 
+	Rem
+	bbdoc: Sets the line style, color, and tint of the horizontal border of the cell.
+	returns: #True if the line properties were successfully set, or #False on error.
+	about: The line style is specified using an #EXLLineStyle value, which indicates the style of the line (e.g. solid, dashed, dotted, etc.).
+	The line color is specified as an #SColor8 value, which represents the color of the line. The line tint is specified as a double value
+	between -1 and 1, where negative values represent a darker tint and positive values represent a lighter tint. This method allows you to
+	set the line properties for the horizontal border of the cell directly, without having to specify the line type as in the SetLine method.
+	Note that the horizontal border is only visible if the outline property of the border is set to #True.
+	End Rem
 	Method SetHorizontal:Int(lineStyle:EXLLineStyle, lineColor:SColor8, lineTint:Double = 0.0)
 		Return bmx_openxlsx_xlborder_sethorizontal(borderPtr, lineStyle, lineColor, lineTint)
 	End Method
 
+	Rem
+	bbdoc: Gets a string summarizing the properties of the border, which can be useful for debugging or logging purposes.
+	End Rem
 	Method Summary:String()
 		Return bmx_openxlsx_xlborder_summary(borderPtr)
 	End Method
@@ -2284,6 +3015,9 @@ Type TXLBorder
 
 End Type
 
+Rem
+bbdoc: Represents a line used in borders, allowing access to its style and color properties.
+End Rem
 Type TXLLine
 
 	Field linePtr:Byte Ptr
@@ -2297,14 +3031,23 @@ Type TXLLine
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the line style of the line, which indicates the style of the border line (e.g. solid, dashed, dotted, etc.).
+	End Rem
 	Method Style:EXLLineStyle()
 		Return bmx_openxlsx_xlline_style(linePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the color of the line as a #TXLDataBarColor object, which allows access to the color properties of the line.
+	End Rem
 	Method Color:TXLDataBarColor()
 		Return TXLDataBarColor._Create(bmx_openxlsx_xlline_color(linePtr))
 	End Method
 
+	Rem
+	bbdoc: Gets a string summarizing the properties of the line, which can be useful for debugging or logging purposes.
+	End Rem
 	Method Summary:String()
 		Return bmx_openxlsx_xlline_summary(linePtr)
 	End Method
@@ -2318,6 +3061,9 @@ Type TXLLine
 
 End Type
 
+Rem
+bbdoc: Represents the color used in data bars, allowing access to its properties and the ability to modify them.
+End Rem
 Type TXLDataBarColor
 
 	Field colorPtr:Byte Ptr
@@ -2331,50 +3077,135 @@ Type TXLDataBarColor
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the RGB color value of the data bar color as an #SColor8 value.
+	End Rem
 	Method Rgb:SColor8()
 		Return bmx_openxlsx_xldatabarcolor_rgb(colorPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the tint of the data bar color, which indicates how much the color is lightened or darkened.
+	about: The tint is represented as a double value between -1 and 1, where negative values represent a darker tint and positive values represent a
+	lighter tint. A tint of 0 means no change to the color, while a tint of -1 would make the color completely black and a tint of 1 would make the
+	color completely white. The tint can be used to create variations of the base color for different data bars, allowing for visual differentiation
+	while maintaining a consistent color scheme.
+	End Rem
 	Method Tint:Double()
 		Return bmx_openxlsx_xldatabarcolor_tint(colorPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the data bar color is set to automatic, which indicates whether the color is determined automatically based on the theme or other factors.
+	about: If the data bar color is set to automatic, the actual color used for the data bars will be determined automatically based on the theme or
+	other factors in the workbook. If it is set to #False, the color will be determined by the RGB value or theme index specified for the data bar color.
+	This property allows for dynamic coloring of data bars based on the overall design of the workbook, while still allowing for manual color
+	specification if desired.
+	End Rem
 	Method Automatic:Int()
 		Return bmx_openxlsx_xldatabarcolor_automatic(colorPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the indexed color value of the data bar color, which indicates the index of the color in the workbook's color palette.
+	about: The indexed color value is an unsigned integer that represents the index of the color in the workbook's color palette. This allows for
+	referencing colors that are defined in the palette, which can be useful for maintaining consistency with the colors used in the workbook. The
+	actual color corresponding to the indexed color value can be determined by looking up the color in the workbook's color palette using the index.
+	End Rem
 	Method Indexed:UInt()
 		Return bmx_openxlsx_xldatabarcolor_indexed(colorPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the theme color value of the data bar color, which indicates the index of the color in the workbook's theme.
+	about: The theme color value is an unsigned integer that represents the index of the color in the workbook's theme. This allows for
+	referencing colors that are defined in the theme, which can be useful for maintaining consistency with the overall design of the workbook.
+	The actual color corresponding to the theme color value can be determined by looking up the color in the workbook's theme using the index.
+	Using theme colors allows for dynamic coloring that can adapt to changes in the theme, ensuring that the data bars remain visually consistent
+	with the rest of the workbook.
+	End Rem
 	Method Theme:UInt()
 		Return bmx_openxlsx_xldatabarcolor_theme(colorPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the RGB color value of the data bar color using an #SColor8 value.
+	returns: #True if the RGB color value was successfully set, or #False on error.
+	about: The RGB color value is specified as an #SColor8 value, which represents the color of the data bars. Setting the RGB color value
+	allows for precise control over the color used for the data bars, independent of the theme or color palette. When the RGB color value is set,
+	it will override any theme or indexed color settings for the data bar color, ensuring that the specified color is used for the data bars
+	regardless of the workbook's theme or color palette.
+	End Rem
 	Method SetRgb:Int(newColor:SColor8)
 		Return bmx_openxlsx_xldatabarcolor_setrgb(colorPtr, newColor)
 	End Method
 
+	Rem
+	bbdoc: Sets the RGB color value of the data bar color using an #SColor8 value.
+	returns: #True if the RGB color value was successfully set, or #False on error.
+	about: The RGB color value is specified as an #SColor8 value, which represents the color of the data bars. Setting the RGB color value
+	allows for precise control over the color used for the data bars, independent of the theme or color palette. When the RGB color value is
+	set, it will override any theme or indexed color settings for the data bar color, ensuring that the specified color is used for the data
+	bars regardless of the workbook's theme or color palette.
+	End Rem
 	Method Set:Int(newColor:SColor8)
 		Return SetRgb(newColor)
 	End Method
 
+	Rem
+	bbdoc: Sets the tint of the data bar color, which indicates how much the color is lightened or darkened.
+	returns: #True if the tint was successfully set, or #False if the tint value is out of the valid range (e.g. less than -1 or greater than 1).
+	about: The tint is represented as a double value between -1 and 1, where negative values represent a darker tint and positive values represent a
+	lighter tint. A tint of 0 means no change to the color, while a tint of -1 would make the color completely black and a tint of 1 would make the
+	color completely white. The tint can be used to create variations of the base color for different data bars, allowing for visual differentiation
+	while maintaining a consistent color scheme.
+	End Rem
 	Method SetTInt:Int(newTint:Double)
 		Return bmx_openxlsx_xldatabarcolor_settint(colorPtr, newTint)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the data bar color is set to automatic, which indicates whether the color is determined automatically based on the theme or other factors.
+	returns: #True if the automatic property was successfully set, or #False if the set value is not a valid boolean (e.g. not 0 or 1).
+	about: If the data bar color is set to automatic, the actual color used for the data bars will be determined automatically based on the
+	theme or other factors in the workbook. If it is set to #False, the color will be determined by the RGB value or theme index specified for
+	the data bar color. This property allows for dynamic coloring of data bars based on the overall design of the workbook, while still allowing
+	for manual color specification if desired.
+	End Rem
 	Method SetAutomatic:Int(set:Int = True)
 		Return bmx_openxlsx_xldatabarcolor_setautomatic(colorPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the indexed color value of the data bar color, which indicates the index of the color in the workbook's color palette.
+	returns: #True if the indexed color value was successfully set, or #False on error.
+	about: The indexed color value is an unsigned integer that represents the index of the color in the workbook's color palette. This allows for
+	referencing colors that are defined in the palette, which can be useful for maintaining consistency with the colors used in the workbook. The
+	actual color corresponding to the indexed color value can be determined by looking up the color in the workbook's color palette using the index.
+	Setting the indexed color value will override any RGB or theme color settings for the data bar color, ensuring that the color from the palette is
+	used for the data bars regardless of other color settings.
+	End Rem
 	Method SetIndexed:Int(newIndex:UInt)
 		Return bmx_openxlsx_xldatabarcolor_setindexed(colorPtr, newIndex)
 	End Method
 
+	Rem
+	bbdoc: Sets the theme color value of the data bar color, which indicates the index of the color in the workbook's theme.
+	returns: #True if the theme color value was successfully set, or #False on error.
+	about: The theme color value is an unsigned integer that represents the index of the color in the workbook's theme. This allows for referencing
+	colors that are defined in the theme, which can be useful for maintaining consistency with the overall design of the workbook. The actual color
+	corresponding to the theme color value can be determined by looking up the color in the workbook's theme using the index. Using theme colors
+	allows for dynamic coloring that can adapt to changes in the theme, ensuring that the data bars remain visually consistent with the rest of the
+	workbook. Setting the theme color value will override any RGB or indexed color settings for the data bar color, ensuring that the color
+	from the theme is used for the data bars regardless of other color settings.
+	End Rem
 	Method SetTheme:Int(newTheme:UInt)
 		Return bmx_openxlsx_xldatabarcolor_settheme(colorPtr, newTheme)
 	End Method
 
+	Rem
+	bbdoc: Gets a string summarizing the properties of the data bar color, which can be useful for debugging or logging purposes.
+	End Rem
 	Method Summary:String()
 		Return bmx_openxlsx_xldatabarcolor_summary(colorPtr)
 	End Method

@@ -273,6 +273,8 @@ extern "C" {
 	void bmx_openxlsx_xlcolumn_setwidth(MaxXLColumn * column, float width);
 	int bmx_openxlsx_xlcolumn_ishidden(MaxXLColumn * column);
 	void bmx_openxlsx_xlcolumn_sethidden(MaxXLColumn * column, int state);
+	size_t bmx_openxlsx_xlcolumn_format(MaxXLColumn * column);
+	int bmx_openxlsx_xlcolumn_setformat(MaxXLColumn * column, size_t cellFormatIndex);
 
 	void bmx_openxlsx_xlstyles_free(MaxXLStyles * styles);
 	MaxXLFonts * bmx_openxlsx_xlstyles_fonts(MaxXLStyles * styles);
@@ -1060,6 +1062,14 @@ public:
 
 	void setHidden(int state) {
 		column.setHidden((bool)state);
+	}
+
+	size_t format() const {
+		return column.format();
+	}
+
+	int setFormat(size_t cellFormatIndex) {
+		return column.setFormat(cellFormatIndex) ? 1 : 0;
 	}
 
 	OpenXLSX::XLColumn column;
@@ -3842,6 +3852,14 @@ int bmx_openxlsx_xlcolumn_ishidden(MaxXLColumn * column) {
 
 void bmx_openxlsx_xlcolumn_sethidden(MaxXLColumn * column, int state) {
 	column->setHidden(state);
+}
+
+size_t bmx_openxlsx_xlcolumn_format(MaxXLColumn * column) {
+	return column->format();
+}
+
+int bmx_openxlsx_xlcolumn_setformat(MaxXLColumn * column, size_t cellFormatIndex) {
+	return column->setFormat(cellFormatIndex);
 }
 
 ///////////////////////////////////////////////////////////
