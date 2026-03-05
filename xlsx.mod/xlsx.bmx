@@ -3219,6 +3219,9 @@ Type TXLDataBarColor
 
 End Type
 
+Rem
+bbdoc: Represents the collection of cell formats in a workbook, allowing access to individual cell formats and the ability to create new ones.
+End Rem
 Type TXLCellFormats
 
 	Field cellFormatsPtr:Byte Ptr
@@ -3232,18 +3235,40 @@ Type TXLCellFormats
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the number of cell formats in the collection, which indicates how many different cell formats are defined in the workbook.
+	End Rem
 	Method Count:Size_T()
 		Return bmx_openxlsx_xlcellformats_count(cellFormatsPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets a cell format from the collection by its index, which allows access to the properties of that cell format.
+	about: The index is a zero-based unsigned integer that indicates the position of the cell format in the collection. The first cell
+	format has an index of 0, the second has an index of 1, and so on. Accessing a cell format by index allows you to retrieve the
+	properties of that cell format, such as its number format, font index, fill index, border index, and other formatting attributes.
+	This can be useful for inspecting the existing cell formats in the workbook or for modifying them as needed.
+	End Rem
 	Method CellFormatByIndex:TXLCellFormat(index:Size_T)
 		Return TXLCellFormat._Create(bmx_openxlsx_xlcellformats_cellformatbyindex(cellFormatsPtr, index))
 	End Method
 
+	Rem
+	bbdoc: Gets a cell format from the collection by its index using the operator[], which allows access to the properties of that cell format.
+	about: The index is a zero-based unsigned integer that indicates the position of the cell format in the collection. The first cell
+	format has an index of 0, the second has an index of 1, and so on. Accessing a cell format by index allows you to retrieve the
+	properties of that cell format, such as its number format, font index, fill index, border index, and other formatting attributes.
+	This can be useful for inspecting the existing cell formats in the workbook or for modifying them as needed.
+	End Rem
 	Method Operator[]:TXLCellFormat(index:Size_T)
 		Return CellFormatByIndex(index)
 	End Method
 
+	Rem
+	bbdoc: Creates a new cell format in the collection, optionally copying the properties from an existing cell format.
+	about: If the @copyFrom parameter is provided with an existing cell format, the new cell format will be created with the same properties as
+	the copyFrom cell format. If copyFrom is not provided (i.e. Null), a new cell format will be created with default properties.
+	End Rem
 	Method Create:Size_T(copyFrom:TXLCellFormat = Null)
 		If copyFrom Then
 			Return bmx_openxlsx_xlcellformats_create(cellFormatsPtr, copyFrom.cellFormatPtr)
@@ -3261,6 +3286,9 @@ Type TXLCellFormats
 
 End Type
 
+Rem
+bbdoc: Represents a cell format, allowing access to its properties such as number format, font index, fill index, border index, and other formatting attributes.
+End Rem
 Type TXLCellFormat
 
 	Field cellFormatPtr:Byte Ptr
@@ -3274,130 +3302,333 @@ Type TXLCellFormat
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the number format ID of the cell format, which indicates the number format applied to cells using this format.
+	about: The number format ID is an unsigned integer that corresponds to a specific number format defined in the workbook.
+	End Rem
 	Method NumberFormatId:UInt()
 		Return bmx_openxlsx_xlcellformat_numberformatid(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the font index of the cell format, which indicates the font applied to cells using this format.
+	End Rem
 	Method FontIndex:Size_T()
 		Return bmx_openxlsx_xlcellformat_fontindex(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the fill index of the cell format, which indicates the fill pattern and color applied to cells using this format.
+	End Rem
 	Method FillIndex:Size_T()
 		Return bmx_openxlsx_xlcellformat_fillindex(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the border index of the cell format, which indicates the border style and color applied to cells using this format.
+	End Rem
 	Method BorderIndex:Size_T()
 		Return bmx_openxlsx_xlcellformat_borderindex(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the XF ID of the cell format, which is an internal identifier used by Excel to manage cell formats.
+	End Rem
 	Method XfId:Size_T()
 		Return bmx_openxlsx_xlcellformat_xfid(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the number format of the cell format is applied, which indicates whether the number format should be applied to cells using this format.
+	about: If the apply number format property is set to #True, the number format specified by the number format ID will be applied to cells
+	using this format. If it is set to #False, the number format will not be applied, and cells using this format will not have any specific number formatting.
+	End Rem
 	Method ApplyNumberFormat:Int()
 		Return bmx_openxlsx_xlcellformat_applynumberformat(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the font of the cell format is applied, which indicates whether the font should be applied to cells using this format.
+	about: If the apply font property is set to #True, the font specified by the font index will be applied to cells using this format.
+	If it is set to #False, the font will not be applied, and cells using this format will not have any specific font formatting.
+	End Rem
 	Method ApplyFont:Int()
 		Return bmx_openxlsx_xlcellformat_applyfont(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the fill of the cell format is applied, which indicates whether the fill pattern and color should be applied to cells using this format.
+	about: If the apply fill property is set to #True, the fill pattern and color specified by the fill index will be applied to cells using this format.
+	If it is set to #False, the fill will not be applied, and cells using this format will not have any specific fill formatting.
+	End Rem
 	Method ApplyFill:Int()
 		Return bmx_openxlsx_xlcellformat_applyfill(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the border of the cell format is applied, which indicates whether the border style and color should be applied to cells using this format.
+	about: If the apply border property is set to #True, the border style and color specified by the border index will be applied to cells
+	using this format. If it is set to #False, the border will not be applied, and cells using this format will not have any specific border formatting.
+	End Rem
 	Method ApplyBorder:Int()
 		Return bmx_openxlsx_xlcellformat_applyborder(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the alignment of the cell format is applied, which indicates whether the alignment properties should be applied to cells using this format.
+	about: If the apply alignment property is set to #True, the alignment properties (such as horizontal and vertical alignment, text rotation,
+	wrap text, etc.) will be applied to cells using this format. If it is set to #False, the alignment properties will not be applied, and cells
+	using this format will not have any specific alignment formatting.
+	End Rem
 	Method ApplyAlignment:Int()
 		Return bmx_openxlsx_xlcellformat_applyalignment(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the protection of the cell format is applied, which indicates whether the protection properties should be applied to cells using this format.
+	about: If the apply protection property is set to #True, the protection properties (such as locked and hidden) will be applied to cells
+	using this format. If it is set to #False, the protection properties will not be applied, and cells using this format will not have any
+	specific protection formatting.
+	End Rem
 	Method ApplyProtection:Int()
 		Return bmx_openxlsx_xlcellformat_applyprotection(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the quote prefix of the cell format is applied, which indicates whether the quote prefix property should be applied to cells using this format.
+	about: If the quote prefix property is set to #True, the quote prefix will be applied to cells using this format.
+	The quote prefix is a special property in Excel that indicates whether a cell's value should be treated as text, even if it looks like a
+	number or a formula. If the quote prefix is set to #True, Excel will treat the cell's value as text, which can be useful for preserving
+	leading zeros or preventing automatic conversion of values. If the quote prefix is set to #False, the cell's value will be treated according
+	to its content, which means that if it looks like a number, it will be treated as a number, and if it looks like a formula, it will be
+	treated as a formula.
+	End Rem
 	Method QuotePrefix:Int()
 		Return bmx_openxlsx_xlcellformat_quoteprefix(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the pivot button of the cell format is applied, which indicates whether the pivot button property should be applied to cells using this format.
+	about: If the pivot button property is set to #True, the pivot button will be applied to cells using this format. The pivot button is a
+	special property in Excel that indicates whether a cell should display a pivot button when it is part of a pivot table. If the pivot
+	button is set to #True, cells using this format that are part of a pivot table will display a pivot button, which allows users to
+	easily access pivot table options and features. If the pivot button is set to #False, cells using this format will not display a pivot button,
+	even if they are part of a pivot table.
+	End Rem
 	Method PivotButton:Int()
 		Return bmx_openxlsx_xlcellformat_pivotbutton(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the locked property of the cell format is applied, which indicates whether the locked property should be applied to cells using this format.
+	about: If the locked property is set to #True, cells using this format will be locked when the worksheet is protected. This means that users
+	will not be able to edit the contents of cells using this format unless the worksheet protection is removed or modified to allow editing of
+	locked cells. If the locked property is set to #False, cells using this format will not be locked when the worksheet is protected, allowing
+	users to edit the contents of those cells even when the worksheet is protected. The locked property is an important aspect of cell protection
+	in Excel, as it allows you to control which cells can be edited when the worksheet is protected.
+	End Rem
 	Method Locked:Int()
 		Return bmx_openxlsx_xlcellformat_locked(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the hidden property of the cell format is applied, which indicates whether the hidden property should be applied to cells using this format.
+	about: If the hidden property is set to #True, cells using this format will be hidden when the worksheet is protected. This means that
+	users will not be able to see the contents of cells using this format unless the worksheet protection is removed or modified to allow
+	viewing of hidden cells. If the hidden property is set to #False, cells using this format will not be hidden when the worksheet is
+	protected, allowing users to see the contents of those cells even when the worksheet is protected. The hidden property is an important
+	aspect of cell protection in Excel, as it allows you to control which cells can be viewed when the worksheet is protected.
+	End Rem
 	Method Hidden:Int()
 		Return bmx_openxlsx_xlcellformat_hidden(cellFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the alignment properties of the cell format as a #TXLAlignment object, which allows access to the alignment properties such as horizontal and vertical alignment, text rotation, wrap text, etc.
+	about: The alignment properties of the cell format include horizontal and vertical alignment, text rotation, wrap text, indent, relative
+	indent, justify last line, shrink to fit, and reading order.
+	These properties control how the content of cells using this format is aligned and displayed. The #TXLAlignment object returned by
+	this method provides access to these alignment properties, allowing you to inspect and modify them as needed. If the cell format does
+	not have alignment properties defined, this method may return Null.
+	End Rem
 	Method Alignment:TXLAlignment(createIfMissing:Int = False)
 		Return TXLAlignment._Create(bmx_openxlsx_xlcellformat_alignment(cellFormatPtr, createIfMissing))
 	End Method
 
+	Rem
+	bbdoc: Sets the number format ID of the cell format, which indicates the number format to be applied to cells using this format.
+	returns: #True if the number format ID was successfully set, or #False on error.
+	about: The number format ID is an unsigned integer that corresponds to a specific number format defined in the workbook. Setting the
+	number format ID allows you to specify the number format that should be applied to cells using this format. The number format can
+	control how numeric values are displayed in Excel, such as the number of decimal places, the use of thousand separators, the display
+	of negative numbers, and the formatting of dates and times.
+	End Rem
 	Method SetNumberFormatId:Int(newNumFormatId:UInt)
 		Return bmx_openxlsx_xlcellformat_setnumberformatid(cellFormatPtr, newNumFormatId)
 	End Method
 
+	Rem
+	bbdoc: Sets the font index of the cell format, which indicates the font to be applied to cells using this format.
+	returns: #True if the font index was successfully set, or #False on error.
+	about: The font index is an unsigned integer that corresponds to a specific font defined in the workbook. Setting the font index allows
+	you to specify the font that should be applied to cells using this format. The font can control the appearance of text in Excel, such as
+	the font family, size, color, bold, italic, underline, and other font attributes.
+	End Rem
 	Method SetFontIndex:Int(newFontIndex:Size_T)
 		Return bmx_openxlsx_xlcellformat_setfontindex(cellFormatPtr, newFontIndex)
 	End Method
 
+	Rem
+	bbdoc: Sets the fill index of the cell format, which indicates the fill pattern and color to be applied to cells using this format.
+	returns: #True if the fill index was successfully set, or #False on error.
+	about: The fill index is an unsigned integer that corresponds to a specific fill pattern and color defined in the workbook. Setting the
+	fill index allows you to specify the fill pattern and color that should be applied to cells using this format. The fill can control the
+	background appearance of cells in Excel, such as solid fills, gradient fills, pattern fills, and the colors used for those fills.
+	End Rem
 	Method SetFillIndex:Int(newFillIndex:Size_T)
 		Return bmx_openxlsx_xlcellformat_setfillindex(cellFormatPtr, newFillIndex)
 	End Method
 
+	Rem
+	bbdoc: Sets the border index of the cell format, which indicates the border style and color to be applied to cells using this format.
+	returns: #True if the border index was successfully set, or #False on error.
+	about: The border index is an unsigned integer that corresponds to a specific border style and color defined in the workbook. Setting the border
+	index allows you to specify the border style and color that should be applied to cells using this format. The border can control the appearance
+	of cell borders in Excel, such as the line style (solid, dashed, dotted, etc.) and the color of the borders.
+	End Rem
 	Method SetBorderIndex:Int(newBorderIndex:Size_T)
 		Return bmx_openxlsx_xlcellformat_setborderindex(cellFormatPtr, newBorderIndex)
 	End Method
 
+	Rem
+	bbdoc: Sets the XF ID of the cell format, which is an internal identifier used by Excel to manage cell formats.
+	returns: #True if the XF ID was successfully set, or #False on error.
+	about: The XF ID is an unsigned integer that serves as an internal identifier for cell formats in Excel. Setting the XF ID allows you
+	to specify the internal identifier for this cell format, which can be useful for managing and referencing cell formats within the workbook.
+	The XF ID is used by Excel to keep track of cell formats and their properties, and it can be important for ensuring that the correct cell
+	format is applied to cells in the workbook.
+	End Rem
 	Method SetXfId:Int(newXfId:Size_T)
 		Return bmx_openxlsx_xlcellformat_setxfid(cellFormatPtr, newXfId)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the number format of the cell format is applied, which indicates whether the number format should be applied to cells using this format.
+	returns: #True if the apply number format property was successfully set, or #False on error.
+	about: If the apply number format property is set to #True, the number format specified by the number format ID will be applied to cells
+	using this format. If it is set to #False, the number format will not be applied, and cells using this format will not have any specific
+	number formatting.
+	End Rem
 	Method SetApplyNumberFormat:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellformat_setapplynumberformat(cellFormatPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the font of the cell format is applied, which indicates whether the font should be applied to cells using this format.
+	returns: #True if the apply font property was successfully set, or #False on error.
+	about: If the apply font property is set to #True, the font specified by the font index will be applied to cells using this format. If
+	it is set to #False, the font will not be applied, and cells using this format will not have any specific font formatting.
+	End Rem
 	Method SetApplyFont:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellformat_setapplyfont(cellFormatPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the fill of the cell format is applied, which indicates whether the fill pattern and color should be applied to cells using this format.
+	returns: #True if the apply fill property was successfully set, or #False on error.
+	about: If the apply fill property is set to #True, the fill pattern and color specified by the fill index will be applied to cells using 
+	this format. If it is set to #False, the fill will not be applied, and cells using this format will not have any specific fill formatting.
+	End Rem
 	Method SetApplyFill:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellformat_setapplyfill(cellFormatPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the border of the cell format is applied, which indicates whether the border style and color should be applied to cells using this format.
+	returns: #True if the apply border property was successfully set, or #False on error.
+	about: If the apply border property is set to #True, the border style and color specified by the border index will be applied to cells
+	using this format. If it is set to #False, the border will not be applied, and cells using this format will not have any specific border
+	formatting.
+	End Rem
 	Method SetApplyBorder:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellformat_setapplyborder(cellFormatPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the alignment of the cell format is applied, which indicates whether the alignment properties should be applied to cells using this format.
+	returns: #True if the apply alignment property was successfully set, or #False on error.
+	about: If the apply alignment property is set to #True, the alignment properties (such as horizontal and vertical alignment,
+	text rotation, wrap text, etc.) will be applied to cells using this format. If it is set to #False, the alignment properties will
+	not be applied, and cells using this format will not have any specific alignment formatting.
+	End Rem
 	Method SetApplyAlignment:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellformat_setapplyalignment(cellFormatPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the protection of the cell format is applied, which indicates whether the protection properties should be applied to cells using this format.
+	returns: #True if the apply protection property was successfully set, or #False on error.
+	about: If the apply protection property is set to #True, the protection properties (such as locked and hidden) will be applied to cells using
+	this format. If it is set to #False, the protection properties will not be applied, and cells using this format will not have any specific
+	protection formatting.
+	End Rem
 	Method SetApplyProtection:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellformat_setapplyprotection(cellFormatPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the quote prefix of the cell format is applied, which indicates whether the quote prefix property should be applied to cells using this format.
+	returns: #True if the quote prefix property was successfully set, or #False on error.
+	about: If the quote prefix property is set to #True, the quote prefix will be applied to cells using this format. The quote prefix is a
+	special property in Excel that indicates whether a cell's value should be treated as text, even if it looks like a number or a formula.
+	If the quote prefix is set to #True, Excel will treat the cell's value as text, which can be useful for preserving leading zeros or preventing
+	automatic conversion of values. If the quote prefix is set to #False, the cell's value will be treated according to its content, which
+	means that if it looks like a number, it will be treated as a number, and if it looks like a formula, it will be treated as a formula.
+	End Rem
 	Method SetQuotePrefix:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellformat_setquoteprefix(cellFormatPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the pivot button of the cell format is applied, which indicates whether the pivot button property should be applied to cells using this format.
+	returns: #True if the pivot button property was successfully set, or #False on error.
+	about: If the pivot button property is set to #True, the pivot button will be applied to cells using this format. The pivot button is a
+	special property in Excel that indicates whether a cell should display a pivot button when it is part of a pivot table. If the pivot button
+	is set to #True, cells using this format that are part of a pivot table will display a pivot button, which allows users to easily access pivot
+	table options and features. If the pivot button is set to #False, cells using this format will not display a pivot button, even if they
+	are part of a pivot table.
+	End Rem
 	Method SetPivotButton:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellformat_setpivotbutton(cellFormatPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the locked property of the cell format is applied, which indicates whether the locked property should be applied to cells using this format.
+	returns: #True if the locked property was successfully set, or #False on error.
+	about: If the locked property is set to #True, cells using this format will be locked when the worksheet is protected. This means that
+	users will not be able to edit the contents of cells using this format unless the worksheet protection is removed or modified to allow
+	editing of locked cells. If the locked property is set to #False, cells using this format will not be locked when the worksheet is
+	protected, allowing users to edit the contents of those cells even when the worksheet is protected.
+	End Rem
 	Method SetLocked:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellformat_setlocked(cellFormatPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the hidden property of the cell format is applied, which indicates whether the hidden property should be applied to cells using this format.
+	returns: #True if the hidden property was successfully set, or #False on error.
+	about: If the hidden property is set to #True, cells using this format will be hidden when the worksheet is protected. This means that
+	users will not be able to see the contents of cells using this format unless the worksheet protection is removed or modified to allow
+	viewing of hidden cells. If the hidden property is set to #False, cells using this format will not be hidden when the worksheet is protected,
+	allowing users to see the contents of those cells even when the worksheet is protected.
+	End Rem
 	Method SetHidden:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellformat_sethidden(cellFormatPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Gets a string summarizing the properties of the cell format, which can be useful for debugging or logging purposes.
+	End Rem
 	Method Summary:String()
 		Return bmx_openxlsx_xlcellformat_summary(cellFormatPtr)
 	End Method
@@ -3411,6 +3642,9 @@ Type TXLCellFormat
 
 End Type
 
+Rem
+bbdoc: Represents the alignment properties of a cell format, allowing access to properties such as horizontal and vertical alignment, text rotation, wrap text, etc.
+End Rem
 Type TXLAlignment
 
 	Field alignmentPtr:Byte Ptr
@@ -3424,78 +3658,192 @@ Type TXLAlignment
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the horizontal alignment style, which indicates how the content of cells using this alignment is horizontally aligned.
+	End Rem
 	Method Horizontal:EXLAlignmentStyle()
 		Return bmx_openxlsx_xlalignment_horizontal(alignmentPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the vertical alignment style, which indicates how the content of cells using this alignment is vertically aligned.
+	End Rem
 	Method Vertical:EXLAlignmentStyle()
 		Return bmx_openxlsx_xlalignment_vertical(alignmentPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the text rotation in degrees, which indicates the angle at which the text in cells using this alignment is rotated.
+	about: The text rotation is measured in degrees, where 0 degrees means no rotation.
+	End Rem
 	Method TextRotation:Short()
 		Return bmx_openxlsx_xlalignment_textrotation(alignmentPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the wrap text property is enabled, which indicates whether the text in cells using this alignment should wrap to fit within the cell.
+	about: If the wrap text property is enabled (#True), the text in cells using this alignment will wrap to fit within the cell, allowing for multiple lines of text. If it is disabled (#False), the text will not wrap and will instead overflow into adjacent cells if it exceeds the width of the cell.
+	End Rem
 	Method WrapText:Int()
 		Return bmx_openxlsx_xlalignment_wraptext(alignmentPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the indent level, which indicates the number of indent levels applied to the content of cells using this alignment.
+	about: The indent level is an unsigned integer that represents the number of indent levels applied to the content of cells using this
+	alignment. Each indent level typically corresponds to a certain amount of indentation (e.g., 1 indent level might correspond to 3 spaces). The indent property is used to create a visual hierarchy in the content of cells, such as when creating an outline or grouping related items together. The maximum indent level may depend on the version of Excel and the specific implementation, but it is generally a small integer value.
+	End Rem
 	Method Indent:UInt()
 		Return bmx_openxlsx_xlalignment_indent(alignmentPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the relative indent level, which indicates the number of relative indent levels applied to the content of cells using this alignment.
+	about: The relative indent level is an integer that represents the number of relative indent levels applied to the content of cells using this
+	alignment. Relative indent is a feature in Excel that allows for additional indentation based on the outline level of the row. It is often used
+	in conjunction with the indent property to create a more complex hierarchy in the content of cells. The relative indent level can be positive or
+	negative, where positive values indicate additional indentation and negative values indicate reduced indentation relative to the base indent level.
+	End Rem
 	Method RelativeIndent:Int()
 		Return bmx_openxlsx_xlalignment_relativeindent(alignmentPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the justify last line property is enabled, which indicates whether the last line of text in cells using this alignment should be justified.
+	about: If the justify last line property is enabled (#True), the last line of text in cells using this alignment will be justified,
+	meaning that it will be stretched to align with both the left and right edges of the cell. If it is disabled (#False), the last line
+	of text will not be justified and will instead be aligned according to the horizontal alignment setting (e.g., left, center, right).
+	End Rem
 	Method JustifyLastLine:Int()
 		Return bmx_openxlsx_xlalignment_justifylastline(alignmentPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the shrink to fit property is enabled, which indicates whether the text in cells using this alignment should be shrunk to fit within the cell.
+	about: If the shrink to fit property is enabled (#True), the text in cells using this alignment will be automatically shrunk in size
+	to fit within the cell if it exceeds the cell's width. If it is disabled (#False), the text will not be shrunk and will instead
+	overflow into adjacent cells if it exceeds the width of the cell. The shrink to fit property can be useful for ensuring that all
+	text is visible within a cell without changing the column width, but it can also make the text smaller and harder to read if there is a lot of content.
+	End Rem
 	Method ShrinkToFit:Int()
 		Return bmx_openxlsx_xlalignment_shrinktofit(alignmentPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the reading order, which indicates the reading order of text in cells using this alignment.
+	about: The reading order is an unsigned integer that indicates the reading order of text in cells using this alignment. The reading order can
+	be used to specify the direction in which text is read, such as left-to-right (LTR) or right-to-left (RTL). Common values for reading order
+	include 0 for left-to-right and 1 for right-to-left, but the specific values may depend on the implementation and the version of Excel. The
+	reading order property is important for supporting languages that are read in different directions, such as Arabic or Hebrew, and it helps
+	ensure that the text is displayed correctly according to the intended reading direction.
+	End Rem
 	Method ReadingOrder:UInt()
 		Return bmx_openxlsx_xlalignment_readingorder(alignmentPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the horizontal alignment style, which indicates how the content of cells using this alignment is horizontally aligned.
+	returns: #True if the horizontal alignment style was successfully set, or #False on error.
+	about: The horizontal alignment style is an enumeration that specifies how the content of cells using this alignment is
+	horizontally aligned. Common horizontal alignment styles include left, center, right, fill, justify, center continuous,
+	and distributed. Setting the horizontal alignment style allows you to control the horizontal positioning of cell content in Excel.
+	End Rem
 	Method SetHorizontal:Int(newStyle:EXLAlignmentStyle)
 		Return bmx_openxlsx_xlalignment_sethorizontal(alignmentPtr, newStyle)
 	End Method
 
+	Rem
+	bbdoc: Sets the vertical alignment style, which indicates how the content of cells using this alignment is vertically aligned.
+	returns: #True if the vertical alignment style was successfully set, or #False on error.
+	about: The vertical alignment style is an enumeration that specifies how the content of cells using this alignment is vertically aligned.
+	Common vertical alignment styles include top, center, bottom, justify, and distributed. Setting the vertical alignment style allows you 
+	to control the vertical positioning of cell content in Excel.
+	End Rem
 	Method SetVertical:Int(newStyle:EXLAlignmentStyle)
 		Return bmx_openxlsx_xlalignment_setvertical(alignmentPtr, newStyle)
 	End Method
 
+	Rem
+	bbdoc: Sets the text rotation in degrees, which indicates the angle at which the text in cells using this alignment is rotated.
+	returns: #True if the text rotation was successfully set, or #False on error.
+	about: The text rotation is measured in degrees, where 0 degrees means no rotation.
+	End Rem
 	Method SetTextRotation:Int(rotation:Short)
 		Return bmx_openxlsx_xlalignment_settextrotation(alignmentPtr, rotation)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the wrap text property is enabled, which indicates whether the text in cells using this alignment should wrap to fit within the cell.
+	returns: #True if the wrap text property was successfully set, or #False on error.
+	about: If the wrap text property is enabled (#True), the text in cells using this alignment will wrap to fit within the cell,
+	allowing for multiple lines of text. If it is disabled (#False), the text will not wrap and will instead overflow into adjacent cells if it
+	exceeds the width of the cell.
+	End Rem
 	Method SetWrapText:Int(set:Int = True)
 		Return bmx_openxlsx_xlalignment_setwraptext(alignmentPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the indent level, which indicates the number of indent levels applied to the content of cells using this alignment.
+	returns: #True if the indent level was successfully set, or #False on error.
+	about: The indent level is an unsigned integer that represents the number of indent levels applied to the content of cells using this alignment. Each indent level typically corresponds to a certain amount of indentation (e.g., 1 indent level might correspond to 3 spaces). The indent property is used to create a visual hierarchy in the content of cells, such as when creating an outline or grouping related items together. The maximum indent level may depend on the version of Excel and the specific implementation, but it is generally a small integer value.
+	End Rem
 	Method SetIndent:Int(newIndent:UInt)
 		Return bmx_openxlsx_xlalignment_setindent(alignmentPtr, newIndent)
 	End Method
 
+	Rem
+	bbdoc: Sets the relative indent level, which indicates the number of relative indent levels applied to the content of cells using this alignment.
+	returns: #True if the relative indent level was successfully set, or #False on error.
+	about: The relative indent level is an integer that represents the number of relative indent levels applied to the content of cells using
+	this alignment. Relative indent is a feature in Excel that allows for additional indentation based on the outline level of the row. It
+	is often used in conjunction with the indent property to create a more complex hierarchy in the content of cells. The relative indent
+	level can be positive or negative, where positive values indicate additional indentation and negative values indicate reduced indentation
+	relative to the base indent level.
+	End Rem
 	Method SetRelativeIndent:Int(newIndent:Int)
 		Return bmx_openxlsx_xlalignment_setrelativeindent(alignmentPtr, newIndent)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the justify last line property is enabled, which indicates whether the last line of text in cells using this alignment should be justified.
+	returns: #True if the justify last line property was successfully set, or #False on error.
+	about: If the justify last line property is enabled (#True), the last line of text in cells using this alignment will be justified,
+	meaning that it will be stretched to align with both the left and right edges of the cell. If it is disabled (#False), the last line
+	of text will not be justified and will instead be aligned according to the horizontal alignment setting (e.g., left, center, right).
+	End Rem
 	Method SetJustifyLastLine:Int(set:Int = True)
 		Return bmx_openxlsx_xlalignment_setjustifylastline(alignmentPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the shrink to fit property is enabled, which indicates whether the text in cells using this alignment should be shrunk to fit within the cell.
+	returns: #True if the shrink to fit property was successfully set, or #False on error.
+	about: If the shrink to fit property is enabled (#True), the text in cells using this alignment will be automatically shrunk in size
+	to fit within the cell if it exceeds the cell's width. If it is disabled (#False), the text will not be shrunk and will instead
+	overflow into adjacent cells if it exceeds the width of the cell. The shrink to fit property can be useful for ensuring that all
+	text is visible within a cell without changing the column width, but it can also make the text smaller and harder to read if there is a lot of content.
+	End Rem
 	Method SetShrinkToFit:Int(set:Int = True)
 		Return bmx_openxlsx_xlalignment_setshrinktofit(alignmentPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the reading order, which indicates the reading order of text in cells using this alignment.
+	returns: #True if the reading order was successfully set, or #False on error.
+	about: The reading order is an unsigned integer that indicates the reading order of text in cells using this alignment. The reading
+	order can be used to specify the direction in which text is read, such as left-to-right (LTR) or right-to-left (RTL). Common values
+	for reading order include 0 for left-to-right and 1 for right-to-left, but the specific values may depend on the implementation
+	and the version of Excel. The reading order property is important for supporting languages that are read in different directions,
+	such as Arabic or Hebrew, and it helps ensure that the text is displayed correctly according to the intended reading direction.
+	End Rem
 	Method SetReadingOrder:Int(newReadingOrder:UInt)
 		Return bmx_openxlsx_xlalignment_setreadingorder(alignmentPtr, newReadingOrder)
 	End Method
 
+	Rem
+	bbdoc: Gets a string summarizing the properties of the alignment, which can be useful for debugging or logging purposes.
+	End Rem
 	Method Summary:String()
 		Return bmx_openxlsx_xlalignment_summary(alignmentPtr)
 	End Method
@@ -3509,6 +3857,9 @@ Type TXLAlignment
 
 End Type
 
+Rem
+bbdoc: Represents the collection of cell styles in a workbook, allowing access to individual cell styles and management of the collection.
+End Rem
 Type TXLCellStyles
 
 	Field cellStylesPtr:Byte Ptr
@@ -3522,18 +3873,41 @@ Type TXLCellStyles
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the number of cell styles in the collection, which indicates how many cell styles are defined in the workbook.
+	End Rem
 	Method Count:Size_T()
 		Return bmx_openxlsx_xlcellstyles_count(cellStylesPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets a cell style by its index in the collection, which allows access to the properties of that cell style.
+	about: The index is a zero-based unsigned integer that specifies the position of the cell style in the collection.
+	The first cell style has an index of 0, the second has an index of 1, and so on. If the index is out of range (greater than
+	or equal to the count of cell styles), this method may return Null or result in an error.
+	End Rem
 	Method CellStyleByIndex:TXLCellStyle(index:Size_T)
 		Return TXLCellStyle._Create(bmx_openxlsx_xlcellstyles_cellstylebyindex(cellStylesPtr, index))
 	End Method
 
+	Rem
+	bbdoc: Gets a cell style by its name, which allows access to the properties of that cell style.
+	about: The name is a string that specifies the name of the cell style. Cell styles in Excel can have unique names that identify them.
+	If a cell style with the specified name exists in the collection, this method will return it. If no cell style with the specified
+	name exists, this method may return Null or result in an error.
+	End Rem
 	Method Operator[]:TXLCellStyle(index:Size_T)
 		Return CellStyleByIndex(index)
 	End Method
 
+	Rem
+	bbdoc: Creates a new cell style in the collection, optionally copying properties from an existing cell style.
+	returns: The index of the newly created cell style in the collection, or an error code on failure.
+	about: If the copyFrom parameter is provided and is a valid cell style, the new cell style will be created with the same
+	properties as the copyFrom cell style. If copyFrom is Null, a new cell style will be created with default properties.
+	The method returns the index of the newly created cell style in the collection, which can be used to access it later. If there
+		is an error during creation (e.g., if the collection has reached its maximum capacity), the method may return an error code or throw an exception.
+	End Rem
 	Method Create:Size_T(copyFrom:TXLCellStyle = Null)
 		If copyFrom Then
 			Return bmx_openxlsx_xlcellstyles_create(cellStylesPtr, copyFrom.cellStylePtr)
@@ -3551,6 +3925,9 @@ Type TXLCellStyles
 
 End Type
 
+Rem
+bbdoc: Represents an individual cell style in a workbook, allowing access to its properties and management of the cell style.
+End Rem
 Type TXLCellStyle
 
 	Field cellStylePtr:Byte Ptr
@@ -3564,58 +3941,157 @@ Type TXLCellStyle
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets whether the cell style is empty, which indicates whether the cell style has no properties defined.
+	about: An empty cell style is one that has no properties defined, meaning it does not have any specific formatting or attributes.
+	If the cell style is empty, it may be treated as a default or base style in Excel, and cells using this style may not have any specific
+	formatting applied to them. If the cell style is not empty, it means that it has specific properties defined that can be applied to cells using this style.
+	End Rem
 	Method Empty:Int()
 		Return bmx_openxlsx_xlcellstyle_empty(cellStylePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the name of the cell style, which is a string that identifies the cell style in the workbook.
+	End Rem
 	Method Name:String()
 		Return bmx_openxlsx_xlcellstyle_name(cellStylePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the XF ID of the cell style, which is an internal identifier used by Excel to manage cell styles.
+	End Rem
 	Method XfId:Size_T()
 		Return bmx_openxlsx_xlcellstyle_xfid(cellStylePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the built-in ID of the cell style, which indicates whether the cell style is a built-in style provided by Excel.
+	about: The built-in ID is an unsigned integer that indicates whether the cell style is a built-in style provided by Excel.
+	Built-in styles have predefined properties and are identified by specific IDs. If the built-in ID is 0, it typically means
+	that the cell style is not a built-in style and may have custom properties defined by the user. If the built-in ID is a non-zero value,
+	it indicates that the cell style is a built-in style, and the specific value corresponds to a particular built-in style (e.g., Normal, Heading 1, etc.).
+	End Rem
 	Method BuiltinId:UInt()
 		Return bmx_openxlsx_xlcellstyle_builtinid(cellStylePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the outline style of the cell style, which indicates whether the cell style is an outline style used for grouping rows or columns in Excel.
+	about: The outline style is an unsigned integer that indicates whether the cell style is an outline style used for grouping rows or
+	columns in Excel. Outline styles are special cell styles that can be applied to rows or columns to indicate that they are part of
+	an outline group. If the outline style is 0, it typically means that the cell style is not an outline style. If the outline style
+	is a non-zero value, it indicates that the cell style is an outline style, and the specific value may correspond to a particular
+	outline style defined in the workbook.
+	End Rem
 	Method OutlineStyle:UInt()
 		Return bmx_openxlsx_xlcellstyle_outlinestyle(cellStylePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the cell style is hidden, which indicates whether the cell style is hidden from the user interface in Excel.
+	about: If the cell style is hidden, it means that it will not be visible in the user interface of Excel, such as in the cell style gallery.
+	Hidden cell styles can still be applied to cells, but they may not be easily accessible for users to select or modify. If the hidden
+	property is #True, the cell style is hidden; if it is #False, the cell style is visible in the user interface.
+	End Rem
 	Method Hidden:Int()
 		Return bmx_openxlsx_xlcellstyle_hidden(cellStylePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the cell style is a custom built-in style, which indicates whether the cell style is a built-in style that has been customized by the user.
+	about: A custom built-in style is a built-in style that has been modified by the user to have different properties than the original
+	built-in style. If the custom built-in property is #True, it means that the cell style is a built-in style that has been customized.
+	If it is #False, it means that the cell style is either a non-built-in style or a built-in style that has not been customized.
+	End Rem
 	Method CustomBuiltin:Int()
 		Return bmx_openxlsx_xlcellstyle_custombuiltin(cellStylePtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the name of the cell style, which is a string that identifies the cell style in the workbook.
+	returns: #True if the name was successfully set, or #False on error.
+	about: The name of the cell style is a string that identifies the cell style in the workbook. Setting the name allows you to give
+	the cell style a meaningful identifier that can be used to reference it in the user interface or in code. The name must be
+	unique among cell styles in the workbook, and it should not conflict with the names of built-in styles. If the name is
+	successfully set, the method returns #True; if there is an error (e.g., if the name is not unique or is invalid), it returns #False.
+	End Rem
 	Method SetName:Int(newName:String)
 		Return bmx_openxlsx_xlcellstyle_setname(cellStylePtr, newName)
 	End Method
 
+	Rem
+	bbdoc: Sets the XF ID of the cell style, which is an internal identifier used by Excel to manage cell styles.
+	returns: #True if the XF ID was successfully set, or #False on error.
+	about: The XF ID is an internal identifier used by Excel to manage cell styles. It is typically a zero-based index that refers
+	to an entry in the XF (eXtended Format) table of the workbook. Setting the XF ID allows you to associate the cell style with
+	a specific set of formatting properties defined in the XF table. If the XF ID is successfully set, the method returns #True;
+	if there is an error (e.g., if the XF ID is out of range), it returns #False.
+	End Rem
 	Method SetXfId:Int(newXfId:Size_T)
 		Return bmx_openxlsx_xlcellstyle_setxfid(cellStylePtr, newXfId)
 	End Method
 
+	Rem
+	bbdoc: Sets the built-in ID of the cell style, which indicates whether the cell style is a built-in style provided by Excel.
+	returns: #True if the built-in ID was successfully set, or #False on error.
+	about: The built-in ID is an unsigned integer that indicates whether the cell style is a built-in style provided by Excel.
+	Built-in styles have predefined properties and are identified by specific IDs. If the built-in ID is set to 0, it typically means
+	that the cell style is not a built-in style and may have custom properties defined by the user. If the built-in ID
+	is set to a non-zero value, it indicates that the cell style is a built-in style, and the specific value corresponds
+	to a particular built-in style (e.g., Normal, Heading 1, etc.). Setting the built-in ID allows you to quickly apply a
+	predefined set of properties to the cell style based on the built-in style it represents. If the built-in ID is successfully set,
+	the method returns #True; if there is an error (e.g., if the built-in ID is invalid), it returns #False.
+	End Rem
 	Method SetBuiltinId:Int(newBuiltinId:UInt)
 		Return bmx_openxlsx_xlcellstyle_setbuiltinid(cellStylePtr, newBuiltinId)
 	End Method
 
+	Rem
+	bbdoc: Sets the outline style of the cell style, which indicates whether the cell style is an outline style used for grouping rows or columns in Excel.
+	returns: #True if the outline style was successfully set, or #False on error.
+	about: The outline style is an unsigned integer that indicates whether the cell style is an outline style used for grouping
+	rows or columns in Excel. Outline styles are special cell styles that can be applied to rows or columns to indicate that they
+	are part of an outline group. If the outline style is set to 0, it typically means that the cell style is not an outline style.
+	If the outline style is set to a non-zero value, it indicates that the cell style is an outline style, and the specific value
+	may correspond to a particular outline style defined in the workbook. Setting the outline style allows you to designate the
+	cell style as an outline style, which can affect how it is used in grouping and outlining features in Excel. If the outline
+	style is successfully set, the method returns #True; if there is an error (e.g., if the outline style value is invalid), it returns #False.
+	End Rem
 	Method SetOutlineStyle:Int(newOutlineStyle:UInt)
 		Return bmx_openxlsx_xlcellstyle_setoutlinestyle(cellStylePtr, newOutlineStyle)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the cell style is hidden, which indicates whether the cell style is hidden from the user interface in Excel.
+	returns: #True if the hidden property was successfully set, or #False on error.
+	about: If the cell style is hidden, it means that it will not be visible in the user interface of Excel, such as in the cell style gallery.
+	Hidden cell styles can still be applied to cells, but they may not be easily accessible for users to select or modify.
+	If the hidden property is set to #True, the cell style is hidden; if it is set to #False, the cell style is visible in
+	the user interface. Setting the hidden property allows you to control whether the cell style is exposed to users in Excel,
+	which can be useful for managing styles that are meant to be used programmatically or for internal purposes without cluttering the user interface.
+	End Rem
 	Method SetHidden:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellstyle_sethidden(cellStylePtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets whether the cell style is a custom built-in style, which indicates whether the cell style is a built-in style that has been customized by the user.
+	returns: #True if the custom built-in property was successfully set, or #False on error.
+	about: A custom built-in style is a built-in style that has been modified by the user to have different properties than the original
+	built-in style. If the custom built-in property is set to #True, it means that the cell style is a built-in style that has been customized.
+	If it is set to #False, it means that the cell style is either a non-built-in style or a built-in style that has not been customized.
+	Setting the custom built-in property allows you to indicate whether the cell style is a customized version of a built-in style, which
+	can affect how it is displayed and used in Excel. If the custom built-in property is successfully set, the method returns #True; if
+		there is an error (e.g., if the cell style cannot be set as a custom built-in), it returns #False.
+	End Rem
 	Method SetCustomBuiltin:Int(set:Int = True)
 		Return bmx_openxlsx_xlcellstyle_setcustombuiltin(cellStylePtr, set)
 	End Method
 
+	Rem
+	bbdoc: Gets a string summarizing the properties of the cell style, which can be useful for debugging or logging purposes.
+	End Rem
 	Method Summary:String()
 		Return bmx_openxlsx_xlcellstyle_summary(cellStylePtr)
 	End Method
@@ -3629,6 +4105,9 @@ Type TXLCellStyle
 
 End Type
 
+Rem
+bbdoc: Represents the collection of number formats in a workbook, allowing access to individual number formats and management of the collection.
+End Rem
 Type TXLNumberFormats
 
 	Field numberFormatsPtr:Byte Ptr
@@ -3642,26 +4121,59 @@ Type TXLNumberFormats
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the number of number formats in the collection, which indicates how many number formats are defined in the workbook.
+	End Rem
 	Method Count:Size_T()
 		Return bmx_openxlsx_xlnumberformats_count(numberFormatsPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets a number format by its index in the collection, which allows access to the properties of that number format.
+	about: The index is a zero-based unsigned integer that specifies the position of the number format in the collection.
+	The first number format has an index of 0, the second has an index of 1, and so on. If the index is out of range (greater than
+	or equal to the count of number formats), this method may return Null or result in an error.
+	End Rem
 	Method NumberFormatByIndex:TXLNumberFormat(index:Size_T)
 		Return TXLNumberFormat._Create(bmx_openxlsx_xlnumberformats_numberformatbyindex(numberFormatsPtr, index))
 	End Method
 
+	Rem
+	bbdoc: Gets a number format by its ID, which allows access to the properties of that number format.
+	about: The number format ID is an unsigned integer that uniquely identifies a number format in the workbook. Number
+	formats can have specific IDs that correspond to built-in formats or custom formats defined by the user. If a number
+	format with the specified ID exists in the collection, this method will return it. If no number format with the specified
+	ID exists, this method may return Null or result in an error.
+	End Rem
 	Method NumberFormatById:TXLNumberFormat(numFormatId:UInt)
 		Return TXLNumberFormat._Create(bmx_openxlsx_xlnumberformats_numberformatbyid(numberFormatsPtr, numFormatId))
 	End Method
 
+	Rem
+	bbdoc: Gets the number format ID of a number format by its index in the collection, which allows you to retrieve the ID associated with a number format at a specific position in the collection.
+	about: The number format ID is an unsigned integer that uniquely identifies a number format in the workbook.
+	By providing the index of a number format in the collection, you can retrieve its associated ID. If the index is out of range
+	(greater than or equal to the count of number formats), this method may return an error code or an invalid ID.
+	End Rem
 	Method NumberFormatIdFromIndex:UInt(index:Size_T)
 		Return bmx_openxlsx_xlnumberformats_numberformatidfromindex(numberFormatsPtr, index)
 	End Method
 
+	Rem
+	bbdoc: Gets a number format by its index in the collection using the operator[], which allows for convenient access to number formats in the collection.
+	End Rem
 	Method Operator[]:TXLNumberFormat(index:Size_T)
 		Return NumberFormatByIndex(index)
 	End Method
 
+	Rem
+	bbdoc: Creates a new number format in the collection, optionally copying properties from an existing number format.
+	returns: The index of the newly created number format in the collection, or an error code on failure.
+	about: If the copyFrom parameter is provided and is a valid number format, the new number format will be created with the same
+	properties as the copyFrom number format. If copyFrom is Null, a new number format will be created with default properties. The
+	method returns the index of the newly created number format in the collection, which can be used to access it later. If there is
+		an error during creation (e.g., if the collection has reached its maximum capacity), the method may return an error code or throw an exception.
+	End Rem
 	Method Create:Size_T(copyFrom:TXLNumberFormat = Null)
 		If copyFrom Then
 			Return bmx_openxlsx_xlnumberformats_create(numberFormatsPtr, copyFrom.numberFormatPtr)
@@ -3679,6 +4191,9 @@ Type TXLNumberFormats
 
 End Type
 
+Rem
+bbdoc: Represents an individual number format in a workbook, allowing access to its properties and management of the number format.
+End Rem
 Type TXLNumberFormat
 
 	Field numberFormatPtr:Byte Ptr
@@ -3692,22 +4207,48 @@ Type TXLNumberFormat
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the number format ID, which is an unsigned integer that uniquely identifies the number format in the workbook.
+	End Rem
 	Method NumberFormatId:UInt()
 		Return bmx_openxlsx_xlnumberformat_numberformatid(numberFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the format code, which is a string that defines the formatting pattern for the number format.
+	End Rem
 	Method FormatCode:String()
 		Return bmx_openxlsx_xlnumberformat_formatcode(numberFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the number format ID, which is an unsigned integer that uniquely identifies the number format in the workbook.
+	returns: #True if the number format ID was successfully set, or #False on error.
+	about: The number format ID is an unsigned integer that uniquely identifies the number format in the workbook. Setting the
+	number format ID allows you to associate this number format with a specific ID, which can be used to reference it in
+	the collection of number formats. If the number format ID is successfully set, the method returns #True; if there
+		is an error (e.g., if the number format ID is invalid or already in use), it returns #False.
+	End Rem
 	Method SetNumberFormatId:Int(newNumberFormatId:UInt)
 		Return bmx_openxlsx_xlnumberformat_setnumberformatid(numberFormatPtr, newNumberFormatId)
 	End Method
 
+	Rem
+	bbdoc: Sets the format code, which is a string that defines the formatting pattern for the number format.
+	returns: #True if the format code was successfully set, or #False on error.
+	about: The format code is a string that defines the formatting pattern for the number format. It specifies how numbers
+	should be displayed in cells using this number format. Format codes can include placeholders for digits, decimal points,
+	thousand separators, currency symbols, date and time components, and more. Setting the format code allows you to customize
+	how numbers are formatted in Excel. If the format code is successfully set, the method returns #True; if there is an error (e.g.,
+	if the format code is invalid), it returns #False.
+	End Rem
 	Method SetFormatCode:Int(newFormatCode:String)
 		Return bmx_openxlsx_xlnumberformat_setformatcode(numberFormatPtr, newFormatCode)
 	End Method
 
+	Rem
+	bbdoc: Gets a string summarizing the properties of the number format, which can be useful for debugging or logging purposes.
+	End Rem
 	Method Summary:String()
 		Return bmx_openxlsx_xlnumberformat_summary(numberFormatPtr)
 	End Method
@@ -3762,6 +4303,9 @@ Type TXLConditionalFormats
 	End Method
 End Type
 
+Rem
+bbdoc: Represents an individual conditional format in a workbook, allowing access to its properties and management of the conditional format.
+End Rem
 Type TXLConditionalFormat
 
 	Field conditionalFormatPtr:Byte Ptr
@@ -3775,18 +4319,39 @@ Type TXLConditionalFormat
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets whether the conditional format is empty, which indicates whether the conditional format has no properties defined.
+	about: An empty conditional format is one that has no properties defined, meaning it does not have any specific
+	formatting rules or attributes. If the conditional format is empty, it may not have any effect when applied to cells,
+	as it does not define any conditions or formatting to apply. If the conditional format is not empty, it means that it has
+	specific properties defined that can be applied to cells based on certain conditions.
+	End Rem
 	Method Empty:Int()
 		Return bmx_openxlsx_xlconditionalformat_empty(conditionalFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the sqref, which is a string that represents the cell or range of cells to which the conditional format applies.
+	End Rem
 	Method Sqref:String()
 		Return bmx_openxlsx_xlconditionalformat_sqref(conditionalFormatPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the collection of conditional formatting rules associated with this conditional format, which defines
+	the specific conditions and formatting to apply to cells that meet those conditions.
+	End Rem
 	Method CfRules:TXLCfRules()
 		Return TXLCfRules._Create(bmx_openxlsx_xlconditionalformat_cfrules(conditionalFormatPtr))
 	End Method
 
+	Rem
+	bbdoc: Sets the sqref, which is a string that represents the cell or range of cells to which the conditional format applies.
+	returns: #True if the sqref was successfully set, or #False on error.
+	about: The sqref is a string that represents the cell or range of cells to which the conditional format applies.
+	It is typically in the format of an Excel range reference (e.g., "A1", "B2:C5", "Sheet1!A1:B10"). Setting the sqref allows
+	you to specify which cells the conditional format should be applied to. If the sqref is successfully set, the method returns #True; if there is an error (e.g., if the sqref is invalid), it returns #False.
+	End Rem
 	Method SetSqref:Int(newSqref:String)
 		Return bmx_openxlsx_xlconditionalformat_setsqref(conditionalFormatPtr, newSqref)
 	End Method
@@ -3800,6 +4365,9 @@ Type TXLConditionalFormat
 
 End Type
 
+Rem
+bbdoc: Represents a collection of conditional formatting rules associated with a conditional format, allowing access to individual rules and management of the collection.
+End Rem
 Type TXLCfRules
 
 	Field cfRulesPtr:Byte Ptr
@@ -3813,34 +4381,79 @@ Type TXLCfRules
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets whether the collection of conditional formatting rules is empty, which indicates whether there are no rules defined in the collection.
+	End Rem
 	Method Empty:Int()
 		Return bmx_openxlsx_xlcfrules_empty(cfRulesPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the maximum priority value among the conditional formatting rules in the collection, which indicates the highest priority level assigned to any rule in the collection.
+	about: The maximum priority value is a short integer that indicates the highest priority level assigned to any conditional
+	formatting rule in the collection. In Excel, conditional formatting rules are evaluated in order of their priority, with lower
+	numbers having higher priority. The maximum priority value can be used to determine the range of valid priority values for new
+	rules added to the collection, ensuring that new rules can be assigned a priority that is higher than existing rules if needed.
+	If the collection is empty, the maximum priority value may be 0 or a default value, depending on the implementation.
+	End Rem
 	Method MaxPriorityValue:Short()
 		Return bmx_openxlsx_xlcfrules_maxpriorityvalue(cfRulesPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the priority of a conditional formatting rule at a specific index in the collection, which determines the order in which the rules are evaluated.
+	returns: #True if the priority was successfully set, or #False on error.
+	about: The priority of a conditional formatting rule determines the order in which the rules are evaluated when applied
+	to cells. In Excel, rules with lower priority values are evaluated before those with higher values. Setting the priority
+	of a rule allows you to control the sequence of rule evaluation, which can affect how formatting is applied when multiple
+	rules apply to the same cells. The cfRuleIndex parameter specifies the index of the rule in the collection for which to set the priority, and newPriority is the new priority value to assign to that rule. If the priority is successfully set, the method returns #True; if there is an error (e.g., if the index is out of range or the priority value is invalid), it returns #False.
+	End Rem
 	Method SetPriority:Int(cfRuleIndex:Size_T, newPriority:Short)
 		Return bmx_openxlsx_xlcfrules_setpriority(cfRulesPtr, cfRuleIndex, newPriority)
 	End Method
 
+	Rem
+	bbdoc: Renumbers the priorities of all conditional formatting rules in the collection by incrementing their priority values by a specified increment, which can be used to adjust the order of rule evaluation.
+	End Rem
 	Method RenumberPriorities(increment:Short = 1)
 		bmx_openxlsx_xlcfrules_renumberpriorities(cfRulesPtr, increment)
 	End Method
 
+	Rem
+	bbdoc: Gets the number of conditional formatting rules in the collection, which indicates how many rules are defined for the conditional format.
+	End Rem
 	Method Count:Size_T()
 		Return bmx_openxlsx_xlcfrules_count(cfRulesPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets a conditional formatting rule by its index in the collection, which allows access to the properties of that rule.
+	about: The index is a zero-based unsigned integer that specifies the position of the conditional formatting rule in the collection.
+	The first rule has an index of 0, the second has an index of 1, and so on. If the index is out of range (greater than or equal to the
+	count of rules), this method may return Null or result in an error.
+	End Rem
 	Method CfRuleByIndex:TXLCfRule(index:Size_T)
 		Return TXLCfRule._Create(bmx_openxlsx_xlcfrules_cfrulebyindex(cfRulesPtr, index))
 	End Method
 
+	Rem
+	bbdoc: Gets a conditional formatting rule by its index in the collection, which allows access to the properties of that rule.
+	about: The index is a zero-based unsigned integer that specifies the position of the conditional formatting rule in the collection.
+	The first rule has an index of 0, the second has an index of 1, and so on. If the index is out of range (greater than or equal to the
+	count of rules), this method may return Null or result in an error.
+	End Rem
 	Method Operator[]:TXLCfRule(index:Size_T)
 		Return CfRuleByIndex(index)
 	End Method
 
+	Rem
+	bbdoc: Creates a new conditional formatting rule in the collection, optionally copying properties from an existing rule.
+	returns: The index of the newly created rule in the collection, or an error code on failure.
+	about: If the copyFrom parameter is provided and is a valid conditional formatting rule, the new rule will be created with the
+	same properties as the copyFrom rule. If copyFrom is Null, a new rule will be created with default properties. The method
+	returns the index of the newly created rule in the collection, which can be used to access it later. If there is an error
+	during creation (e.g., if the collection has reached its maximum capacity), the method may return an error code or throw an exception.
+	End Rem
 	Method Create:Size_T(copyFrom:TXLCfRule = Null)
 		If copyFrom Then
 			Return bmx_openxlsx_xlcfrules_create(cfRulesPtr, copyFrom.cfRulePtr)
@@ -3857,6 +4470,9 @@ Type TXLCfRules
 	End Method
 End Type
 
+Rem
+bbdoc: Represents an individual conditional formatting rule in a collection of rules, allowing access to its properties and management of the rule.
+End Rem
 Type TXLCfRule
 
 	Field cfRulePtr:Byte Ptr
@@ -3870,110 +4486,307 @@ Type TXLCfRule
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets whether the conditional formatting rule is empty, which indicates whether the rule has no properties defined.
+	about: An empty conditional formatting rule is one that has no properties defined, meaning it does not have any specific
+	conditions or formatting attributes. If the rule is empty, it may not have any effect when applied to cells, as it does not
+	define any conditions or formatting to apply. If the rule is not empty, it means that it has specific properties defined that
+	can be applied to cells based on certain conditions.
+	End Rem
 	Method Empty:Int()
 		Return bmx_openxlsx_xlcfrule_empty(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the formula associated with the conditional formatting rule, which is a string that defines the condition under which the formatting should be applied.
+	End Rem
 	Method Formula:String()
 		Return bmx_openxlsx_xlcfrule_formula(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the type of the conditional formatting rule, which indicates the specific type of conditional formatting being applied (e.g., cell value, expression, color scale, etc.).
+	about: The type of the conditional formatting rule is an enumeration that indicates the specific type of conditional formatting being applied.
+	End Rem
 	Method CfType:EXLCfType()
 		Return bmx_openxlsx_xlcfrule_type(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the DXF ID associated with the conditional formatting rule, which is an internal identifier that references a specific set of formatting properties defined in the workbook.
+	about: The DXF ID is an internal identifier that references a specific set of formatting properties defined in the workbook.
+	End Rem
 	Method DxfId:Size_T()
 		Return bmx_openxlsx_xlcfrule_dxfid(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the priority of the conditional formatting rule, which determines the order in which the rule is evaluated relative to other rules.
+	about: The priority of a conditional formatting rule determines the order in which the rules are evaluated when applied to cells.
+	In Excel, rules with lower priority values are evaluated before those with higher values. The priority is a short integer that
+	indicates the level of priority assigned to the rule, with lower numbers having higher priority.
+	End Rem
 	Method Priority:Short()
 		Return bmx_openxlsx_xlcfrule_priority(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the conditional formatting rule has the "Stop If True" property set, which indicates whether Excel should stop evaluating subsequent rules if this rule evaluates to true.
+	about: If the "Stop If True" property is set for a conditional formatting rule, it means that if this rule evaluates to true for a cell,
+	Excel will stop evaluating any subsequent conditional formatting rules for that cell. This can be used to create mutually exclusive rules,
+	where only the first rule that evaluates to true will apply its formatting, and any rules that follow it will be ignored for that
+	cell. If the "Stop If True" property is not set, Excel will continue to evaluate subsequent rules even if this rule evaluates to true.
+	End Rem
 	Method StopIfTrue:Int()
 		Return bmx_openxlsx_xlcfrule_stopiftrue(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the conditional formatting rule has the "Above Average" property set, which indicates whether the rule applies to cells with values above the average of a range.
+	about: If the "Above Average" property is set for a conditional formatting rule, it means that the rule applies to cells with
+	values above the average of a specified range. This type of rule is often used to highlight values that are above the average
+	in a dataset. If the "Above Average" property is not set, the rule does not specifically target values above the average and
+	may apply to cells based on other conditions defined in the rule.
+	End Rem
 	Method AboveAverage:Int()
 		Return bmx_openxlsx_xlcfrule_aboveaverage(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the conditional formatting rule has the "Percent" property set, which indicates whether the rule applies to a certain percentage of values in a range.
+	about: If the "Percent" property is set for a conditional formatting rule, it means that the rule applies to a certain percentage
+	of values in a specified range. This type of rule is often used to highlight the top or bottom percentage of values in a dataset.
+	The specific percentage is typically defined in the rule's properties. If the "Percent" property is not set, the rule does not
+	specifically target a percentage of values and may apply to cells based on other conditions defined in the rule.
+	End Rem
 	Method Percent:Int()
 		Return bmx_openxlsx_xlcfrule_percent(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the conditional formatting rule has the "Bottom" property set, which indicates whether the rule applies to a certain number of lowest values in a range.
+	about: If the "Bottom" property is set for a conditional formatting rule, it means that the rule applies to a certain number of
+	lowest values in a specified range. This type of rule is often used to highlight the bottom N values in a dataset, where N is
+	defined in the rule's properties. If the "Bottom" property is not set, the rule does not specifically target the lowest values
+	and may apply to cells based on other conditions defined in the rule.
+	End Rem
 	Method Bottom:Int()
 		Return bmx_openxlsx_xlcfrule_bottom(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the operator of the conditional formatting rule, which indicates the specific comparison operator used in the rule (e.g., equal to, greater than, between, etc.).
+	about: The operator of the conditional formatting rule is an enumeration that indicates the specific comparison operator used
+	in the rule. This operator defines how the rule evaluates the condition for applying formatting to cells. For example, if the
+	rule is of type "Cell Value", the operator might specify whether the rule applies to cells that are equal to a certain value,
+	greater than a certain value, between two values, etc. The operator is an important property of the rule that determines how
+	it evaluates conditions against cell values.
+	End Rem
 	Method RuleOperator:EXLCfOperator()
 		Return bmx_openxlsx_xlcfrule_operator(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the text associated with the conditional formatting rule, which may be used for rules that involve text comparisons (e.g., contains text, does not contain text, etc.).
+	about: The text property of a conditional formatting rule is a string that may be used for rules that involve text comparisons.
+	For example, if the rule is of type "Contains Text", the text property would specify the substring that the rule checks for
+	in cell values. If the rule is of type "Does Not Contain Text", the text property would specify the substring that the
+	rule checks for absence of in cell values. The text property is relevant for certain types of rules that involve text
+	conditions, and it may be empty or not applicable for other types of rules that do not involve text comparisons.
+	End Rem
 	Method Text:String()
 		Return bmx_openxlsx_xlcfrule_text(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the time period associated with the conditional formatting rule, which may be used for rules that involve date comparisons (e.g., last 7 days, next month, etc.).
+	about: The time period property of a conditional formatting rule is an enumeration that may be used for rules that involve date comparisons.
+	For example, if the rule is of type "Last 7 Days", the time period property would indicate that the rule applies to cells with dates
+		that fall within the last 7 days. If the rule is of type "Next Month", the time period property would indicate that the rule
+		applies to cells with dates that fall within the next month. The time period property is relevant for certain types
+		of rules that involve date conditions, and it may be not applicable for other types of rules that do not involve date comparisons.
+	End Rem
 	Method TimePeriod:EXLCfTimePeriod()
 		Return bmx_openxlsx_xlcfrule_timeperiod(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the rank associated with the conditional formatting rule, which may be used for rules that involve ranking values (e.g., top 10 items, bottom 5 items, etc.).
+	about: The rank property of a conditional formatting rule is a short integer that may be used for rules that involve ranking values.
+	For example, if the rule is of type "Top 10 Items", the rank property would indicate that the rule applies to the top 10 ranked
+		values in a specified range. If the rule is of type "Bottom 5 Items", the rank property would indicate that the rule
+		applies to the bottom 5 ranked values in a specified range. The rank property is relevant for certain types of rules that
+		involve ranking conditions, and it may be not applicable for other types of rules that do not involve ranking values.
+	End Rem
 	Method Rank:Short()
 		Return bmx_openxlsx_xlcfrule_rank(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the conditional formatting rule has the "StdDev" property set, which indicates whether the rule applies to values that are a certain number of standard deviations from the mean.
+	about: If the "StdDev" property is set for a conditional formatting rule, it means that the rule applies to values that are a
+	certain number of standard deviations from the mean of a specified range. This type of rule is often used to highlight values
+	that are significantly different from the average in a dataset. The specific number of standard deviations is typically defined
+	in the rule's properties. If the "StdDev" property is not set, the rule does not specifically target values based on standard
+	deviations and may apply to cells based on other conditions defined in the rule.
+	End Rem
 	Method StdDev:Int()
 		Return bmx_openxlsx_xlcfrule_stddev(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets whether the conditional formatting rule has the "Equal Average" property set, which indicates whether the rule applies to values that are equal to the average of a range.
+	about: If the "Equal Average" property is set for a conditional formatting rule, it means that the rule applies to values
+	that are equal to the average of a specified range. This type of rule is often used to highlight values that are exactly
+	equal to the average in a dataset. If the "Equal Average" property is not set, the rule does not specifically target values
+	equal to the average and may apply to cells based on other conditions defined in the rule.
+	End Rem
 	Method EqualAverage:Int()
 		Return bmx_openxlsx_xlcfrule_equalaverage(cfRulePtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the type of the conditional formatting rule, which indicates the specific type of conditional formatting being applied (e.g., cell value, expression, color scale, etc.).
+	returns: #True if the type was successfully set, or #False on error.
+	about: The type of the conditional formatting rule is an enumeration that indicates the specific type of conditional formatting being applied.
+	Setting the type of the rule allows you to define what kind of condition the rule evaluates and how it applies formatting to cells. For example,
+	if you set the type to "Cell Value", you can then specify conditions based on cell values. If you set the type to "Color Scale", the rule would
+	apply a color gradient based on cell values. If the type is successfully set, the method returns #True; if there is an error (e.g., if the
+	type is invalid), it returns #False.
+	End Rem
 	Method SetType:Int(newType:EXLCfType)
 		Return bmx_openxlsx_xlcfrule_settype(cfRulePtr, newType)
 	End Method
 
+	Rem
+	bbdoc: Sets the formula associated with the conditional formatting rule, which is a string that defines the condition under which the formatting should be applied.
+	returns: #True if the formula was successfully set, or #False on error.
+	about: The formula for a conditional formatting rule is a string that defines the condition under which the formatting should be
+	applied to cells. The formula is typically an Excel formula that evaluates to true or false for each cell the rule applies to.
+	Setting the formula allows you to specify complex conditions for when the formatting should be applied. If the formula is successfully
+	set, the method returns #True; if there is an error (e.g., if the formula is invalid), it returns #False.
+	End Rem
+	Method SetFormula:Int(newFormula:String)
 	Method SetDxfId:Int(newDxfId:Size_T)
 		Return bmx_openxlsx_xlcfrule_setdxfid(cfRulePtr, newDxfId)
 	End Method
 
+	Rem
+	bbdoc: Sets the "Stop If True" property of the conditional formatting rule, which indicates whether Excel should stop evaluating subsequent rules if this rule evaluates to true.
+	returns: #True if the property was successfully set, or #False on error.
+	about: Setting the "Stop If True" property for a conditional formatting rule allows you to control the evaluation of rules when
+	multiple rules apply to the same cells. If this property is set to #True, it means that if this rule evaluates to true for a cell,
+	Excel will stop evaluating any subsequent conditional formatting rules for that cell. This can be used to create mutually exclusive
+	rules, where only the first rule that evaluates to true will apply its formatting, and any rules that follow it will be ignored for
+	that cell. If the property is successfully set, the method returns #True; if there is an error (e.g., if the rule is invalid), it returns #False.
+	End Rem
 	Method SetStopIfTrue:Int(set:Int = True)
 		Return bmx_openxlsx_xlcfrule_setstopiftrue(cfRulePtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the "Above Average" property of the conditional formatting rule, which indicates whether the rule applies to cells with values above the average of a range.
+	returns: #True if the property was successfully set, or #False on error.
+	about: Setting the "Above Average" property for a conditional formatting rule allows you to specify that the rule applies to cells
+	with values above the average of a specified range. This type of rule is often used to highlight values that are above the average
+	in a dataset. If the property is successfully set, the method returns #True; if there is an error (e.g., if the rule is invalid), it returns #False.
+	End Rem
 	Method SetAboveAverage:Int(set:Int = True)
 		Return bmx_openxlsx_xlcfrule_setaboveaverage(cfRulePtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the "Percent" property of the conditional formatting rule, which indicates whether the rule applies to a certain percentage of values in a range.
+	returns: #True if the property was successfully set, or #False on error.
+	about: Setting the "Percent" property for a conditional formatting rule allows you to specify that the rule applies to a certain percentage
+	of values in a specified range. This type of rule is often used to highlight the top or bottom percentage of values in a dataset. The
+	specific percentage is typically defined in the rule's properties. If the property is successfully set, the method returns #True;
+	if there is an error (e.g., if the rule is invalid), it returns #False.
+	End Rem
 	Method SetPercent:Int(set:Int = True)
 		Return bmx_openxlsx_xlcfrule_setpercent(cfRulePtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the "Bottom" property of the conditional formatting rule, which indicates whether the rule applies to a certain number of lowest values in a range.
+	returns: #True if the property was successfully set, or #False on error.
+	about: Setting the "Bottom" property for a conditional formatting rule allows you to specify that the rule applies to a certain
+	number of lowest values in a specified range. This type of rule is often used to highlight the bottom N values in a dataset,
+	where N is defined in the rule's properties. If the property is successfully set, the method returns #True; if there is an error (e.g., if the rule is invalid), it returns #False.
+	End Rem
 	Method SetBottom:Int(set:Int = True)
 		Return bmx_openxlsx_xlcfrule_setbottom(cfRulePtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the operator for the conditional formatting rule, which determines how the rule evaluates the cell values.
+	returns: #True if the operator was successfully set, or #False on error.
+	about: Setting the operator for a conditional formatting rule allows you to define how the rule evaluates the cell values.
+	The operator can be one of several predefined types, such as equal to, not equal to, greater than, less than, etc.
+	If the operator is successfully set, the method returns #True; if there is an error (e.g., if the rule is invalid), it returns #False.
+	End Rem
 	Method SetRuleOperator:Int(newOperator:EXLCfOperator)
 		Return bmx_openxlsx_xlcfrule_setoperator(cfRulePtr, newOperator)
 	End Method
 
+	Rem
+	bbdoc: Sets the text for the conditional formatting rule, which may be used for rules that involve text comparisons (e.g., contains text, does not contain text, etc.).
+	returns: #True if the text was successfully set, or #False on error.
+	about: Setting the text for a conditional formatting rule allows you to specify the substring that the rule checks for in cell
+	values when the rule involves text comparisons. For example, if the rule is of type "Contains Text", the text property would
+	specify the substring that the rule checks for in cell values. If the rule is of type "Does Not Contain Text", the text property
+	would specify the substring that the rule checks for absence of in cell values. If the text is successfully set, the method
+	returns #True; if there is an error (e.g., if the rule is invalid), it returns #False.
+	End Rem
 	Method SetText:Int(newText:String)
 		Return bmx_openxlsx_xlcfrule_settext(cfRulePtr, newText)
 	End Method
 
+	Rem
+	bbdoc: Sets the time period for the conditional formatting rule, which may be used for rules that involve date comparisons (e.g., last 7 days, next month, etc.).
+	returns: #True if the time period was successfully set, or #False on error.
+	about: Setting the time period for a conditional formatting rule allows you to specify the date range that the rule
+	applies to when the rule involves date comparisons. For example, if the rule is of type "Last 7 Days", the time period
+	property would indicate that the rule applies to cells with dates that fall within the last 7 days. If the rule is of
+	type "Next Month", the time period property would indicate that the rule applies to cells with dates that fall within the
+	next month. If the time period is successfully set, the method returns #True; if there is an error (e.g., if the rule is invalid), it returns #False.
+	End Rem
 	Method SetTimePeriod:Int(newTimePeriod:EXLCfTimePeriod)
 		Return bmx_openxlsx_xlcfrule_settimeperiod(cfRulePtr, newTimePeriod)
 	End Method
 
+	Rem
+	bbdoc: Sets the rank for the conditional formatting rule, which may be used for rules that involve ranking values (e.g., top 10 items, bottom 5 items, etc.).
+	returns: #True if the rank was successfully set, or #False on error.
+	about: Setting the rank for a conditional formatting rule allows you to specify the number of top or bottom ranked values
+	that the rule applies to when the rule involves ranking conditions. For example, if the rule is of type "Top 10 Items", the
+	rank property would indicate that the rule applies to the top 10 ranked values in a specified range. If the rule is of type
+	"Bottom 5 Items", the rank property would indicate that the rule applies to the bottom 5 ranked values in a specified range.
+	If the rank is successfully set, the method returns #True; if there is an error (e.g., if the rule is invalid), it returns #False.
+	End Rem
 	Method SetRank:Int(newRank:Short)
 		Return bmx_openxlsx_xlcfrule_setrank(cfRulePtr, newRank)
 	End Method
 
+	Rem
+	bbdoc: Sets the "StdDev" property for the conditional formatting rule, which indicates whether the rule applies to values that are a certain number of standard deviations from the mean.
+	returns: #True if the property was successfully set, or #False on error.
+	about: Setting the "StdDev" property for a conditional formatting rule allows you to specify that the rule applies to values that are a
+	certain number of standard deviations from the mean of a specified range. This type of rule is often used to highlight values that are
+	significantly different from the average in a dataset. The specific number of standard deviations is typically defined in the rule's properties.
+	If the property is successfully set, the method returns #True; if there is an error (e.g., if the rule is invalid), it returns #False.
+	End Rem
 	Method SetStdDev:Int(set:Int = True)
 		Return bmx_openxlsx_xlcfrule_setstddev(cfRulePtr, set)
 	End Method
 
+	Rem
+	bbdoc: Sets the "Equal Average" property for the conditional formatting rule, which indicates whether the rule applies to values that are equal to the average of a range.
+	returns: #True if the property was successfully set, or #False on error.
+	about: Setting the "Equal Average" property for a conditional formatting rule allows you to specify that the rule applies to values that
+	are equal to the average of a specified range. This type of rule is often used to highlight values that are exactly equal to the average
+	in a dataset. If the property is successfully set, the method returns #True; if there is an error (e.g., if the rule is invalid), it returns #False.
+	End Rem
 	Method SetEqualAverage:Int(set:Int = True)
 		Return bmx_openxlsx_xlcfrule_setequalaverage(cfRulePtr, set)
 	End Method
@@ -3989,6 +4802,9 @@ End Type
 
 ' exceptions
 
+Rem
+bbdoc: Represents a general exception that can occur in the context of the TXL classes, allowing for error handling and reporting of issues that may arise during operations.
+End Rem
 Type TXLException Extends TRuntimeException
 
 	Function _Create:TXLException(message:String) { nomangle }
@@ -3999,6 +4815,9 @@ Type TXLException Extends TRuntimeException
 
 End Type
 
+Rem
+bbdoc: Represents a runtime error that can occur during the execution of operations in the context of the TXL classes, allowing for error handling and reporting of issues that may arise during runtime.
+End Rem
 Type TXLRuntimeError Extends TRuntimeException
 
 	Function _Create:TXLRuntimeError(message:String) { nomangle }
@@ -4009,6 +4828,9 @@ Type TXLRuntimeError Extends TRuntimeException
 
 End Type
 
+Rem
+bbdoc: Represents a value type error that can occur in the context of the TXL classes, allowing for error handling and reporting of issues related to invalid value types.
+End Rem
 Type TXLValueTypeError Extends TRuntimeException
 
 	Function _Create:TXLValueTypeError(message:String) { nomangle }
@@ -4019,6 +4841,9 @@ Type TXLValueTypeError Extends TRuntimeException
 
 End Type
 
+Rem
+bbdoc: Represents an error related to cell addresses that can occur in the context of the TXL classes, allowing for error handling and reporting of issues related to invalid cell addresses.
+End Rem
 Type TXLCellAddressError Extends TRuntimeException
 
 	Function _Create:TXLCellAddressError(message:String) { nomangle }
@@ -4029,6 +4854,9 @@ Type TXLCellAddressError Extends TRuntimeException
 
 End Type
 
+Rem
+bbdoc: Represents an error related to input data that can occur in the context of the TXL classes, allowing for error handling and reporting of issues related to invalid input.
+End Rem
 Type TXLInputError Extends TRuntimeException
 
 	Function _Create:TXLInputError(message:String) { nomangle }
@@ -4039,6 +4867,9 @@ Type TXLInputError Extends TRuntimeException
 
 End Type
 
+Rem
+bbdoc: Represents an error related to properties that can occur in the context of the TXL classes, allowing for error handling and reporting of issues related to invalid properties or property values.
+End Rem
 Type TXLPropertyError Extends TRuntimeException
 
 	Function _Create:TXLPropertyError(message:String) { nomangle }
