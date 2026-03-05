@@ -520,6 +520,20 @@ bbdoc: The maximum number of rows in an XLSX worksheet.
 End Rem
 Const XLSX_MAX_ROWS:UInt = 1048576
 
+Rem
+bbdoc: The type of value strored in a cell.
+about:
+
+| Type | Description |
+|------|-------------|
+| ValueType_Empty | The cell is empty. |
+| ValueType_Boolean | The cell contains a boolean value (#True or #False). |
+| ValueType_Integer | The cell contains an integer value. |
+| ValueType_Float | The cell contains a floating-point value. |
+| ValueType_Error | The cell contains an error value. |
+| ValueType_String | The cell contains a string value. |
+
+End Rem
 Enum EXLValueType
 	ValueType_Empty
 	ValueType_Boolean
@@ -529,6 +543,18 @@ Enum EXLValueType
 	ValueType_String
 End Enum
 
+Rem
+bbdoc: The type of sheet in an XLSX workbook.
+about:
+
+| Type | Description |
+|------|-------------|
+| Worksheet | A standard worksheet that contains cells organized in rows and columns. |
+| Chartsheet | A sheet that contains a single chart. |
+| Dialogsheet | A sheet that contains dialog controls, such as buttons and text boxes. |
+| Macrosheet | A sheet that contains macros and VBA code. |
+
+End Rem
 Enum EXLSheetType
 	Worksheet
 	Chartsheet
@@ -536,12 +562,51 @@ Enum EXLSheetType
 	Macrosheet
 End Enum
 
+Rem
+bbdoc: The visibility state of a sheet in an XLSX workbook.
+about:
+
+| State | Description |
+|-------|-------------|
+| Visible | The sheet is visible and can be accessed by the user. |
+| Hidden | The sheet is hidden and cannot be accessed by the user, but it can be made visible again. |
+| VeryHidden | The sheet is hidden and cannot be accessed by the user, and it cannot be made visible again through the Excel user interface. It can only be made visible again through VBA code or by editing the XLSX file directly. |
+
+End Rem
 Enum EXLSheetState
 	Visible
 	Hidden
 	VeryHidden
 End Enum
 
+Rem
+bbdoc: The properties of an XLSX workbook.
+about:
+
+| Property | Description |
+|----------|-------------|
+| Title | The title of the workbook. |
+| Subject | The subject of the workbook. |
+| Creator | The creator of the workbook. |
+| Keywords | The keywords associated with the workbook. |
+| Description | A description of the workbook. |
+| LastModifiedBy | The name of the last person who modified the workbook. |
+| LastPrinted | The date and time when the workbook was last printed. |
+| CreationDate | The date and time when the workbook was created. |
+| ModificationDate | The date and time when the workbook was last modified. |
+| Category | The category of the workbook. |
+| Application | The application used to create the workbook. |
+| DocSecurity | The document security level of the workbook. |
+| ScaleCrop | Whether the workbook is scaled to fit the page when printed. |
+| Manager | The manager of the workbook. |
+| Company | The company associated with the workbook. |
+| LinksUpToDate | Whether the links in the workbook are up to date. |
+| SharedDoc | Whether the workbook is shared. |
+| HyperlinkBase | The base URL for hyperlinks in the workbook. |
+| HyperlinksChanged | Whether the hyperlinks in the workbook have changed. |
+| AppVersion | The version of the application used to create the workbook. |
+
+End Rem
 Enum EXLProperty
 	Title
 	Subject
@@ -565,6 +630,18 @@ Enum EXLProperty
 	AppVersion
 End Enum
 
+Rem
+bbdoc: The underline style of a font in an XLSX workbook.
+about:
+
+| Style | Description |
+|-------|-------------|
+| XLUnderlineNone | No underline. |
+| XLUnderlineSingle | A single underline. |
+| XLUnderlineDouble | A double underline. |
+| XLUnderlineInvalid | An invalid underline style. |
+
+End Rem
 Enum EXLUnderlineStyle:Byte
 	XLUnderlineNone    = 0
 	XLUnderlineSingle  = 1
@@ -572,6 +649,18 @@ Enum EXLUnderlineStyle:Byte
 	XLUnderlineInvalid = 255
 End Enum
 
+Rem
+bbdoc: The font scheme style of a font in an XLSX workbook.
+about:
+
+| Style | Description |
+|-------|-------------|
+| XLFontSchemeNone | No font scheme. |
+| XLFontSchemeMajor | The major font scheme. |
+| XLFontSchemeMinor | The minor font scheme. |
+| XLFontSchemeInvalid | An invalid font scheme style. |
+
+End Rem
 Enum EXLFontSchemeStyle:Byte
 	XLFontSchemeNone    =   0
 	XLFontSchemeMajor   =   1
@@ -579,6 +668,18 @@ Enum EXLFontSchemeStyle:Byte
 	XLFontSchemeInvalid = 255
 End Enum
 
+Rem
+bbdoc: The vertical alignment style of a font in an XLSX workbook.
+about:
+
+| Style | Description |
+|-------|-------------|
+| XLBaseline | The text is aligned with the baseline. |
+| XLSubscript | The text is displayed as subscript. |
+| XLSuperscript | The text is displayed as superscript. |
+| XLVerticalAlignRunInvalid | An invalid vertical alignment style. |
+
+End Rem
 Enum EXLVerticalAlignRunStyle:Byte
 	XLBaseline                =   0
 	XLSubscript               =   1
@@ -586,18 +687,68 @@ Enum EXLVerticalAlignRunStyle:Byte
 	XLVerticalAlignRunInvalid = 255
 End Enum
 
+Rem
+bbdoc: The fill type of a fill in an XLSX workbook.
+about:
+
+| Type | Description |
+|------|-------------|
+| XLGradientFill | A gradient fill. |
+| XLPatternFill | A pattern fill. |
+| XLFillTypeInvalid | An invalid fill type. |
+
+End Rem
 Enum EXLFillType:Byte
 	XLGradientFill     =   0
 	XLPatternFill      =   1
 	XLFillTypeInvalid  = 255
 End Enum
 
+Rem
+bbdoc: The gradient type of a gradient fill in an XLSX workbook.
+about:
+
+| Type | Description |
+|------|-------------|
+| XLGradientLinear | A linear gradient fill. |
+| XLGradientPath | A path gradient fill. |
+| XLGradientTypeInvalid | An invalid gradient type. |
+
+End Rem
 Enum EXLGradientType:Byte
 	XLGradientLinear      =   0
 	XLGradientPath        =   1
 	XLGradientTypeInvalid = 255
 End Enum
 
+Rem
+bbdoc: The pattern type of a pattern fill in an XLSX workbook.
+about:
+
+| Type | Description |
+|------|-------------|
+| XLPatternNone | No pattern fill. |
+| XLPatternSolid | A solid fill. |
+| XLPatternMediumGray | A medium gray pattern fill. |
+| XLPatternDarkGray | A dark gray pattern fill. |
+| XLPatternLightGray | A light gray pattern fill. |
+| XLPatternDarkHorizontal | A dark horizontal pattern fill. |
+| XLPatternDarkVertical | A dark vertical pattern fill. |
+| XLPatternDarkDown | A dark downwards diagonal pattern fill. |
+| XLPatternDarkUp | A dark upwards diagonal pattern fill. |
+| XLPatternDarkGrid | A dark grid pattern fill. |
+| XLPatternDarkTrellis | A dark trellis pattern fill. |
+| XLPatternLightHorizontal | A light horizontal pattern fill. |
+| XLPatternLightVertical | A light vertical pattern fill. |
+| XLPatternLightDown | A light downwards diagonal pattern fill. |
+| XLPatternLightUp | A light upwards diagonal pattern fill. |
+| XLPatternLightGrid | A light grid pattern fill. |
+| XLPatternLightTrellis | A light trellis pattern fill. |
+| XLPatternGray125 | A 12.5% gray pattern fill. |
+| XLPatternGray0625 | A 6.25% gray pattern fill. | |
+| XLPatternTypeInvalid | An invalid pattern type. |
+
+End Rem
 Enum EXLPatternType:Byte
 	XLPatternNone            =   0
 	XLPatternSolid           =   1
@@ -621,6 +772,22 @@ Enum EXLPatternType:Byte
 	XLPatternTypeInvalid     = 255
 End Enum
 
+Rem
+bbdoc: The line type of a border line in an XLSX workbook.
+about:
+
+| Type | Description |
+|------|-------------|
+| XLLineLeft | The left border line. |
+| XLLineRight | The right border line. |
+| XLLineTop | The top border line. |
+| XLLineBottom | The bottom border line. |
+| XLLineDiagonal | The diagonal border line. |
+| XLLineVertical | The vertical border line (used in conditional formatting). |
+| XLLineHorizontal | The horizontal border line (used in conditional formatting). |
+| XLLineInvalid | An invalid line type. |
+
+End Rem
 Enum EXLLineType:Byte
 	XLLineLeft       =   0
 	XLLineRight      =   1
@@ -632,6 +799,29 @@ Enum EXLLineType:Byte
 	XLLineInvalid    = 255
 End Enum
 
+Rem
+bbdoc: The line style of a border line in an XLSX workbook.
+about:
+
+| Style | Description |
+|-------|-------------|
+| XLLineStyleNone | No line. |
+| XLLineStyleThin | A thin line. |
+| XLLineStyleMedium | A medium line. |
+| XLLineStyleDashed | A dashed line. |
+| XLLineStyleDotted | A dotted line. |
+| XLLineStyleThick | A thick line. |
+| XLLineStyleDouble | A double line. |
+| XLLineStyleHair | A hairline (very thin) line. |
+| XLLineStyleMediumDashed | A medium dashed line. |
+| XLLineStyleDashDot | A dash-dot line. |
+| XLLineStyleMediumDashDot | A medium dash-dot line. |
+| XLLineStyleDashDotDot | A dash-dot-dot line. |
+| XLLineStyleMediumDashDotDot | A medium dash-dot-dot line. |
+| XLLineStyleSlantDashDot | A slant dash-dot line. |
+| XLLineStyleInvalid | An invalid line style. |
+
+End Rem
 Enum EXLLineStyle:Byte
 	XLLineStyleNone             =   0
 	XLLineStyleThin             =   1
@@ -650,6 +840,24 @@ Enum EXLLineStyle:Byte
 	XLLineStyleInvalid          = 255
 End Enum
 
+Rem
+bbdoc: The alignment style of a cell in an XLSX workbook.
+about:
+
+| Style | Description |
+|-------|-------------|
+| XLAlignGeneral | The cell is aligned according to the type of value it contains. |
+| XLAlignLeft | The cell is aligned to the left. |
+| XLAlignRight | The cell is aligned to the right. |
+| XLAlignCenter | The cell is centered. |
+| XLAlignTop | The cell is aligned to the top. |
+| XLAlignBottom | The cell is aligned to the bottom. |
+| XLAlignFill | The cell is filled with the background color. |
+| XLAlignJustify | The cell is justified. |
+| XLAlignCenterContinuous | The cell is centered across the selection. |
+| XLAlignDistributed | The cell is distributed evenly across the selection. |
+
+End Rem
 Enum EXLAlignmentStyle:Byte
 	XLAlignGeneral          =   0
 	XLAlignLeft             =   1
@@ -663,6 +871,33 @@ Enum EXLAlignmentStyle:Byte
 	XLAlignDistributed      =   9
 End Enum
 
+Rem
+bbdoc: The type of a conditional formatting rule in an XLSX workbook.
+about:
+
+| Type | Description |
+|------|-------------|
+| Expression | A conditional formatting rule that is based on a formula. |
+| CellIs | A conditional formatting rule that is based on a comparison of the cell's value to a specified value or range of values. |
+| ColorScale | A conditional formatting rule that applies a color gradient to cells based on their values. |
+| DataBar | A conditional formatting rule that applies a data bar to cells based on their values. |
+| IconSet | A conditional formatting rule that applies an icon set to cells based on their values. |
+| Top10 | A conditional formatting rule that highlights the top 10 (or a specified number) of values in a range. |
+| UniqueValues | A conditional formatting rule that highlights unique values in a range. |
+| DuplicateValues | A conditional formatting rule that highlights duplicate values in a range. |
+| ContainsText | A conditional formatting rule that highlights cells that contain a specified text string. |
+| NotContainsText | A conditional formatting rule that highlights cells that do not contain a specified text string. |
+| BeginsWith | A conditional formatting rule that highlights cells that begin with a specified text string. |
+| EndsWith | A conditional formatting rule that highlights cells that end with a specified text string. |
+| ContainsBlanks | A conditional formatting rule that highlights cells that contain blank values. |
+| NotContainsBlanks | A conditional formatting rule that highlights cells that do not contain blank values. |
+| ContainsErrors | A conditional formatting rule that highlights cells that contain error values. | |
+| NotContainsErrors | A conditional formatting rule that highlights cells that do not contain error values. |
+| TimePeriod | A conditional formatting rule that highlights cells based on a specified time period (e.g., today, yesterday, last week). |
+| AboveAverage | A conditional formatting rule that highlights cells that are above the average value in a range. |
+| Invalid | An invalid conditional formatting rule type. |
+
+End Rem
 Enum EXLCfType:Byte
 	Expression        =   0
 	CellIs            =   1
@@ -685,6 +920,27 @@ Enum EXLCfType:Byte
 	Invalid           = 255
 End Enum
 
+Rem
+bbdoc: The operator used in a "CellIs" conditional formatting rule in an XLSX workbook.
+about:
+
+| Operator | Description |
+|----------|-------------|
+| LessThan | The cell's value is less than the specified value. |
+| LessThanOrEqual | The cell's value is less than or equal to the specified value. |
+| Equal | The cell's value is equal to the specified value. |
+| NotEqual | The cell's value is not equal to the specified value. |
+| GreaterThanOrEqual | The cell's value is greater than or equal to the specified value. |
+| GreaterThan | The cell's value is greater than the specified value. |
+| Between | The cell's value is between two specified values. |
+| NotBetween | The cell's value is not between two specified values. |
+| ContainsText | The cell's value contains the specified text string. |
+| NotContains | The cell's value does not contain the specified text string. |
+| BeginsWith | The cell's value begins with the specified text string. |
+| EndsWith | The cell's value ends with the specified text string. |
+| Invalid | An invalid operator. |
+
+End Rem
 Enum EXLCfOperator:Byte
 	LessThan           =   0
 	LessThanOrEqual    =   1
@@ -701,6 +957,25 @@ Enum EXLCfOperator:Byte
 	Invalid            = 255
 End Enum
 
+Rem
+bbdoc: The time period used in a "TimePeriod" conditional formatting rule in an XLSX workbook.
+about:
+
+| Time Period | Description |
+|-------------|-------------|
+| Today | The cell's value is today. |
+| Yesterday | The cell's value is yesterday. |
+| Tomorrow | The cell's value is tomorrow. |
+| Last7Days | The cell's value is in the last 7 days. |
+| ThisMonth | The cell's value is in the current month. |
+| LastMonth | The cell's value is in the previous month. |
+| NextMonth | The cell's value is in the next month. |
+| ThisWeek | The cell's value is in the current week. | |
+| LastWeek | The cell's value is in the previous week. |
+| NextWeek | The cell's value is in the next week. |
+| Invalid | An invalid time period. |
+
+End Rem
 Enum EXLCfTimePeriod:Byte
 	Today     =   0
 	Yesterday =   1

@@ -184,46 +184,79 @@ Type TXLWorkbook
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Adds a new worksheet with the specified @name to the workbook.
+	End Rem
 	Method AddWorksheet(name:String)
 		bmx_openxlsx_xlworkbook_addworksheet(workbookPtr, name)
 	End Method
 
+	Rem
+	bbdoc: Deletes the worksheet with the specified @name from the workbook.
+	End Rem
 	Method DeleteSheet(name:String)
 		bmx_openxlsx_xlworkbook_deletesheet(workbookPtr, name)
 	End Method
 
+	Rem
+	bbdoc: Clones the worksheet with the specified @name and gives the new worksheet the specified @newName.
+	End Rem
 	Method CloneSheet(name:String, newName:String)
 		bmx_openxlsx_xlworkbook_clonesheet(workbookPtr, name, newName)
 	End Method
 
+	Rem
+	bbdoc: Sets the index of the sheet with the specified @name to the specified @index.
+	End Rem
 	Method SetSheetIndex(name:String, index:UInt)
 		bmx_openxlsx_xlworkbook_setsheetindex(workbookPtr, name, index)
 	End Method
 
+	Rem
+	bbdoc: Gets the index of the sheet with the specified @name.
+	End Rem
 	Method IndexOfSheet:UInt(name:String)
 		Return bmx_openxlsx_xlworkbook_indexofsheet(workbookPtr, name)
 	End Method
 
+	Rem
+	bbdoc: Gets the type of the sheet with the specified @name.
+	End Rem
 	Method TypeOfSheet:EXLSheetType(name:String)
 		Return bmx_openxlsx_xlworkbook_typeofsheet(workbookPtr, name)
 	End Method
 
+	Rem
+	bbdoc: Gets the type of the sheet with the specified @index.
+	End Rem
 	Method TypeOfSheet:EXLSheetType(index:UInt)
 		Return bmx_openxlsx_xlworkbook_typeofsheetbyindex(workbookPtr, index)
 	End Method
 
+	Rem
+	bbdoc: Determines if a sheet with the specified @name exists in the workbook.
+	End Rem
 	Method WorksheetExists:Int(name:String)
 		Return bmx_openxlsx_xlworkbook_worksheetexists(workbookPtr, name)
 	End Method
 
+	Rem
+	bbdoc: Gets the worksheet with the specified @name.
+	End Rem
 	Method Worksheet:TXLWorkSheet(name:String)
 		Return TXLWorkSheet._Create(bmx_openxlsx_xlworkbook_worksheet_str(workbookPtr, name))
 	End Method
 
+	Rem
+	bbdoc: Gets the worksheet with the specified @index.
+	End Rem
 	Method Worksheet:TXLWorkSheet(index:Short)
 		Return TXLWorkSheet._Create(bmx_openxlsx_xlworkbook_worksheet(workbookPtr, index))
 	End Method
 
+	Rem
+	bbdoc: Gets an array of the names of all worksheets in the workbook.
+	End Rem
 	Method WorksheetNames:String[]()
 		Return bmx_openxlsx_xlworkbook_worksheetnames(workbookPtr)
 	End Method
@@ -237,6 +270,9 @@ Type TXLWorkbook
 	
 End Type
 
+Rem
+bbdoc: Represents a worksheet within a workbook.
+End Rem
 Type TXLWorkSheet
 
 	Field worksheetPtr:Byte Ptr
@@ -250,286 +286,499 @@ Type TXLWorkSheet
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the cell with the specified @name, e.g. "A1", "B2", etc.
+	End Rem
 	Method Cell:TXLCell(name:String)
 		Return TXLCell._Create(bmx_openxlsx_xlworksheet_cell(worksheetPtr, name))
 	End Method
 
+	Rem
+	bbdoc: Gets the cell with the specified @reference.
+	End Rem
 	Method Cell:TXLCell(reference:TXLCellReference)
 		Return TXLCell._Create(bmx_openxlsx_xlworksheet_cell_ref(worksheetPtr, reference.referencePtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the visibility state of the worksheet.
+	End Rem
 	Method Visibility:EXLSheetState()
 		Return bmx_openxlsx_xlworksheet_visibility(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the visibility state of the worksheet.
+	End Rem
 	Method SetVisibility(state:EXLSheetState)
 		bmx_openxlsx_xlworksheet_setvisibility(worksheetPtr, state)
 	End Method
 
+	Rem
+	bbdoc: Gets the tab color of the worksheet as an #SColor8 value.
+	End Rem
 	Method Color:SColor8()
 		Return bmx_openxlsx_xlworksheet_color(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the tab color of the worksheet using an #SColor8 value.
+	End Rem
 	Method SetColor(color:SColor8)
 		bmx_openxlsx_xlworksheet_setcolor(worksheetPtr, color)
 	End Method
 
+	Rem
+	bbdoc: Gets the index of the worksheet within the workbook.
+	End Rem
 	Method Index:Short()
 		Return bmx_openxlsx_xlworksheet_index(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the index of the worksheet within the workbook.
+	End Rem
 	Method SetIndex(index:Short)
 		bmx_openxlsx_xlworksheet_setindex(worksheetPtr, index)
 	End Method
 
+	Rem
+	bbdoc: Gets the name of the worksheet.
+	End Rem
 	Method Name:String()
 		Return bmx_openxlsx_xlworksheet_name(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the name of the worksheet.
+	End Rem
 	Method SetName(name:String)
 		bmx_openxlsx_xlworksheet_setname(worksheetPtr, name)
 	End Method
 
+	Rem
+	bbdoc: Determines if the worksheet is selected.
+	End Rem
 	Method IsSelected:Int()
 		Return bmx_openxlsx_xlworksheet_isselected(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the selection state of the worksheet.
+	End Rem
 	Method SetSelected(selected:Int)
 		bmx_openxlsx_xlworksheet_setselected(worksheetPtr, selected)
 	End Method
 
+	Rem
+	bbdoc: Determines if the worksheet is the active sheet in the workbook.
+	End Rem
 	Method IsActive:Int()
 		Return bmx_openxlsx_xlworksheet_isactive(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the worksheet as the active sheet in the workbook.
+	End Rem
 	Method SetActive()
 		bmx_openxlsx_xlworksheet_setactive(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Clones the worksheet with a new name.
+	End Rem
 	Method Clone(newName:String)
 		bmx_openxlsx_xlworksheet_clone(worksheetPtr, newName)
 	End Method
 
+	Rem
+	bbdoc: Gets the range of cells that contain data in the worksheet.
+	End Rem
 	Method Range:TXLCellRange()
 		Return TXLCellRange._Create(bmx_openxlsx_xlworksheet_range(worksheetPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the range of cells with the specified top-left and bottom-right corners.
+	End Rem
 	Method Range:TXLCellRange(topLeft:String, bottomRight:String)
 		Return TXLCellRange._Create(bmx_openxlsx_xlworksheet_range_str(worksheetPtr, topLeft, bottomRight))
 	End Method
 
+	Rem
+	bbdoc: Gets the range of cells with the specified top-left and bottom-right corners.
+	End Rem
 	Method Range:TXLCellRange(topLeft:TXLCellReference, bottomRight:TXLCellReference)
 		Return TXLCellRange._Create(bmx_openxlsx_xlworksheet_range_ref(worksheetPtr, topLeft.referencePtr, bottomRight.referencePtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the range of cells with the specified range reference.
+	End Rem
 	Method Range:TXLCellRange(rangeReference:String)
 		Return TXLCellRange._Create(bmx_openxlsx_xlworksheet_range_refstr(worksheetPtr, rangeReference))
 	End Method
 
+	Rem
+	bbdoc: Gets the row with the specified row number.
+	End Rem
 	Method Row:TXLRow(rowNumber:UInt)
 		Return TXLRow._Create(bmx_openxlsx_xlworksheet_row(worksheetPtr, rowNumber))
 	End Method
 
+	Rem
+	bbdoc: Gets the range of rows in the worksheet.
+	End Rem
 	Method Rows:TXLRowRange()
 		Return TXLRowRange._Create(bmx_openxlsx_xlworksheet_rows(worksheetPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the range of rows with the specified row count.
+	End Rem
 	Method Rows:TXLRowRange(rowCount:UInt)
 		Return TXLRowRange._Create(bmx_openxlsx_xlworksheet_rows_count(worksheetPtr, rowCount))
 	End Method
 
+	Rem
+	bbdoc: Gets the range of rows with the specified first and last row.
+	End Rem
 	Method Rows:TXLRowRange(firstRow:UInt, lastRow:UInt)
 		Return TXLRowRange._Create(bmx_openxlsx_xlworksheet_rows_range(worksheetPtr, firstRow, lastRow))
 	End Method
 
+	Rem
+	bbdoc: Gets the column with the specified column number.
+	End Rem
 	Method Column:TXLColumn(columnNumber:Short)
 		Return TXLColumn._Create(bmx_openxlsx_xlworksheet_column(worksheetPtr, columnNumber))
 	End Method
 
+	Rem
+	bbdoc: Gets the column with the specified column reference.
+	End Rem
 	Method Column:TXLColumn(columnRef:String)
 		Return TXLColumn._Create(bmx_openxlsx_xlworksheet_column_str(worksheetPtr, columnRef))
 	End Method
 
+	Rem
+	bbdoc: Gets the last cell in the worksheet.
+	End Rem
 	Method LastCell:TXLCell()
 		Return TXLCell._Create(bmx_openxlsx_xlworksheet_lastcell(worksheetPtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the number of columns in the worksheet.
+	End Rem
 	Method ColumnCount:Short()
 		Return bmx_openxlsx_xlworksheet_columncount(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the number of rows in the worksheet.
+	End Rem
 	Method RowCount:UInt()
 		Return bmx_openxlsx_xlworksheet_rowcount(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Deletes the row with the specified @rowNumber from the worksheet.
+	End Rem
 	Method DeleteRow(rowNumber:UInt)
 		bmx_openxlsx_xlworksheet_deleterow(worksheetPtr, rowNumber)
 	End Method
 
+	Rem
+	bbdoc: Updates the name of the worksheet.
+	End Rem
 	Method UpdateSheetName(oldName:String, newName:String)
 		bmx_openxlsx_xlworksheet_updatesheetname(worksheetPtr, oldName, newName)
 	End Method
 
+	Rem
+	bbdoc: Enables or disables sheet protection.
+	End Rem
 	Method ProtectSheet:Int(set:Int = True)
 		Return bmx_openxlsx_xlworksheet_protectsheet(worksheetPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Enables or disables protection of objects on the sheet.
+	End Rem
 	Method ProtectObjects:Int(set:Int = True)
 		Return bmx_openxlsx_xlworksheet_protectobjects(worksheetPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Enables or disables protection of scenarios on the sheet.
+	End Rem
 	Method ProtectScenarios:Int(set:Int = True)
 		Return bmx_openxlsx_xlworksheet_protectscenarios(worksheetPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Enables or disables the ability to insert columns on the sheet.
+	End Rem
 	Method AllowInsertColumns:Int(set:Int = True)
 		Return bmx_openxlsx_xlworksheet_allowinsertcolumns(worksheetPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Enables or disables the ability to insert rows on the sheet.
+	End Rem
 	Method AllowInsertRows:Int(set:Int = True)
 		Return bmx_openxlsx_xlworksheet_allowinsertrows(worksheetPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Enables or disables the ability to delete columns on the sheet.
+	End Rem
 	Method AllowDeleteColumns:Int(set:Int = True)
 		Return bmx_openxlsx_xlworksheet_allowdeletecolumns(worksheetPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Enables or disables the ability to delete rows on the sheet.
+	End Rem
 	Method AllowDeleteRows:Int(set:Int = True)
 		Return bmx_openxlsx_xlworksheet_allowdeleterows(worksheetPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Enables or disables the ability to select locked cells on the sheet.
+	End Rem
 	Method AllowSelectLockedCells:Int(set:Int = True)
 		Return bmx_openxlsx_xlworksheet_allowselectlockedcells(worksheetPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Enables or disables the ability to select unlocked cells on the sheet.
+	End Rem
 	Method AllowSelectUnlockedCells:Int(set:Int = True)
 		Return bmx_openxlsx_xlworksheet_allowselectunlockedcells(worksheetPtr, set)
 	End Method
 
+	Rem
+	bbdoc: Denies the ability to insert columns on the sheet.
+	End Rem
 	Method DenyInsertColumns:Int()
 		Return AllowInsertColumns(False)
 	End Method
 
+	Rem
+	bbdoc: Denies the ability to insert rows on the sheet.
+	End Rem
 	Method DenyInsertRows:Int()
 		Return AllowInsertRows(False)
 	End Method
 
+	Rem
+	bbdoc: Denies the ability to delete columns on the sheet.
+	End Rem
 	Method DenyDeleteColumns:Int()
 		Return AllowDeleteColumns(False)
 	End Method
 
+	Rem
+	bbdoc: Denies the ability to delete rows on the sheet.
+	End Rem
 	Method DenyDeleteRows:Int()
 		Return AllowDeleteRows(False)
 	End Method
 
+	Rem
+	bbdoc: Denies the ability to select locked cells on the sheet.
+	End Rem
 	Method DenySelectLockedCells:Int()
 		Return AllowSelectLockedCells(False)
 	End Method
 
+	Rem
+	bbdoc: Denies the ability to select unlocked cells on the sheet.
+	End Rem
 	Method DenySelectUnlockedCells:Int()
 		Return AllowSelectUnlockedCells(False)
 	End Method
 
+	Rem
+	bbdoc: Sets the password hash for the worksheet.
+	End Rem
 	Method SetPasswordHash:Int(hash:String)
 		Return bmx_openxlsx_xlworksheet_setpasswordhash(worksheetPtr, hash)
 	End Method
 
+	Rem
+	bbdoc: Sets the password for the worksheet.
+	End Rem
 	Method SetPassword:Int(password:String)
 		Return bmx_openxlsx_xlworksheet_setpassword(worksheetPtr, password)
 	End Method
 
+	Rem
+	bbdoc: Clears the password for the worksheet.
+	End Rem
 	Method ClearPassword:Int()
 		Return bmx_openxlsx_xlworksheet_clearpassword(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Clears all protection from the worksheet.
+	End Rem
 	Method ClearSheetProtection:Int()
 		Return bmx_openxlsx_xlworksheet_clearsheetprotection(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if the worksheet is protected.
+	End Rem
 	Method SheetProtected:Int()
 		Return bmx_openxlsx_xlworksheet_sheetprotected(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if the objects on the worksheet are protected.
+	End Rem
 	Method ObjectsProtected:Int()
 		Return bmx_openxlsx_xlworksheet_objectsprotected(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if the scenarios on the worksheet are protected.
+	End Rem
 	Method ScenariosProtected:Int()
 		Return bmx_openxlsx_xlworksheet_scenariosprotected(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if inserting columns is allowed on the sheet.
+	End Rem
 	Method InsertColumnsAllowed:Int()
 		Return bmx_openxlsx_xlworksheet_insertcolumnsallowed(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if inserting rows is allowed on the sheet.
+	End Rem
 	Method InsertRowsAllowed:Int()
 		Return bmx_openxlsx_xlworksheet_insertrowsallowed(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if deleting columns is allowed on the sheet.
+	End Rem
 	Method DeleteColumnsAllowed:Int()
 		Return bmx_openxlsx_xlworksheet_deletecolumnsallowed(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if deleting rows is allowed on the sheet.
+	End Rem
 	Method DeleteRowsAllowed:Int()
 		Return bmx_openxlsx_xlworksheet_deleterowsallowed(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if selecting locked cells is allowed on the sheet.
+	End Rem
 	Method SelectLockedCellsAllowed:Int()
 		Return bmx_openxlsx_xlworksheet_selectlockedcellsallowed(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if selecting unlocked cells is allowed on the sheet.
+	End Rem
 	Method SelectUnlockedCellsAllowed:Int()
 		Return bmx_openxlsx_xlworksheet_selectunlockedcellsallowed(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the password hash for the worksheet.
+	End Rem
 	Method PasswordHash:String()
 		Return bmx_openxlsx_xlworksheet_passwordhash(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Checks if a password is set for the worksheet.
+	End Rem
 	Method PasswordIsSet:Int()
 		Return bmx_openxlsx_xlworksheet_passwordisset(worksheetPtr)
 	End Method
 
+	Rem
+	bbdoc: Merges the specified range of cells into a single cell.
+	End Rem
 	Method MergeCells(range:TXLCellRange, emptyHiddenCells:Int = False)
 		bmx_openxlsx_xlworksheet_mergecells(worksheetPtr, range.rangePtr, emptyHiddenCells)
 	End Method
 
+	Rem
+	bbdoc: Merges the specified range of cells into a single cell.
+	End Rem
 	Method MergeCells(rangeReference:String, emptyHiddenCells:Int = False)
 		bmx_openxlsx_xlworksheet_mergecells_str(worksheetPtr, rangeReference, emptyHiddenCells)
 	End Method
 
+	Rem
+	bbdoc: Unmerges the specified range of cells.
+	End Rem
 	Method UnmergeCells(rangeToUnmerge:TXLCellRange)
 		bmx_openxlsx_xlworksheet_unmergecells(worksheetPtr, rangeToUnmerge.rangePtr)
 	End Method
 
+	Rem
+	bbdoc: Unmerges the specified range of cells.
+	End Rem
 	Method UnmergeCells(rangeReference:String)
 		bmx_openxlsx_xlworksheet_unmergecells_str(worksheetPtr, rangeReference)
 	End Method
 
+	Rem
+	bbdoc: Gets the format index for the specified column.
+	End Rem
 	Method GetColumnFormat:Size_T(column:Short)
 		Return bmx_openxlsx_xlworksheet_getcolumnformat(worksheetPtr, column)
 	End Method
 
+	Rem
+	bbdoc: Gets the format index for the specified column.
+	End Rem
 	Method GetColumnFormat:Size_T(columnRef:String)
 		Return bmx_openxlsx_xlworksheet_getcolumnformat_str(worksheetPtr, columnRef)
 	End Method
 
+	Rem
+	bbdoc: Sets the format index for the specified column.
+	End Rem
 	Method SetColumnFormat(column:Short, cellFormatIndex:Size_T)
 		bmx_openxlsx_xlworksheet_setcolumnformat(worksheetPtr, column, cellFormatIndex)
 	End Method
 
+	Rem
+	bbdoc: Sets the format index for the specified column.
+	End Rem
 	Method SetColumnFormat(columnRef:String, cellFormatIndex:Size_T)
 		bmx_openxlsx_xlworksheet_setcolumnformat_str(worksheetPtr, columnRef, cellFormatIndex)
 	End Method
 
+	Rem
+	bbdoc: Gets the format index for the specified row.
+	End Rem
 	Method GetRowFormat:Size_T(row:UInt)
 		Return bmx_openxlsx_xlworksheet_getrowformat(worksheetPtr, row)
 	End Method
 
+	Rem
+	bbdoc: Sets the format index for the specified row.
+	End Rem
 	Method SetRowFormat(row:UInt, cellFormatIndex:Size_T)
 		bmx_openxlsx_xlworksheet_setrowformat(worksheetPtr, row, cellFormatIndex)
 	End Method
 
+	Rem
+	bbdoc: Gets the conditional formats for the worksheet.
+	End Rem
 	Method ConditionalFormats:TXLConditionalFormats()
 		Return TXLConditionalFormats._Create(bmx_openxlsx_xlworksheet_conditionalformats(worksheetPtr))
 	End Method
@@ -542,6 +791,9 @@ Type TXLWorkSheet
 	End Method
 End Type
 
+Rem
+bbdoc: Encapsulates the concept of a cell range, i.e. a square area (or subset) of cells in a spreadsheet.
+End Rem
 Type TXLCellRange Implements IIterable<TXLCell>
 
 	Field rangePtr:Byte Ptr
@@ -556,94 +808,163 @@ Type TXLCellRange Implements IIterable<TXLCell>
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets an iterator for the cells in the range.
+	End Rem
 	Method GetIterator:IIterator<TXLCell>() Override
 		Return TXLCellRangeIterator._Create(Self, bmx_openxlsx_xlcellrange_iterator(rangePtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the string reference that corresponds to the represented cell range.
+	End Rem
 	Method Address:String()
 		Return bmx_openxlsx_xlcellrange_address(rangePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the top-left cell reference of the range.
+	End Rem
 	Method TopLeft:TXLCellReference()
 		Return TXLCellReference._Create(bmx_openxlsx_xlcellrange_topleft(rangePtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the bottom-right cell reference of the range.
+	End Rem
 	Method BottomRight:TXLCellReference()
 		Return TXLCellReference._Create(bmx_openxlsx_xlcellrange_bottomright(rangePtr))
 	End Method
 
+	Rem
+	bbdoc: Gets the number of rows in the range.
+	End Rem
 	Method NumRows:UInt()
 		Return bmx_openxlsx_xlcellrange_numrows(rangePtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the number of columns in the range.
+	End Rem
 	Method NumColumns:Short()
 		Return bmx_openxlsx_xlcellrange_numcolumns(rangePtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #Float value.
+	End Rem
 	Method SetValue(value:Float)
 		bmx_openxlsx_xlcellrange_setvalue_double(rangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #Float value.
+	End Rem
 	Method SetValueFloat(value:Float)
 		bmx_openxlsx_xlcellrange_setvalue_double(rangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #Double value.
+	End Rem
 	Method SetValue(value:Double)
 		bmx_openxlsx_xlcellrange_setvalue_double(rangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #Double value.
+	End Rem
 	Method SetValueDouble(value:Double)
 		bmx_openxlsx_xlcellrange_setvalue_double(rangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #Int value.
+	End Rem
 	Method SetValue(value:Int)
 		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #Int value.
+	End Rem
 	Method SetValueInt(value:Int)
 		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #Long value.
+	End Rem
 	Method SetValue(value:Long)
 		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #Long value.
+	End Rem
 	Method SetValueLong(value:Long)
 		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #UInt value
+	End Rem
 	Method SetValue(value:UInt)
 		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #UInt value
+	End Rem
 	Method SetValueUInt(value:UInt)
 		bmx_openxlsx_xlcellrange_setvalue_long(rangePtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #ULong value
+	End Rem
 	Method SetValue(value:ULong)
 		bmx_openxlsx_xlcellrange_setvalue_ulong(rangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #ULong value
+	End Rem
 	Method SetValueULong(value:ULong)
 		bmx_openxlsx_xlcellrange_setvalue_ulong(rangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #String value
+	End Rem
 	Method SetValue(value:String)
 		bmx_openxlsx_xlcellrange_setvalue_string(rangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #String value
+	End Rem
 	Method SetValueString(value:String)
 		bmx_openxlsx_xlcellrange_setvalue_string(rangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of all cells in the range to the specified #Int value, where non-zero is treated as #True and zero is treated as #False.
+	End Rem
 	Method SetValueBool(value:Int)
 		bmx_openxlsx_xlcellrange_setvalue_bool(rangePtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the cell format for all cells in the range to the specified format index.
+	End Rem
 	Method SetFormat:Int(formatIndex:Size_T)
 		bmx_openxlsx_xlcellrange_setformat(rangePtr, formatIndex)
 	End Method
 
+	Rem
+	bbdoc: Gets the distance (number of cells) in the range.
+	End Rem
 	Method Distance:ULong()
 		If _distance Then
 			Return _distance
@@ -662,6 +983,9 @@ Type TXLCellRange Implements IIterable<TXLCell>
 
 End Type
 
+Rem
+bbdoc: An iterator for iterating over the cells in a #TXLCellRange.
+End Rem
 Type TXLCellRangeIterator Implements IIterator<TXLCell>, ICloseable
 
 	Field _range:TXLCellRange
@@ -678,10 +1002,16 @@ Type TXLCellRangeIterator Implements IIterator<TXLCell>, ICloseable
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Gets the current cell in the iteration.
+	End Rem
 	Method Current:TXLCell() Override
 		Return _current
 	End Method
 
+	Rem
+	bbdoc: Advances the iterator to the next cell in the range, returning #True if there is a next cell or #False if the end of the range has been reached.
+	End Rem
 	Method MoveNext:Int() Override
 		If bmx_openxlsx_xlcellrange_iterator_hasnext(_iteratorPtr) Then
 			_current = TXLCell._Create(bmx_openxlsx_xlcellrange_iterator_next(_iteratorPtr))
@@ -691,6 +1021,9 @@ Type TXLCellRangeIterator Implements IIterator<TXLCell>, ICloseable
 		Return False
 	End Method
 
+	Rem
+	bbdoc: Closes the iterator and releases any associated resources.
+	End Rem
 	Method Close() Override
 		If _iteratorPtr Then
 			_range = Null
@@ -709,6 +1042,9 @@ Type TXLCellRangeIterator Implements IIterator<TXLCell>, ICloseable
 
 End Type
 
+Rem
+bbdoc: Represents a single cell in a worksheet, encapsulating the properties and behaviours of a spreadsheet cell.
+End Rem
 Type TXLCell
 
 	Field cellPtr:Byte Ptr
@@ -722,122 +1058,220 @@ Type TXLCell
 		Return Null
 	End Function
 
+	Rem
+	bbdoc: Determines if the cell is empty (i.e. has no value).
+	End Rem
 	Method Empty:Int()
 		Return bmx_openxlsx_xlcell_empty(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the type of value stored in the cell.
+	End Rem
 	Method ValueType:EXLValueType()
 		Return bmx_openxlsx_xlcell_valuetype(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #Float value.
+	End Rem
 	Method SetValue(value:Float)
 		bmx_openxlsx_xlcell_setvalue_double(cellPtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #Float value.
+	End Rem
 	Method SetValueFloat(value:Float)
 		bmx_openxlsx_xlcell_setvalue_double(cellPtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #Double value.
+	End Rem
 	Method SetValue(value:Double)
 		bmx_openxlsx_xlcell_setvalue_double(cellPtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #Double value.
+	End Rem
 	Method SetValueDouble(value:Double)
 		bmx_openxlsx_xlcell_setvalue_double(cellPtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #Int value.
+	End Rem
 	Method SetValue(value:Int)
 		bmx_openxlsx_xlcell_setvalue_long(cellPtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #Int value.
+	End Rem
 	Method SetValueInt(value:Int)
 		bmx_openxlsx_xlcell_setvalue_long(cellPtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #Long value.
+	End Rem
 	Method SetValue(value:Long)
 		bmx_openxlsx_xlcell_setvalue_long(cellPtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #Long value.
+	End Rem
 	Method SetValueLong(value:Long)
 		bmx_openxlsx_xlcell_setvalue_long(cellPtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #UInt value
+	End Rem
 	Method SetValue(value:UInt)
 		bmx_openxlsx_xlcell_setvalue_long(cellPtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #UInt value
+	End Rem
 	Method SetValueUInt(value:UInt)
 		bmx_openxlsx_xlcell_setvalue_long(cellPtr, Long(value))
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #ULong value
+	End Rem
 	Method SetValue(value:ULong)
 		bmx_openxlsx_xlcell_setvalue_ulong(cellPtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #ULong value
+	End Rem
 	Method SetValueULong(value:ULong)
 		bmx_openxlsx_xlcell_setvalue_ulong(cellPtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #String value
+	End Rem
 	Method SetValue(value:String)
 		bmx_openxlsx_xlcell_setvalue_string(cellPtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #String value
+	End Rem
 	Method SetValueString(value:String)
 		bmx_openxlsx_xlcell_setvalue_string(cellPtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the specified #Int value, where non-zero is treated as #True and zero is treated as #False.
+	End Rem
 	Method SetValueBool(value:Int)
 		bmx_openxlsx_xlcell_setvalue_bool(cellPtr, value)
 	End Method
 
+	Rem
+	bbdoc: Sets the value of the cell to the value of another @cell.
+	End Rem
 	Method SetValue(cell:TXLCell)
 		bmx_openxlsx_xlcell_setvalue_cell(cellPtr, cell.cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the value of the cell as a #Double.
+	about: If the cell contains a value that cannot be represented as a #Double, this method will throw an TXLValueTypeError.
+	End Rem
 	Method GetValueDouble:Double()
 		Return bmx_openxlsx_xlcell_getvalue_double(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the value of the cell as a #Long.
+	about: If the cell contains a value that cannot be represented as a #Long, this method will throw an TXLValueTypeError.
+	End Rem
 	Method GetValueLong:Long()
 		Return bmx_openxlsx_xlcell_getvalue_long(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the value of the cell as a #ULong.
+	about: If the cell contains a value that cannot be represented as a #ULong, this method will throw an TXLValueTypeError.
+	End Rem
 	Method GetValueULong:ULong()
 		Return bmx_openxlsx_xlcell_getvalue_ulong(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the value of the cell as a #String.
+	End Rem
 	Method GetValueString:String()
 		Return bmx_openxlsx_xlcell_getvalue_string(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the value of the cell as a #Int, where non-zero is treated as #True and zero is treated as #False.
+	about: If the cell contains a value that cannot be represented as a #Int, this method will throw an TXLValueTypeError.
+	End Rem
 	Method GetValueBool:Int()
 		Return bmx_openxlsx_xlcell_getvalue_bool(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the type of the value stored in the cell as a string.
+	End Rem
 	Method TypeAsString:String()
 		Return bmx_openxlsx_xlcell_typeasstring(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Determines if the cell contains a formula.
+	End Rem
 	Method HasFormula:Int()
 		Return bmx_openxlsx_xlcell_hasformula(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the formula stored in the cell as a string.
+	End Rem
 	Method Formula:String()
 		Return bmx_openxlsx_xlcell_formula(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the formula for the cell.
+	about: The formula should be provided as a string in the same format as it would be entered into Excel, e.g. "=SUM(A1:A10)".
+	End Rem
 	Method SetFormula(formula:String)
 		bmx_openxlsx_xlcell_setformula(cellPtr, formula)
 	End Method
 
+	Rem
+	bbdoc: Clears the formula from the cell, if one exists.
+	about: This will not clear the value from the cell, so if the cell had a formula that evaluated to a value, the value will remain in the cell after calling this method.
+	End Rem
 	Method ClearFormula()
 		bmx_openxlsx_xlcell_clearformula(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Gets the format index for the cell.
+	about: The format index corresponds to a cell format defined in the workbook's styles.
+	End Rem
 	Method CellFormat:Size_T()
 		Return bmx_openxlsx_xlcell_cellformat(cellPtr)
 	End Method
 
+	Rem
+	bbdoc: Sets the format index for the cell.
+	about: The format index corresponds to a cell format defined in the workbook's styles.
+	End Rem
 	Method SetCellFormat:Int(cellFormatIndex:Size_T)
 		Return bmx_openxlsx_xlcell_setcellformat(cellPtr, cellFormatIndex)
 	End Method
