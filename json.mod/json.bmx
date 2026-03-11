@@ -1,4 +1,4 @@
-' Copyright (c) 2014-2025 Bruce A Henderson
+' Copyright (c) 2014-2026 Bruce A Henderson
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -25,11 +25,13 @@ bbdoc: A JSON encoder/decoder.
 End Rem
 Module Text.Json
 
-ModuleInfo "Version: 1.05"
+ModuleInfo "Version: 1.06"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
-ModuleInfo "Copyright: 2014-2025 Bruce A Henderson"
+ModuleInfo "Copyright: 2014-2026 Bruce A Henderson"
 
+ModuleInfo "History: 1.06"
+ModuleInfo "History: Added TJSONNull Create method."
 ModuleInfo "History: 1.05"
 ModuleInfo "History: Fixed _dumpCallback returning wrong values."
 ModuleInfo "History: 1.04"
@@ -56,6 +58,9 @@ Type TJSON
 
 	Field jsonPtr:Byte Ptr
 	
+	Rem
+	bbdoc: The key associated with this JSON value, if any.
+	End Rem
 	Field key:String
 
 	Function _create:TJSON(jsonPtr:Byte Ptr, jsonType:Int, key:String) { nomangle }
@@ -742,6 +747,14 @@ Rem
 bbdoc: A JSON Null.
 End Rem
 Type TJSONNull Extends TJSON
+
+	Rem
+	bbdoc: Creates a new #TJSONNull.
+	End Rem
+	Method Create:TJSONNull()
+		jsonPtr = bmx_json_null()
+		Return Self
+	End Method
 
 End Type
 

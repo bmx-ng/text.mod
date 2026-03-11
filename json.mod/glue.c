@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014-2025 Bruce A Henderson
+  Copyright (c) 2014-2026 Bruce A Henderson
  
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -62,6 +62,7 @@ int bmx_json_object_del(json_t * handle, BBString * key);
 BBObject * bmx_json_object_iter_value(void * iter);
 
 json_t * bmx_json_bool(int v);
+json_t * bmx_json_null();
 
 
 void bmx_json_decref(json_t * handle) {
@@ -208,4 +209,8 @@ BBObject * bmx_json_object_iter_value(void * iter) {
 
 json_t * bmx_json_bool(int v) {
 	return json_boolean(v);
+}
+
+json_t * bmx_json_null() {
+	return json_null();
 }
