@@ -1,4 +1,4 @@
-' Copyright (c) 2014-2025 Bruce A Henderson
+' Copyright (c) 2014-2026 Bruce A Henderson
 ' 
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -73,6 +73,7 @@ Extern
 	Function bmx_json_object_iter_value:Object(iter:Byte Ptr)
 
 	Function bmx_json_bool:Byte Ptr(v:Int)
+	Function bmx_json_null:Byte Ptr()
 	
 End Extern
 
