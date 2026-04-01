@@ -19,10 +19,12 @@ bbdoc: XML
 End Rem
 Module Text.XML
 
-ModuleInfo "Version: 1.00"
+ModuleInfo "Version: 1.01"
 ModuleInfo "License: Apache 2.0"
 ModuleInfo "Copyright: 2019-2026 Bruce A Henderson"
 
+ModuleInfo "History: 1.01"
+ModuleInfo "History: Error callback now accepts a string message instead of a byte pointer."
 ModuleInfo "History: 1.00"
 ModuleInfo "History: Initial Release."
 
@@ -33,9 +35,11 @@ Import Collections.ObjectList
 bmx_mxmlSetWrapMargin(0)
 
 Rem
-bbdoc: Sets the callback for handing errors, errors will print if not set.
+bbdoc: Sets the callback for handing XML errors
+about: If not set, errors will print to the standard error output.
+Passing #Null will reset to the default error handling.
 End Rem
-Function XMLSetErrorCallback(callback(message:Byte Ptr))
+Function XMLSetErrorCallback(callback(message:String))
 	bmx_mxmlSetErrorCallback(callback)
 EndFunction
 
