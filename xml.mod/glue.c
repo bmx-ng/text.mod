@@ -669,7 +669,23 @@ mxml_node_t * bmx_mxmlFindElementCaseInsensitive(mxml_node_t * node, BBString * 
 	return cur;
 }
 
+typedef void (*bmx_xml_error_callback)(BBString * message);
+static bmx_xml_error_callback _error_callback = NULL;
 
-void bmx_mxmlSetErrorCallback(mxml_error_cb_t cb){
-	mxmlSetErrorCallback(cb);
+static void bmx_xml_error_callback_wrapper(const char * message) {
+	if (_error_callback) {
+		BBString * s = bbStringFromUTF8String(message);
+		_error_callback(s);
+	}
+}
+
+void bmx_mxmlSetErrorCallback(void * cb) {
+	if (cb && cb != &brl_blitz_NullFunctionError) {
+		_error_callback = (bmx_xml_error_callback)cb;
+	} else {
+		cb = NULL;
+		_error_callback = NULL;
+	}
+
+	mxmlSetErrorCallback(cb ? bmx_xml_error_callback_wrapper : NULL);
 }
