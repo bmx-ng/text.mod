@@ -36,7 +36,11 @@ Rem
 bbdoc: Sets the callback for handing errors, errors will print if not set.
 End Rem
 Function XMLSetErrorCallback(callback(message:Byte Ptr))
-	bmx_mxmlSetErrorCallback(callback)
+	If callback
+		bmx_mxmlSetErrorCallback(callback)
+	Else
+		bmx_mxmlUnsetErrorCallback()
+	EndIf
 EndFunction
 
 Rem

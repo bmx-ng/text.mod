@@ -673,3 +673,7 @@ mxml_node_t * bmx_mxmlFindElementCaseInsensitive(mxml_node_t * node, BBString * 
 void bmx_mxmlSetErrorCallback(mxml_error_cb_t cb){
 	mxmlSetErrorCallback(cb);
 }
+
+void bmx_mxmlUnsetErrorCallback(){
+	mxmlSetErrorCallback(NULL);
+}

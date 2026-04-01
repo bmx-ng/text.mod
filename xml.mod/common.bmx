@@ -73,6 +73,7 @@ Extern
 	Function bmx_mxmlElementGetAttrCaseInsensitive_append_stringbuilder(handle:Byte Ptr, name:String, sb:Byte Ptr, found:Int var)
 	
 	Function bmx_mxmlSetErrorCallback(callback(message:Byte Ptr))
+	Function bmx_mxmlUnsetErrorCallback()
 End Extern
 
 Rem
