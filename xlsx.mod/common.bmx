@@ -481,6 +481,7 @@ Extern
 	Function bmx_openxlsx_xlcfrule_stddev:Int(cfRule:Byte Ptr)
 	Function bmx_openxlsx_xlcfrule_equalaverage:Int(cfRule:Byte Ptr)
 	Function bmx_openxlsx_xlcfrule_settype:Int(cfRule:Byte Ptr, newType:EXLCfType)
+	Function bmx_openxlsx_xlcfrule_setformula:Int(cfRule:Byte Ptr, newFormula:String)
 	Function bmx_openxlsx_xlcfrule_setdxfid:Int(cfRule:Byte Ptr, newDxfId:Size_T)
 	Function bmx_openxlsx_xlcfrule_setstopiftrue:Int(cfRule:Byte Ptr, set:Int)
 	Function bmx_openxlsx_xlcfrule_setaboveaverage:Int(cfRule:Byte Ptr, set:Int)
