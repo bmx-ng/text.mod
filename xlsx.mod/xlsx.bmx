@@ -4667,6 +4667,17 @@ Type TXLCfRule
 	set, the method returns #True; if there is an error (e.g., if the formula is invalid), it returns #False.
 	End Rem
 	Method SetFormula:Int(newFormula:String)
+		Return bmx_openxlsx_xlcfrule_setformula(cfRulePtr, newFormula)
+	End Method
+
+	Rem
+	bbdoc: Sets the DXF ID associated with the conditional formatting rule, which is an internal identifier that references a specific set of formatting properties defined in the workbook.
+	returns: #True if the DXF ID was successfully set, or #False on error.
+	about: The DXF ID is an internal identifier that references a specific set of formatting properties defined in the workbook.
+	Setting the DXF ID for a conditional formatting rule allows you to associate the rule with a specific set of formatting properties,
+	which will be applied to cells that meet the rule's conditions. If the DXF ID is successfully set, the method returns #True; if there
+	is an error (e.g., if the DXF ID is invalid or does not correspond to an existing set of formatting properties), it returns #False.
+	End Rem
 	Method SetDxfId:Int(newDxfId:Size_T)
 		Return bmx_openxlsx_xlcfrule_setdxfid(cfRulePtr, newDxfId)
 	End Method

@@ -528,6 +528,7 @@ extern "C" {
 	int bmx_openxlsx_xlcfrule_stddev(MaxXLCfRule * cfRule);
 	int bmx_openxlsx_xlcfrule_equalaverage(MaxXLCfRule * cfRule);
 	int bmx_openxlsx_xlcfrule_settype(MaxXLCfRule * cfRule, uint8_t newType);
+	int bmx_openxlsx_xlcfrule_setformula(MaxXLCfRule * cfRule, BBString * newFormula);
 	int bmx_openxlsx_xlcfrule_setdxfid(MaxXLCfRule * cfRule, size_t newDxfId);
 	int bmx_openxlsx_xlcfrule_setstopiftrue(MaxXLCfRule * cfRule, int set);
 	int bmx_openxlsx_xlcfrule_setaboveaverage(MaxXLCfRule * cfRule, int set);
@@ -1145,6 +1146,11 @@ public:
 
 	int setType(uint8_t newType) {
 		return cfRule.setType((OpenXLSX::XLCfType)newType) ? 1 : 0;
+	}
+
+	int setFormula(BBString * newFormula) {
+		std::string f = toStdString(newFormula);
+		return cfRule.setFormula(f) ? 1 : 0;
 	}
 
 	int setDxfId(size_t newDxfId) {
@@ -4832,6 +4838,10 @@ int bmx_openxlsx_xlcfrule_equalaverage(MaxXLCfRule * cfRule) {
 
 int bmx_openxlsx_xlcfrule_settype(MaxXLCfRule * cfRule, uint8_t newType) {
 	return cfRule->setType(newType);
+}
+
+int bmx_openxlsx_xlcfrule_setformula(MaxXLCfRule * cfRule, BBString * newFormula) {
+	return cfRule->setFormula(newFormula);
 }
 
 int bmx_openxlsx_xlcfrule_setdxfid(MaxXLCfRule * cfRule, size_t newDxfId) {
