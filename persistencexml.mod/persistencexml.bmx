@@ -375,13 +375,13 @@ Type TPersist
 			serializer.Serialize(tid, obj, node)
 		Else
 			Local sup:TTypeId = tid.SuperType()
+			If origTid = Null Then
+				origTid = tid
+			End If
 			If sup And sup.Name() <> "Object" Then
-				If origTid = Null Then
-					origTid = tid
-				End If
 				SerializeByType(sup, obj, node, origTid)
 			Else
-				SerializeFields(tid, obj, node)
+				SerializeFields(origTid, obj, node)
 			End If
 		End If
 	End Method
@@ -555,14 +555,14 @@ Type TPersist
 			Return serializer.Deserialize(objType, node)
 		Else
 			Local sup:TTypeId = objType.SuperType()
+			If origTid = Null Then
+				origTid = objType
+			End If
 			If sup And sup.Name() <> "Object" Then
-				If origTid = Null Then
-					origTid = objType
-				End If
-				Return DeserializeByType(objType.SuperType(), node, origTid)
+				Return DeserializeByType(sup, node, origTid)
 			Else
-				Local obj:Object = CreateObjectInstance(objType, node)
-				DeserializeFields(objType, obj, node)
+				Local obj:Object = CreateObjectInstance(origTid, node)
+				DeserializeFields(origTid, obj, node)
 				Return obj
 			End If
 		End If
