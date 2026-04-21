@@ -60,6 +60,8 @@ Extern
 	Function HPDF_GetCurrentEncoder:Byte ptr(handler:Byte Ptr, encodingName:Byte Ptr)
 	Function HPDF_SetCurrentEncoder:ULongInt(handler:Byte Ptr, encodingName:Byte Ptr)
 	Function HPDF_LoadRawImageFromMem:Byte Ptr(handler:Byte Ptr, buf:Byte Ptr, width:UInt, height:UInt, colorSpace:EPDFColorSpace, bitsPerComponent:UInt)
+	Function HPDF_UseUTFEncodings(handler:Byte Ptr)
+	Function HPDF_LoadTTFontFromFile:Byte Ptr(handler:Byte Ptr, path:Byte Ptr, embedding:Int)
 
 	Function HPDF_Page_BeginText:ULongInt(handle:Byte Ptr)
 	Function HPDF_Page_EndText:ULongInt(handle:Byte Ptr)
