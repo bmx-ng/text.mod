@@ -32,6 +32,8 @@ Type FieldsTest Extends TTest
 	Field obj2:TObject
 	Field obj3:TObject
 
+	Field progressCounter:Int
+
 	Method Setup() { before }
 		persist = New TXMLPersistenceBuilder.Build()
 		
@@ -423,5 +425,25 @@ Type FieldsTest Extends TTest
 			AssertEquals(doubles[i], result[i], 0, "Doubles Array item mismatch at index " + i)
 		Next
 	End Method
+
+	Method testProgress() { test }
+		progressCounter = 0
+		
+		Local numbers:TNumbers = New TNumbers.Create(NUM_INT, NUM_LONG, NUM_FLOAT, NUM_DOUBLE, NUM_BYTE, NUM_SHORT, NUM_UINT, NUM_ULONG, NUM_LONGINT, NUM_ULONGINT)
+		
+		Local s:String = persist.SerializeToString(numbers)
+
+		persist.Free()
+
+		persist.SetProgressCallback(progressCallback, Self)
+		
+		Local result:TNumbers = TNumbers(persist.DeserializeObject(s))
+	
+		assertEquals(100, progressCounter, "Progress mismatch")
+	End Method
+
+	Function progressCallback(progress:Int, user:Object)
+		FieldsTest(user).progressCounter = progress
+	End Function
 
 End Type

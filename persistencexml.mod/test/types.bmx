@@ -3,16 +3,16 @@ SuperStrict
 
 Type TNumbers
 
-	Field a:Int
-	Field b:Long
-	Field c:Float
-	Field d:Double
-	Field e:Byte
-	Field f:Short
-	Field g:UInt
-	Field h:ULong
-	Field i:LongInt
-	Field j:ULongInt
+	Field a:Int { progress = 5 }
+	Field b:Long { progress = 5 }
+	Field c:Float { progress = 5 }
+	Field d:Double { progress = 5 }
+	Field e:Byte { progress = 5 }
+	Field f:Short { progress = 5 }
+	Field g:UInt { progress = 5 }
+	Field h:ULong { progress = 5 }
+	Field i:LongInt { progress = 5 }
+	Field j:ULongInt { progress = 55 }
 	
 	Method Create:TNumbers(a:Int, b:Long, c:Float, d:Double, e:Byte, f:Short, g:UInt, h:ULong, i:LongInt, j:ULongInt)
 		Self.a = a
@@ -105,7 +105,7 @@ Type TArrays
 		ulongints = [0:ULongInt, 1:ULongInt, 2:ULongInt, 3:ULongInt, 4:ULongInt, 5:ULongInt, 6:ULongInt, 7:ULongInt, 8:ULongInt, 9:ULongInt, 18446744073709551615:ULongInt]
 		sizets = [0:Size_T, 1:Size_T, 2:Size_T, 3:Size_T, 4:Size_T, 5:Size_T, 6:Size_T, 7:Size_T, 8:Size_T, 9:Size_T, 18446744073709551615:Size_T]
 		floats = [0.0:Float, 1.0:Float, 2.0:Float, 3.0:Float, 4.0:Float, 5.0:Float, 6.0:Float, 7.0:Float, 8.0:Float, 9.0:Float, 34028235:Float]
-		doubles = [0.0:Double, 1.0:Double, 2.0:Double, 3.0:Double, 4.0:Double, 5.0:Double, 6.0:Double, 7.0:Double, 8.0:Double, 9.0:Double, 179769313486231:Double]
+		doubles = [0.9:Double, 1.8:Double, 2.7:Double, 3.6:Double, 4.5:Double, 5.4:Double, 6.3:Double, 7.2:Double, 8.1:Double, 9.0:Double, 179769313486231:Double]
 	End Method
 
 End Type

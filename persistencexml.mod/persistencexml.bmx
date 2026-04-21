@@ -26,11 +26,13 @@ about: An XML-based object-persistence framework.
 End Rem
 Module Text.PersistenceXml
 
-ModuleInfo "Version: 1.08"
+ModuleInfo "Version: 1.09"
 ModuleInfo "Author: Bruce A Henderson"
 ModuleInfo "License: MIT"
 ModuleInfo "Copyright: 2008-2026 Bruce A Henderson"
 
+ModuleInfo "History: 1.09"
+ModuleInfo "History: Allow custom serializers to specify whether they want to support serialization of super types or not."
 ModuleInfo "History: 1.08"
 ModuleInfo "History: Performance improvements for deserializing numeric arrays."
 ModuleInfo "History: 1.07"
@@ -367,12 +369,20 @@ Type TPersist
 		fieldNode.setAttribute("type", t)
 	End Method
 
-	Method SerializeByType(tid:TTypeId, obj:Object, node:TxmlNode)
+	Method SerializeByType(tid:TTypeId, obj:Object, node:TxmlNode, origTid:TTypeId = Null)
 		Local serializer:TXMLSerializer = TXMLSerializer(serializers.ValueForKey(tid.Name()))
-		If serializer Then
+		If serializer And (origTid = Null Or Not serializer.NoSerializeSuperType()) Then
 			serializer.Serialize(tid, obj, node)
 		Else
-			SerializeFields(tid, obj, node)
+			Local sup:TTypeId = tid.SuperType()
+			If sup And sup.Name() <> "Object" Then
+				If origTid = Null Then
+					origTid = tid
+				End If
+				SerializeByType(sup, obj, node, origTid)
+			Else
+				SerializeFields(tid, obj, node)
+			End If
 		End If
 	End Method
 		
@@ -539,14 +549,22 @@ Type TPersist
 		Return DeSerializeFromFile(stream)
 	End Method
 	
-	Method DeserializeByType:Object(objType:TTypeId, node:TxmlNode)
+	Method DeserializeByType:Object(objType:TTypeId, node:TxmlNode, origTid:TTypeId = Null)
 		Local serializer:TXMLSerializer = TXMLSerializer(serializers.ValueForKey(objType.Name()))
-		If serializer Then
+		If serializer And (origTid = Null Or Not serializer.NoSerializeSuperType()) Then
 			Return serializer.Deserialize(objType, node)
 		Else
-			Local obj:Object = CreateObjectInstance(objType, node)
-			DeserializeFields(objType, obj, node)
-			Return obj
+			Local sup:TTypeId = objType.SuperType()
+			If sup And sup.Name() <> "Object" Then
+				If origTid = Null Then
+					origTid = objType
+				End If
+				Return DeserializeByType(objType.SuperType(), node, origTid)
+			Else
+				Local obj:Object = CreateObjectInstance(objType, node)
+				DeserializeFields(objType, obj, node)
+				Return obj
+			End If
 		End If
 	End Method
 	
@@ -1344,6 +1362,10 @@ Type TXMLSerializer
 	
 	Method SerializeReferencedObject:TxmlNode(obj:Object, node:TxmlNode)
 		Return persist.SerializeReferencedObject(obj, node)
+	End Method
+
+	Method NoSerializeSuperType:Int()
+		Return True
 	End Method
 	
 End Type
