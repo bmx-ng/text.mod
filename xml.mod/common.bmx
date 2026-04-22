@@ -32,7 +32,7 @@ Extern
 	Function bmx_mxmlSetRootElement:Byte Ptr(handle:Byte Ptr, root:Byte Ptr)
 	Function bmx_mxmlAdd(parent:Byte Ptr, _where:Int, child:Byte Ptr, node:Byte Ptr)
 	Function bmx_mxmlGetElement:String(handle:Byte Ptr)
-	Function bmx_mxmlSetContent(handle:Byte Ptr, content:String, asCDATA:Byte)
+	Function bmx_mxmlSetContent(handle:Byte Ptr, content:String, asCDATA:Int)
 	Function bmx_mxmlElementSetAttr(handle:Byte Ptr, name:String, value:String)
 	Function bmx_mxmlElementGetAttr:String(handle:Byte Ptr, name:String, found:Int Var)
 	Function bmx_mxmlElementDeleteAttr(handle:Byte Ptr, name:String)

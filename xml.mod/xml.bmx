@@ -145,7 +145,7 @@ Type TxmlNode Extends TxmlBase
 	bbdoc: Replaces the content of a node.
 	End Rem
 	Method setContent(content:String, asCDATA:Int=False)
-		bmx_mxmlSetContent(nodePtr, content, Byte(asCDATA))
+		bmx_mxmlSetContent(nodePtr, content, asCDATA)
 	End Method
 	
 	Rem

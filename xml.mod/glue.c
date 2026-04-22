@@ -173,7 +173,7 @@ int bmx_mxmlSaveStdout(mxml_node_t * node, int format) {
 	}
 }
 
-void bmx_mxmlSetContent(mxml_node_t * node, BBString * content, bool as_cdata) {
+void bmx_mxmlSetContent(mxml_node_t * node, BBString * content, int as_cdata) {
     mxml_node_t * child = mxmlGetFirstChild(node);
 
     while (child != NULL) {
