@@ -71,7 +71,7 @@ Type TPDFDoc
 	<a href="../examples/load_font_example.bmx">Example source</a>
 	EndRem
 	Method LoadTTFontFromFile:String(path:String, embedding:Int=True)
-		Local buf:Byte[] = LoadByteArray(path)
+		Local buf:Byte[]
 		
 		Try
 			buf = LoadByteArray(path)
