@@ -64,7 +64,30 @@ Type TPDFDoc
 	Function GetLastError:TPDFException()
 		Return lastError
 	End Function
-
+	
+	Rem
+	bbdoc: Load TrueType font from external .ttf file and register it in the document object.
+	about:
+	<a href="../examples/load_font_example.bmx">Example source</a>
+	EndRem
+	Method LoadTTFontFromFile:String(path:String, embedding:Int=True)
+		Local buf:Byte[] = LoadByteArray(path)
+		
+		Try
+			buf = LoadByteArray(path)
+		Catch e:Object
+			Return Null
+		EndTry
+		
+		Local out:Byte Ptr = HPDF_LoadTTFontFromMemory(docPtr, Varptr buf, UInt(buf.Length), Byte(embedding))
+		
+		If Not out
+			Return Null
+		EndIf
+		
+		Return String.FromCString(out)
+	EndMethod
+	
 	Rem
 	bbdoc: Gets the requested font object.
 	returns: Returns the handle of a font object. Otherwise, it returns #Null and error-handler is called.
@@ -99,7 +122,7 @@ Type TPDFDoc
 	Method GetCurrentPage:TPDFPage()
 		Local page:Byte Ptr = HPDF_GetCurrentPage(docPtr)
 		If page Then
-			Return TPDFPage._create(page, self)
+			Return TPDFPage._create(page, Self)
 		End If
 	End Method
 
@@ -175,7 +198,7 @@ Type TPDFDoc
 	Method CreateExtGStateWithAlpha:TPDFExtGState(alpha:Float)
 		Local state:TPDFExtGState = TPDFExtGState._create(HPDF_CreateExtGState(docPtr))
 		state.SetAlphaFill(alpha)
-		return state
+		Return state
 	End Method
 
 	Rem
@@ -387,6 +410,15 @@ An application can change the setting of a pages tree by invoking #SetPagesConfi
 	Method UseCNTFonts:Int()
 		Return HPDF_UseCNTFonts(docPtr)
 	End Method
+	
+	Rem
+	bbdoc: Enables UTF support for better text rendering when using non-ascii characters.
+	about:
+	<a href="../examples/utf_example.bmx">Example source</a>
+	EndRem
+	Method UseUTFEncodings:Int()
+		Return HPDF_UseUTFEncodings(docPtr)
+	EndMethod
 
 	Rem
 	bbdoc: Sets the text of an info dictionary attribute, using current encoding of the document.
