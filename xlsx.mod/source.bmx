@@ -63,6 +63,8 @@ Import "openxlsx/OpenXLSX/sources/XLXmlFile.cpp"
 Import "openxlsx/OpenXLSX/sources/XLXmlParser.cpp"
 Import "openxlsx/OpenXLSX/sources/XLZipArchive.cpp"
 
+Import "openxlsx/OpenXLSX/external/nowide/*.hpp"
+
 Import "openxlsx/OpenXLSX/external/pugixml/pugixml.cpp"
 
 Import "glue.cpp"
