@@ -142,7 +142,7 @@ Type TxmlNode Extends TxmlBase
 	End Method
 	
 	Rem
-	bbdoc: Replaces the content of a node.
+	bbdoc: Replaces the content of a node and optionally wraps it in a CDATA section which preserves special characters.
 	End Rem
 	Method setContent(content:String, asCDATA:Int=False)
 		bmx_mxmlSetContent(nodePtr, content, asCDATA)
