@@ -45,7 +45,7 @@ ModuleInfo "History: 1.00"
 ModuleInfo "History: Initial Release"
 
 ModuleInfo "CPP_OPTS: -std=c++17 -fexceptions"
-ModuleInfo "CC_OPTS: -DOPENXLSX_STATIC_DEFINE"
+ModuleInfo "CC_OPTS: -DOPENXLSX_STATIC_DEFINE -DENABLE_NOWIDE"
 
 Import "common.bmx"
 
@@ -797,7 +797,7 @@ End Rem
 Type TXLCellRange Implements IIterable<TXLCell>
 
 	Field rangePtr:Byte Ptr
-	FIeld _distance:ULong
+	Field _distance:ULong
 
 	Function _Create:TXLCellRange(rangePtr:Byte Ptr)
 		If rangePtr Then
