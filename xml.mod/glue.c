@@ -188,7 +188,7 @@ void bmx_mxmlSetContent(mxml_node_t * node, BBString * content, int as_cdata) {
 
     char * c = bbStringToUTF8String(content);
 	
-	if(as_cdata){
+	if (as_cdata) {
 		mxmlNewCDATA(node, c);
 	}else{
 		mxmlNewOpaque(node, c);
