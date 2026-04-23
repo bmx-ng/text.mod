@@ -142,10 +142,10 @@ Type TxmlNode Extends TxmlBase
 	End Method
 	
 	Rem
-	bbdoc: Replaces the content of a node.
+	bbdoc: Replaces the content of a node and optionally wraps it in a CDATA section which preserves special characters.
 	End Rem
-	Method setContent(content:String)
-		bmx_mxmlSetContent(nodePtr, content)
+	Method setContent(content:String, asCDATA:Int=False)
+		bmx_mxmlSetContent(nodePtr, content, asCDATA)
 	End Method
 	
 	Rem
@@ -203,7 +203,7 @@ Type TxmlNode Extends TxmlBase
 	bbdoc: Provides the value of the attribute with the specified qualified name.
 	returns: #True if the attribute exists
 	End Rem
-	Method tryGetAttribute:Int(name:String, value:String var, caseInsensitive:Int = False)
+	Method tryGetAttribute:Int(name:String, value:String Var, caseInsensitive:Int = False)
 		Local found:Int
 		If Not caseInsensitive
 			value = bmx_mxmlElementGetAttr(nodePtr, name, found)
@@ -256,7 +256,7 @@ Type TxmlNode Extends TxmlBase
 	bbdoc: Returns the value of a node's attribute. Name of the attribute is written into "name" (or empty if not existing)
 	returns: The value of the attribute.
 	End Rem
-	Method getAttributeByIndex:String(index:Int, name:String var)
+	Method getAttributeByIndex:String(index:Int, name:String Var)
 		Return bmx_mxmlElementGetAttrByIndex(nodePtr, index, name)
 	End Method
 

@@ -172,7 +172,7 @@ int bmx_mxmlSaveStdout(mxml_node_t * node, int format) {
 	}
 }
 
-void bmx_mxmlSetContent(mxml_node_t * node, BBString * content) {
+void bmx_mxmlSetContent(mxml_node_t * node, BBString * content, int as_cdata) {
     mxml_node_t * child = mxmlGetFirstChild(node);
 
     while (child != NULL) {
@@ -187,7 +187,13 @@ void bmx_mxmlSetContent(mxml_node_t * node, BBString * content) {
     }
 
     char * c = bbStringToUTF8String(content);
-    mxmlNewOpaque(node, c);
+	
+	if (as_cdata) {
+		mxmlNewCDATA(node, c);
+	}else{
+		mxmlNewOpaque(node, c);
+	}
+	
     bbMemFree(c);
 }
 
