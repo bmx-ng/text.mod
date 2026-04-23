@@ -17,7 +17,6 @@ limitations under the License.
 #include "text.mod/mxml.mod/mxml/mxml.h"
 #include "brl.mod/blitz.mod/blitz.h"
 #include "brl.mod/stringbuilder.mod/glue.h"
-#include <stdbool.h>
 
 extern int text_xml__xmlstream_read(void *, void *, unsigned int);
 extern int text_xml__xmlstream_write(void *, const void *, unsigned int);
