@@ -505,6 +505,11 @@ Extern
 	Function bmx_openxlsx_xlgradientstop_setposition:Int(gradientStop:Byte Ptr, newPosition:Double)
 	Function bmx_openxlsx_xlgradientstop_summary:String(gradientStop:Byte Ptr)
 	
+	Function bmx_openxlsx_enable_xml_namespaces:Int()
+	Function bmx_openxlsx_disable_xml_namespaces:Int()
+	Function bmx_openxlsx_use_random_ids()
+	Function bmx_openxlsx_use_sequential_ids()
+	
 End Extern
 
 Const XLDefaultFontColor:String = "FF000000"

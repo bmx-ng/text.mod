@@ -4811,6 +4811,40 @@ Type TXLCfRule
 
 End Type
 
+' global functions
+
+Rem
+bbdoc: Enables XML namespaces which is required to open certain documents.
+returns: #True if namespaces could be enabled, or #False on error.
+about: Use before opening such a document.
+EndRem
+Function XLEnableXMLNamespaces:Int()
+	Return bmx_openxlsx_enable_xml_namespaces()
+EndFunction
+
+Rem
+bbdoc: Disables XML namespaces. (Default)
+returns: #True if namespaces could be disabled, or #False on error.
+EndRem
+Function XLDisableXMLNamespaces:Int()
+	Return bmx_openxlsx_disable_xml_namespaces()
+EndFunction
+
+Rem
+bbdoc: Enables the use of random ids which is required to open certain documents.
+about: Use before opening such a document.
+EndRem
+Function XLUseRandomIds()
+	bmx_openxlsx_use_random_ids()
+EndFunction
+
+Rem
+bbdoc: Enables the use of sequential ids. (Default)
+EndRem
+Function XLUseSequentialIds()
+	bmx_openxlsx_use_sequential_ids()
+EndFunction
+
 ' exceptions
 
 Rem

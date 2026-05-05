@@ -551,6 +551,11 @@ extern "C" {
 	double bmx_openxlsx_xlgradientstop_position(MaxXLGradientStop * gradientStop);
 	int bmx_openxlsx_xlgradientstop_setposition(MaxXLGradientStop * gradientStop, double newPosition);
 	BBString * bmx_openxlsx_xlgradientstop_summary(MaxXLGradientStop * gradientStop);
+	
+	int bmx_openxlsx_enable_xml_namespaces();
+	int bmx_openxlsx_disable_xml_namespaces();
+	void bmx_openxlsx_use_random_ids();
+	void bmx_openxlsx_use_sequential_ids();
 }
 
 ///////////////////////////////////////////////////////////
@@ -3152,7 +3157,7 @@ void bmx_openxlsx_xldocument_deleteproperty(MaxXLDocument * doc, int property) {
 }
 
 int bmx_openxlsx_xldocument_isopen(MaxXLDocument * doc) {
-	doc->isOpen();
+	return doc->isOpen();
 }
 
 MaxXLStyles * bmx_openxlsx_xldocument_styles(MaxXLDocument * doc) {
@@ -4926,4 +4931,21 @@ int bmx_openxlsx_xlgradientstop_setposition(MaxXLGradientStop * gradientStop, do
 
 BBString * bmx_openxlsx_xlgradientstop_summary(MaxXLGradientStop * gradientStop) {
 	return gradientStop->summary();
+}
+
+///////////////////////////////////////////////////////////
+int bmx_openxlsx_enable_xml_namespaces() {
+	return (int) OpenXLSX::enable_xml_namespaces();
+}
+
+int bmx_openxlsx_disable_xml_namespaces() {
+	return (int) OpenXLSX::disable_xml_namespaces();
+}
+
+void bmx_openxlsx_use_random_ids() {
+	OpenXLSX::UseRandomIDs();
+}
+
+void bmx_openxlsx_use_sequential_ids() {
+	OpenXLSX::UseSequentialIDs();
 }
