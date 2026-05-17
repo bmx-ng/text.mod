@@ -220,7 +220,8 @@ Type TJConv
 	Method FromJson:Object(txt:String, typeId:TTypeId, obj:Object)
 		Local error:TJSONError
 		Local flags:Int = 0
-		If typeId = StringTypeId Then
+		' Allow decoding of strings, in addition to arrays and objects, if the target type is String or has a custom deserializer registered.
+		If typeId = StringTypeId Or options.serializers.ValueForKey(typeId.Name()) Then
 			flags :| JSON_DECODE_ANY
 		End If
 		Local json:TJSON = TJSON.Load(txt, flags, error)
@@ -313,7 +314,14 @@ Type TJConv
 
 			Local json:TJSON = serializer.Serialize(obj, typeId.Name())
 
-			Return json.SaveString(flags, 0, precision)
+			Local saveFlags:Int = flags
+
+			If TJSONString(json) Then
+				' if the custom serializer returns a string, we need to ensure it's encoded as a string value in JSON
+				saveFlags :| JSON_ENCODE_ANY
+			End If
+
+			Return json.SaveString(saveFlags, 0, precision)
 		End If
 	End Method
 
@@ -376,6 +384,10 @@ Type TJConv
 			ToJson(json, obj)
 			
 			json.SaveStream(stream, flags, 0, precision)
+			Return
+		Else If typeId.ExtendsType(StringTypeId) Then
+			Local json:TJSONString = New TJSONString.Create(String(obj))
+			json.SaveStream(stream, flags | JSON_ENCODE_ANY, 0, precision)
 			Return
 		Else If typeId.ExtendsType(ObjectTypeId) Then
 
