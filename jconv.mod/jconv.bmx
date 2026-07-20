@@ -643,7 +643,7 @@ Type TJConv
 		End If
 	End Method
 
-Private
+Internal
 	Method SetOptions(options:TJConvOptions)
 		Self.options = options
 		

@@ -607,6 +607,22 @@ Type TJSONInteger Extends TJSONNumber
 	Rem
 	bbdoc: Creates an instance of #TJSONInteger with @v.
 	End Rem
+	Method Create:TJSONInteger(v:LongInt)
+		jsonPtr = bmx_json_integer(Long(v))
+		Return Self
+	End Method
+
+	Rem
+	bbdoc: Creates an instance of #TJSONInteger with @v.
+	End Rem
+	Method Create:TJSONInteger(v:ULongInt)
+		jsonPtr = bmx_json_integer(Long(v))
+		Return Self
+	End Method
+
+	Rem
+	bbdoc: Creates an instance of #TJSONInteger with @v.
+	End Rem
 	Method Create:TJSONInteger(v:Size_T)
 		jsonPtr = bmx_json_integer(Long(v))
 		Return Self

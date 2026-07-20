@@ -237,7 +237,7 @@ Rem
 bbdoc: A Csv Row.
 End Rem
 Type TCsvRow
-	Private
+	Internal
 	Field zsvPtr:Byte Ptr
 	Field header:TCsvHeader
 
@@ -314,7 +314,7 @@ Type TCsvHeader
 	Field cols:String[]
 	Field map:TStringMap = New TStringMap
 
-	Private
+	Internal
 	Method New(count:Size_T)
 		cols = New String[count]
 	End Method
