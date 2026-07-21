@@ -51,7 +51,7 @@ You should call #Free() when you are finished working with it, to allow it to cl
 End Rem
 Type TIni
 
-	Private
+	Internal
 	Field iniPtr:Byte Ptr
 
 	Field sections:TIniSection[]
@@ -65,7 +65,7 @@ Type TIni
 		InitSections()
 	End Method
 
-	Private
+	Internal
 	Method New(data:Byte[])
 		iniPtr = ini_load(data, Null)
 		InitSections()
@@ -382,7 +382,7 @@ allowing for organized access to the contained data.
 End Rem
 Type TIniSection
 
-	Private
+	Internal
 	Field ini:TIni
 	Field index:Int
 	Field name:String
@@ -581,7 +581,7 @@ Each property comprises a distinct key and its associated value, serving as the 
 End Rem
 Type TIniProperty
 
-	Private
+	Internal
 	Field section:TIniSection
 	Field index:Int
 	Field name:String

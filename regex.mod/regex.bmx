@@ -578,6 +578,8 @@ Type TRegExMatch
 
 	Field count:UInt
 
+	Internal
+	
 	Method New(pcre:Byte Ptr, matchPtr:Byte Ptr)
 		Self.pcre = pcre
 		Self.matchPtr = matchPtr

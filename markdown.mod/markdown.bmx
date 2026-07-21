@@ -55,7 +55,7 @@ bbdoc:
 End Rem
 Type TMDHtmlCodeHighlighter Abstract
 
-	Private
+	Internal
 	Field _codeblock:TStringBuilder
 	Field _output:TStringBuilder
 	Field _lang:String
