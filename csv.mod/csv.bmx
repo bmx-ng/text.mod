@@ -237,8 +237,9 @@ Rem
 bbdoc: A Csv Row.
 End Rem
 Type TCsvRow
-	Internal
+	Private
 	Field zsvPtr:Byte Ptr
+	Internal
 	Field header:TCsvHeader
 
 	Method New(zsvPtr:Byte Ptr)
@@ -363,4 +364,3 @@ Type TInt
 		Self.value = value
 	End Method
 End Type
-
