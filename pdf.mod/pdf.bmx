@@ -486,7 +486,7 @@ Rem
 bbdoc: A PDF page.
 End Rem
 Type TPDFPage
-	Private
+	Internal
 
 	Field pagePtr:Byte Ptr
 	Field doc:TPDFDoc
@@ -1445,7 +1445,7 @@ Rem
 bbdoc: A PDF Font object.
 End Rem
 Type TPDFFont
-	Private
+	Internal
 	Field fontPtr:Byte Ptr
 
 	Function _create:TPDFFont(fontPtr:Byte Ptr)
@@ -1547,7 +1547,7 @@ Rem
 bbdoc: PDF extended graphics state.
 End Rem
 Type TPDFExtGState
-	Private
+	Internal
 	Field gstatePtr:Byte Ptr
 
 	Function _create:TPDFExtGState(gstatePtr:Byte Ptr)
@@ -1586,7 +1586,7 @@ Rem
 bbdoc: A PDF outline.
 End Rem
 Type TPDFOutline
-	Private
+	Internal
 	Field outlinePtr:Byte Ptr
 
 	Function _create:TPDFOutline(outlinePtr:Byte Ptr)
@@ -1617,7 +1617,7 @@ Rem
 bbdoc: A PDF destination object.
 End Rem
 Type TPDFDestination
-	Private
+	Internal
 	Field destinationPtr:Byte Ptr
 
 	Function _create:TPDFDestination(destinationPtr:Byte Ptr)
@@ -1691,7 +1691,7 @@ Rem
 bbdoc: A PDF encoder.
 End Rem
 Type TPDFEncoder
-	Private
+	Internal
 	Field encoderPtr:Byte Ptr
 
 	Function _create:TPDFEncoder(encoderPtr:Byte Ptr)
@@ -1709,7 +1709,7 @@ Rem
 bbdoc: A PDF annotation
 End Rem
 Type TPDFAnnotation
-	Private
+	Internal
 	Field annotationPtr:Byte Ptr
 
 	Function _create:TPDFAnnotation(annotationPtr:Byte Ptr)
@@ -1763,7 +1763,7 @@ Rem
 bbdoc: A PDF image.
 End Rem
 Type TPDFImage
-	Private
+	Internal
 	Field imagePtr:Byte Ptr
 
 	Function _create:TPDFImage(imagePtr:Byte Ptr)
