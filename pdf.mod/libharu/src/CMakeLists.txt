@@ -70,6 +70,10 @@ set(
     hpdf_encoder_utf.c
 )
 
+set_property(SOURCE hpdf_shading.c hpdf_font_tt.c hpdf_fontdef_tt.c
+  PROPERTY
+    SKIP_UNITY_BUILD_INCLUSION ON)
+
 # =======================================================================
 # create hpdf library
 # =======================================================================
@@ -88,7 +92,7 @@ if (ZLIB_FOUND)
 endif()
 
 # Math library
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     target_link_libraries (hpdf ${M_LIB})
 endif()
 

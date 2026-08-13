@@ -57,9 +57,11 @@ Extern
 	Function HPDF_GetInfoAttr:Byte Ptr(handle:Byte Ptr, infoType:EPDFInfoType)
 	Function HPDF_SetInfoDateAttr:ULongInt(handle:Byte Ptr, infoType:EPDFInfoType, date:SPDFDate)
 	Function HPDF_GetEncoder:Byte Ptr(handler:Byte Ptr, encodingName:Byte Ptr)
-	Function HPDF_GetCurrentEncoder:Byte ptr(handler:Byte Ptr, encodingName:Byte Ptr)
+	Function HPDF_GetCurrentEncoder:Byte Ptr(handler:Byte Ptr, encodingName:Byte Ptr)
 	Function HPDF_SetCurrentEncoder:ULongInt(handler:Byte Ptr, encodingName:Byte Ptr)
 	Function HPDF_LoadRawImageFromMem:Byte Ptr(handler:Byte Ptr, buf:Byte Ptr, width:UInt, height:UInt, colorSpace:EPDFColorSpace, bitsPerComponent:UInt)
+	Function HPDF_UseUTFEncodings:ULongInt(handler:Byte Ptr)
+	Function HPDF_LoadTTFontFromMemory:Byte Ptr(handler:Byte Ptr, buffer:Byte Ptr, size:UInt, embedding:Byte)
 
 	Function HPDF_Page_BeginText:ULongInt(handle:Byte Ptr)
 	Function HPDF_Page_EndText:ULongInt(handle:Byte Ptr)

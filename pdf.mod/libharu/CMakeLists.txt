@@ -44,7 +44,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # =======================================================================
 # look for headers and libraries
 # =======================================================================
-include(haru)
 include(summary)
 
 # check zlib availability
@@ -69,11 +68,6 @@ endif(MSVC_VERSION GREATER 1399)
 
 # Will export symbols to a .lib file on Windows
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1)
-
-# Just set to 1, we'll assume they are always available.
-# If not, then someone will have to add some tests in here to correctly determine
-# the headers existence.
-set (LIBHPDF_STDC_HEADERS 1)
 
 # support all of the different variations of LIBPNG defines in HARU
 set (LIBHPDF_HAVE_LIBPNG ${PNG_FOUND})
@@ -140,8 +134,8 @@ set(
 install(FILES ${haru_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # install various files
-install(FILES README.md CHANGES INSTALL DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/libharu)
-install(DIRECTORY bindings DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/libharu)
+install(FILES README.md CHANGES DESTINATION ${CMAKE_INSTALL_DOCDIR})
+install(DIRECTORY bindings DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 # =======================================================================
 # print out some information
