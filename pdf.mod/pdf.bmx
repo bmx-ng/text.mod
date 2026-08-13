@@ -79,7 +79,7 @@ Type TPDFDoc
 			Return Null
 		EndTry
 		
-		Local out:Byte Ptr = HPDF_LoadTTFontFromMemory(docPtr, Varptr buf, UInt(buf.Length), Byte(embedding))
+		Local out:Byte Ptr = HPDF_LoadTTFontFromMemory(docPtr, buf, UInt(buf.Length), embedding)
 		
 		If Not out
 			Return Null
