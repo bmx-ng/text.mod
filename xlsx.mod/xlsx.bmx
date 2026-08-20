@@ -986,7 +986,7 @@ End Type
 Rem
 bbdoc: An iterator for iterating over the cells in a #TXLCellRange.
 End Rem
-Type TXLCellRangeIterator Implements IIterator<TXLCell>, ICloseable
+Type TXLCellRangeIterator Implements ICloseableIterator<TXLCell>
 
 	Field _range:TXLCellRange
 	Field _iteratorPtr:Byte Ptr
@@ -1578,7 +1578,7 @@ End Type
 Rem
 bbdoc: An iterator for iterating over the rows in a #TXLRowRange.
 End Rem
-Type TXLRowIterator Implements IIterator<TXLRow>, ICloseable
+Type TXLRowIterator Implements ICloseableIterator<TXLRow>
 
 	Field _rowRange:TXLRowRange
 	Field _iteratorPtr:Byte Ptr
@@ -1636,7 +1636,7 @@ End Type
 Rem
 bbdoc: Encapsulates an iterator, for iterating over the cells in a row of a #TXLRowDataRange.
 End Rem
-Type TXLRowDataIterator Implements IIterator<TXLCell>, ICloseable
+Type TXLRowDataIterator Implements ICloseableIterator<TXLCell>
 
 	Field _rowDataRange:TXLRowDataRange
 	Field _iteratorPtr:Byte Ptr
