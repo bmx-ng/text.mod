@@ -32,7 +32,7 @@ Type TRegexNoOptionsTest Extends TTest
 		AssertNotNull(regex.Find("hello"))
 		AssertNull(regex.Find("Hello"))
 
-		regex:TRegEx = New TRegEx("(?i)hello", options)
+		regex = New TRegEx("(?i)hello", options)
 
 		AssertNotNull(regex.Find("hello"))
 		AssertNotNull(regex.Find("Hello"))
