@@ -1,5 +1,8 @@
 .bmx
+.generics/
 *.a
+*.bmxbuild
+*.bmxbuild.stamp
 *.i
 *.i2
 *.bak
