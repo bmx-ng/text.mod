@@ -25,7 +25,7 @@ Type TMPackTest Extends TTest
 		writer.WriteBin([1:Byte, 2:Byte, 3:Byte])
 		writer.FinishArray()
 		Local used:Int = Int(writer.BytesWritten())
-		AssertEquals(EMPackError.ok, writer.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), writer.Free().Ordinal())
 
 		Local reader:TMPackReader = New TMPackReader(data, 0, used)
 		AssertEquals(10, Int(reader.BeginArray()))
@@ -42,7 +42,7 @@ Type TMPackTest Extends TTest
 		AssertEquals(3, binary.Length)
 		AssertEquals(2:Byte, binary[1])
 		reader.DoneArray()
-		AssertEquals(EMPackError.ok, reader.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), reader.Free().Ordinal())
 	End Method
 
 	Method TestGrowableMemoryWriter() { test }
@@ -54,7 +54,7 @@ Type TMPackTest Extends TTest
 		writer.FinishArray()
 		Local error:EMPackError
 		Local data:Byte[] = writer.Finish(error)
-		AssertEquals(EMPackError.ok, error)
+		AssertEquals(EMPackError.ok.Ordinal(), error.Ordinal())
 		AssertTrue(data.Length > 4096)
 		Local reader:TMPackReader = New TMPackReader(data)
 		AssertEquals(2000, Int(reader.BeginArray()))
@@ -62,7 +62,7 @@ Type TMPackTest Extends TTest
 			AssertEquals(index, reader.ReadInt())
 		Next
 		reader.DoneArray()
-		AssertEquals(EMPackError.ok, reader.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), reader.Free().Ordinal())
 	End Method
 
 	Method TestEmbeddedNullAndUnicode() { test }
@@ -72,12 +72,12 @@ Type TMPackTest Extends TTest
 		Local writer:TMPackWriter = New TMPackWriter(data)
 		writer.Write(expected)
 		Local used:Int = Int(writer.BytesWritten())
-		AssertEquals(EMPackError.ok, writer.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), writer.Free().Ordinal())
 		Local reader:TMPackReader = New TMPackReader(data, 0, used)
 		Local actual:String = reader.ReadString()
 		AssertEquals(expected.Length, actual.Length)
 		AssertEquals(expected, actual)
-		AssertEquals(EMPackError.ok, reader.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), reader.Free())
 	End Method
 
 	Method TestStringWriterOverloads() { test }
@@ -90,7 +90,7 @@ Type TMPackTest Extends TTest
 		writer.WriteStringBytes(Byte Ptr(utf8), UInt(utf8.Length))
 		writer.FinishArray()
 		Local used:Int = Int(writer.BytesWritten())
-		AssertEquals(EMPackError.ok, writer.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), writer.Free().Ordinal())
 
 		Local reader:TMPackReader = New TMPackReader(data, 0, used)
 		AssertEquals(3, Int(reader.BeginArray()))
@@ -102,7 +102,7 @@ Type TMPackTest Extends TTest
 		AssertEquals("ptr", pointerValue[..3])
 		AssertEquals("ok", pointerValue[4..])
 		reader.DoneArray()
-		AssertEquals(EMPackError.ok, reader.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), reader.Free().Ordinal())
 	End Method
 
 	Method TestExtensionTimestampAndDiscard() { test }
@@ -121,7 +121,7 @@ Type TMPackTest Extends TTest
 		writer.WriteTimestamp(-123456789:Long, 42)
 		writer.FinishArray()
 		Local used:Int = Int(writer.BytesWritten())
-		AssertEquals(EMPackError.ok, writer.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), writer.Free().Ordinal())
 
 		Local reader:TMPackReader = New TMPackReader(data, 0, used)
 		AssertEquals(4, Int(reader.BeginArray()))
@@ -136,7 +136,7 @@ Type TMPackTest Extends TTest
 		AssertEquals(-123456789:Long, timestamp.seconds)
 		AssertEquals(42:UInt, timestamp.nanoseconds)
 		reader.DoneArray()
-		AssertEquals(EMPackError.ok, reader.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), reader.Free().Ordinal())
 	End Method
 
 	Method TestRawObjectBytes() { test }
@@ -147,13 +147,13 @@ Type TMPackTest Extends TTest
 		writer.WriteObjectBytes([$a2:Byte, 111:Byte, 107:Byte])
 		writer.FinishArray()
 		Local used:Int = Int(writer.BytesWritten())
-		AssertEquals(EMPackError.ok, writer.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), writer.Free().Ordinal())
 		Local reader:TMPackReader = New TMPackReader(data, 0, used)
 		AssertEquals(2, Int(reader.BeginArray()))
 		AssertEquals(42, reader.ReadInt())
 		AssertEquals("ok", reader.ReadString())
 		reader.DoneArray()
-		AssertEquals(EMPackError.ok, reader.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), reader.Free().Ordinal())
 	End Method
 
 	Method TestTruncatedAndMalformedUtf8() { test }
@@ -162,56 +162,56 @@ Type TMPackTest Extends TTest
 		AssertTrue(truncated.HasError())
 		' A bounded memory reader knows the document is structurally invalid;
 		' a streaming reader reports EOF when its fill callback is exhausted.
-		AssertEquals(EMPackError.error_invalid, truncated.Free())
+		AssertEquals(EMPackError.error_invalid.Ordinal(), truncated.Free().Ordinal())
 
 		Local malformed:TMPackReader = New TMPackReader([$a1:Byte, $80:Byte])
 		AssertEquals("", malformed.ReadString())
-		AssertEquals(EMPackError.error_type, malformed.Error())
-		AssertEquals(EMPackError.error_type, malformed.Free())
+		AssertEquals(EMPackError.error_type.Ordinal(), malformed.Error().Ordinal())
+		AssertEquals(EMPackError.error_type.Ordinal(), malformed.Free().Ordinal())
 	End Method
 
 	Method TestLimits() { test }
 		Local stringLimited:TMPackReader = New TMPackReader([$a2:Byte, 111:Byte, 107:Byte], 0, -1, TMPackLimits.Create(1, 64, 64, 8))
 		stringLimited.ReadString()
-		AssertEquals(EMPackError.error_too_big, stringLimited.Free())
+		AssertEquals(EMPackError.error_too_big.Ordinal(), stringLimited.Free().Ordinal())
 
 		Local containerLimited:TMPackReader = New TMPackReader([$93:Byte, 1:Byte, 2:Byte, 3:Byte], 0, -1, TMPackLimits.Create(64, 64, 2, 8))
 		containerLimited.BeginArray()
-		AssertEquals(EMPackError.error_too_big, containerLimited.Free())
+		AssertEquals(EMPackError.error_too_big.Ordinal(), containerLimited.Free().Ordinal())
 
 		Local depthLimited:TMPackReader = New TMPackReader([$91:Byte, $91:Byte, $91:Byte, 1:Byte], 0, -1, TMPackLimits.Create(64, 64, 64, 2))
 		depthLimited.Discard()
-		AssertEquals(EMPackError.error_too_big, depthLimited.Free())
+		AssertEquals(EMPackError.error_too_big.Ordinal(), depthLimited.Free().Ordinal())
 	End Method
 
 	Method TestFixedMemoryOverflowAndArrayBounds() { test }
 		Local tiny:Byte[] = New Byte[1]
 		Local writer:TMPackWriter = New TMPackWriter(tiny)
 		writer.Write("too large")
-		AssertEquals(EMPackError.error_too_big, writer.Free())
+		AssertEquals(EMPackError.error_too_big.Ordinal(), writer.Free().Ordinal())
 
 		Local bounded:TMPackWriter = New TMPackWriter(New Byte[32])
 		bounded.WriteBin([1:Byte], 2)
-		AssertEquals(EMPackError.error_too_big, bounded.Free())
+		AssertEquals(EMPackError.error_too_big.Ordinal(), bounded.Free().Ordinal())
 	End Method
 
 	Method TestStreamRoundTripAndShortWrite() { test }
 		Local stream:TByteArrayStream = New TByteArrayStream(New Byte[0], False, False)
 		Local writer:TMPackWriter = New TMPackWriter(stream)
 		writer.Write("stream")
-		AssertEquals(EMPackError.ok, writer.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), writer.Free().Ordinal())
 		stream.Seek(0)
 		Local reader:TMPackReader = New TMPackReader(stream)
 		AssertEquals("stream", reader.ReadString())
-		AssertEquals(EMPackError.ok, reader.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), reader.Free().Ordinal())
 
 		Local failed:TMPackWriter = New TMPackWriter(New TShortWriteStream)
 		failed.Write("failure")
-		AssertEquals(EMPackError.error_io, failed.Free())
+		AssertEquals(EMPackError.error_io.Ordinal(), failed.Free().Ordinal())
 
 		Local failedRead:TMPackReader = New TMPackReader(New TFailedReadStream)
 		failedRead.ReadString()
-		AssertEquals(EMPackError.error_io, failedRead.Free())
+		AssertEquals(EMPackError.error_io.Ordinal(), failedRead.Free().Ordinal())
 	End Method
 
 	Method TestChunkedAndInPlaceBytes() { test }
@@ -231,7 +231,7 @@ Type TMPackTest Extends TTest
 		writer.FinishExt()
 		writer.FinishArray()
 		Local used:Int = Int(writer.BytesWritten())
-		AssertEquals(EMPackError.ok, writer.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), writer.Free().Ordinal())
 
 		Local reader:TMPackReader = New TMPackReader(data, 0, used)
 		AssertTrue(reader.IsMemoryBacked())
@@ -255,11 +255,11 @@ Type TMPackTest Extends TTest
 		reader.DoneExt()
 		reader.DoneArray()
 		AssertEquals(0, Int(reader.BufferedRemaining()))
-		AssertEquals(EMPackError.ok, reader.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), reader.Free().Ordinal())
 
 		Local empty:TMPackReader = New TMPackReader(New Byte[0])
 		empty.ReadNil()
-		AssertEquals(EMPackError.error_invalid, empty.Free())
+		AssertEquals(EMPackError.error_invalid.Ordinal(), empty.Free().Ordinal())
 	End Method
 End Type
 
