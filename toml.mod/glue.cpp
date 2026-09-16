@@ -81,7 +81,7 @@ extern "C" {
     BBObject * text_toml_common_TTomlSourceRegion__create(struct TomlSourcePosition begin, struct TomlSourcePosition end, BBString * path);
     BBObject * text_toml_TTomlParseError__create(BBString * message, BBObject * region);
 
-    BBObject * bmx_toml_parse_string(BBString * s);
+    BBObject * bmx_toml_parse_string(BBString * s, BBString * sourcePath);
 
     BBObject * bmx_toml_build_node(toml::node * node);
     BBObject * bmx_toml_build_table(toml::table & table);
@@ -125,6 +125,7 @@ BBObject * bmx_toml_build_node(toml::node * node) {
             return bmx_toml_build_date_time(*node->as_date_time());
         }
     }
+	return &bbNullObject;
 }
 
 BBObject * bmx_toml_build_table(toml::table & table) {
@@ -190,7 +191,7 @@ BBObject * bmx_toml_build_date_time(toml::value<toml::date_time> & value) {
 
 ///////////////////////////////////////////////////////////
 
-BBObject * bmx_toml_parse_string(BBString * doc) {
+BBObject * bmx_toml_parse_string(BBString * doc, BBString * sourcePath) {
     try {
 
         char * d = (char*)bbStringToUTF8String(doc);
@@ -199,7 +200,15 @@ BBObject * bmx_toml_parse_string(BBString * doc) {
 
         bbMemFree(d);
 
-        auto res = toml::parse(cdoc);
+        std::string cpath;
+
+        if (sourcePath != &bbEmptyString) {
+            char * p = (char*)bbStringToUTF8String(sourcePath);
+            cpath = std::string(p);
+            bbMemFree(p);
+        }
+
+        auto res = toml::parse(cdoc, cpath);
 
         BBObject * table = bmx_toml_build_table(res);
 
@@ -218,8 +227,9 @@ BBObject * bmx_toml_parse_string(BBString * doc) {
 
         BBObject * region = text_toml_common_TTomlSourceRegion__create({ source.begin.line, source.begin.column }, { source.end.line, source.end.column }, path);
 
-        unsigned char * message = (unsigned char*)e.what();
-        BBObject * ex = text_toml_TTomlParseError__create(bbStringFromUTF8String(message), region);
+        const auto description = e.description();
+        BBString * message = bbStringFromUTF8Bytes((unsigned char*)description.data(), description.size());
+        BBObject * ex = text_toml_TTomlParseError__create(message, region);
 
         bbExThrow(ex);
     }
