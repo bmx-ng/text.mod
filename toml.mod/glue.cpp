@@ -228,12 +228,6 @@ BBObject * bmx_toml_parse_string(BBString * doc, BBString * sourcePath) {
 
         BBObject * region = text_toml_common_TTomlSourceRegion__create({ source.begin.line, source.begin.column }, { source.end.line, source.end.column }, path);
 
-        // description() provides the actual error description,
-        // while what() may contain additional formatted diagnostic information.
-        // source position is provided via "region"
-        //unsigned char * message = (unsigned char*)e.what();
-        //BBObject * ex = text_toml_TTomlParseError__create(bbStringFromUTF8String(message), region);
-
         const auto description = e.description();
         BBString * message = bbStringFromUTF8Bytes((unsigned char*)description.data(), description.size());
         BBObject * ex = text_toml_TTomlParseError__create(message, region);
