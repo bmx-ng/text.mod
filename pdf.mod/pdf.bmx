@@ -503,7 +503,7 @@ An application can change the setting of a pages tree by invoking #SetPagesConfi
 	End Rem
 	Method Free()
 		If docPtr Then
-			HPDF_Free(docPtr:Byte Ptr)
+			HPDF_Free(docPtr)
 			docPtr = Null
 		End If
 	End Method
