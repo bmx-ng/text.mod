@@ -195,14 +195,19 @@ BBObject * bmx_toml_parse_string(BBString * doc, BBString * sourcePath) {
     try {
 
         char * d = (char*)bbStringToUTF8String(doc);
-        char * p = (char*)bbStringToUTF8String(sourcePath);
 
         std::string cdoc(d);
-        std::string cpath(p);
 
         bbMemFree(d);
-        bbMemFree(p);
-        
+
+        std::string cpath;
+
+        if (sourcePath != &bbEmptyString) {
+            char * p = (char*)bbStringToUTF8String(sourcePath);
+            cpath = std::string(p);
+            bbMemFree(p);
+        }
+
         auto res = toml::parse(cdoc, cpath);
 
         BBObject * table = bmx_toml_build_table(res);
