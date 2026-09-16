@@ -52,8 +52,8 @@ Type TToml
 	about:
 	May throw a #TTomlParseError.
 	End Rem
-	Function Parse:TTomlTable(doc:String)
-		Return bmx_toml_parse_string(doc)
+	Function Parse:TTomlTable(doc:String, sourcePath:String = Null)
+		Return bmx_toml_parse_string(doc, sourcePath) 
 	End Function
 
 	Rem
@@ -64,7 +64,7 @@ Type TToml
 	Function Load:TTomlTable(path:String)
 		Local stream:TStream = ReadStream(path)
 		If stream Then
-			Local table:TTomlTable = Load(stream)
+			Local table:TTomlTable = Load(stream, path)
 			stream.Close()
 			Return table
 		End If
@@ -75,9 +75,9 @@ Type TToml
 	about:
 	May throw a #TTomlParseError.
 	End Rem
-	Function Load:TTomlTable(stream:TStream)
+	Function Load:TTomlTable(stream:TStream, sourcePath:String = Null)
 		Local doc:String = LoadText(stream)
-		Return Parse(doc)
+		Return Parse(doc, sourcePath)
 	End Function
 
 End Type
@@ -1089,13 +1089,26 @@ Type TTomlParseError Extends TBlitzException
 
 	Public
 	Method ToString:String()
-		Return message
-	End Method
+		Local result:String = message
 
+		If source Then
+			If source.path Then
+				result :+ " in " + source.path
+			End If
+
+			result :+ " at line " + source.beginPos.line + ", column " + source.beginPos.column
+
+			If source.endPos.line <> source.beginPos.line Or source.endPos.column <> source.beginPos.column Then
+				result :+ "-" + source.endPos.line + ":" + source.endPos.column
+			End If
+		End If
+
+		Return result
+	End Method
 End Type
 
 Extern
 
-	Function bmx_toml_parse_string:TTomlTable(doc:String)
+	Function bmx_toml_parse_string:TTomlTable(doc:String, sourcePath:String)
 
 End Extern
