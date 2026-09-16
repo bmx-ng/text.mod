@@ -150,7 +150,7 @@ Type TGVGraphviz
 				Return Null
 			End If
 
-			Local render:String = String.FromUTF8Bytes(s, length)
+			Local render:String = String.FromUTF8Bytes(s, Int(length))
 
 			gvFreeRenderData(s)
 

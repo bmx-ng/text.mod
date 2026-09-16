@@ -65,7 +65,7 @@ Type TMDHtmlCodeHighlighter Abstract
 		_codeblock = New TStringBuilder
 		Local lang:SMDAttribute = block.Lang()
 		If lang.size > 0 Then
-			_lang = String.FromUTF8Bytes(lang.text, lang.size)
+			_lang = String.FromUTF8Bytes(lang.text, Int(lang.size))
 		End If
 		
 		local info:SMDAttribute = block.Info()
