@@ -77,7 +77,7 @@ Type TMPackTest Extends TTest
 		Local actual:String = reader.ReadString()
 		AssertEquals(expected.Length, actual.Length)
 		AssertEquals(expected, actual)
-		AssertEquals(EMPackError.ok.Ordinal(), reader.Free())
+		AssertEquals(EMPackError.ok.Ordinal(), reader.Free().Ordinal())
 	End Method
 
 	Method TestStringWriterOverloads() { test }
