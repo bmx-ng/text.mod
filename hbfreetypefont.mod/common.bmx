@@ -36,6 +36,11 @@ Extern
 	Function bmx_hb_features_destroy(features:Byte Ptr)
 
 	Function bmx_hb_buffer_calc_glyphs_info:SGlyphPosition Ptr(font:Byte Ptr, buffer:Byte Ptr, features:Byte Ptr, featuresLength:Int, text:String, length:Int Var)
+	Function bmx_hb_buffer_calc_run_info:SGlyphPosition Ptr(font:Byte Ptr, buffer:Byte Ptr, features:Byte Ptr, featuresLength:Int, text:String, length:Int Var, first:Int, runLength:Int, rtl:Int, script:Int, language:String)
+	Function bmx_hb_buffer_run_carets:Int(font:Byte Ptr, buffer:Byte Ptr, features:Byte Ptr, featuresLength:Int, text:String, positions:Float Ptr, valid:Byte Ptr, first:Int, runLength:Int, rtl:Int, script:Int, language:String)
+	Function bmx_hb_buffer_is_rtl:Int(buffer:Byte Ptr)
+	Function bmx_hb_buffer_glyph_cluster:Int(buffer:Byte Ptr, index:Int)
+	Function bmx_hb_buffer_caret_positions:Int(font:Byte Ptr, buffer:Byte Ptr, features:Byte Ptr, featuresLength:Int, text:String, positions:Float Ptr, valid:Byte Ptr)
 	Function bmx_hb_buffer_calc_glyphs_info_destroy(glyphs:SGlyphPosition Ptr)
 End Extern
 

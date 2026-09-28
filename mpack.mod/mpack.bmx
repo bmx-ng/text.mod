@@ -321,14 +321,14 @@ Type TMPackWriter
 	bbdoc: Writes a #Size_T in the most efficient packing available.
 	End Rem
 	Method Write(value:Size_T)
-		mpack_write_u64(mpackWriterPtr, value)
+		mpack_write_u64(mpackWriterPtr, ULong(value))
 	End Method
 
 	Rem
 	bbdoc: Writes a #Size_T in the most efficient packing available.
 	End Rem
 	Method WriteSizeT(value:Size_T)
-		mpack_write_u64(mpackWriterPtr, value)
+		mpack_write_u64(mpackWriterPtr, ULong(value))
 	End Method
 
 	Rem
