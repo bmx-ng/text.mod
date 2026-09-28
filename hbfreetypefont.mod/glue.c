@@ -152,32 +152,104 @@ void bmx_hb_buffer_calc_glyph_info(hb_font_t * font, hb_buffer_t * buffer, hb_fe
     glyphInfo->y_offset = positions[0].y_offset;
 }
 
-MaxGlyphInfo * bmx_hb_buffer_calc_glyphs_info(hb_font_t * font, hb_buffer_t * buffer, hb_feature_t * features, int featuresLength, BBString * text, int * length) {
-    hb_buffer_clear_contents(buffer);
-    hb_buffer_set_content_type(buffer, HB_BUFFER_CONTENT_TYPE_UNICODE);
-    hb_buffer_add_utf16(buffer, text->buf, text->length, 0, text->length);
-    hb_buffer_guess_segment_properties(buffer);
+static void bmx_hb_prepare_run(hb_font_t *font, hb_buffer_t *buffer, hb_feature_t *features, int featuresLength, BBString *text, int first, int runLength, int rtl, int script, BBString *language) {
+	hb_buffer_reset(buffer);
+	hb_buffer_set_content_type(buffer, HB_BUFFER_CONTENT_TYPE_UNICODE);
+	hb_buffer_add_utf16(buffer, text->buf, text->length, first, runLength);
+	if (rtl >= 0) hb_buffer_set_direction(buffer, rtl ? HB_DIRECTION_RTL : HB_DIRECTION_LTR);
+	if (script) hb_buffer_set_script(buffer, hb_script_from_iso15924_tag((hb_tag_t)script));
+	if (language && language->length) {
+		char *value = (char *)bbStringToUTF8String(language);
+		hb_buffer_set_language(buffer, hb_language_from_string(value, -1));
+		bbMemFree(value);
+	}
+	hb_buffer_set_flags(buffer, (first == 0 ? HB_BUFFER_FLAG_BOT : 0) |
+		(first + runLength == text->length ? HB_BUFFER_FLAG_EOT : 0));
+	hb_buffer_guess_segment_properties(buffer);
 
-    hb_shape(font, buffer, featuresLength > 0 ? features : NULL, featuresLength);
+	hb_shape(font, buffer, featuresLength > 0 ? features : NULL, featuresLength);
+}
 
-    int count = hb_buffer_get_length(buffer);
-    hb_glyph_info_t * infos = hb_buffer_get_glyph_infos(buffer, NULL);
-    hb_glyph_position_t * positions = hb_buffer_get_glyph_positions(buffer, NULL);
+MaxGlyphInfo * bmx_hb_buffer_calc_run_info(hb_font_t * font, hb_buffer_t * buffer, hb_feature_t * features, int featuresLength, BBString * text, int * length, int first, int runLength, int rtl, int script, BBString *language) {
+	bmx_hb_prepare_run(font, buffer, features, featuresLength, text, first, runLength, rtl, script, language);
 
-    *length = count;
-    MaxGlyphInfo * glyphInfo = (MaxGlyphInfo*)malloc(count * sizeof(MaxGlyphInfo));
+	int count = hb_buffer_get_length(buffer);
+	hb_glyph_info_t * infos = hb_buffer_get_glyph_infos(buffer, NULL);
+	hb_glyph_position_t * positions = hb_buffer_get_glyph_positions(buffer, NULL);
 
-    for (int i = 0; i < count; ++i) {
-        glyphInfo[i].glyphIndex = infos[i].codepoint;
-        glyphInfo[i].x_advance = positions[i].x_advance;
-        glyphInfo[i].y_advance = positions[i].y_advance;
-        glyphInfo[i].x_offset = positions[i].x_offset;
-        glyphInfo[i].y_offset = positions[i].y_offset;
-    }
+	*length = count;
+	MaxGlyphInfo * glyphInfo = (MaxGlyphInfo*)malloc(count * sizeof(MaxGlyphInfo));
 
-    return glyphInfo;
+	for (int i = 0; i < count; ++i) {
+		glyphInfo[i].glyphIndex = infos[i].codepoint;
+		glyphInfo[i].x_advance = positions[i].x_advance;
+		glyphInfo[i].y_advance = positions[i].y_advance;
+		glyphInfo[i].x_offset = positions[i].x_offset;
+		glyphInfo[i].y_offset = positions[i].y_offset;
+	}
+
+	return glyphInfo;
+}
+
+MaxGlyphInfo * bmx_hb_buffer_calc_glyphs_info(hb_font_t *font, hb_buffer_t *buffer,
+		hb_feature_t *features, int featuresLength, BBString *text, int *length) {
+	return bmx_hb_buffer_calc_run_info(font, buffer, features, featuresLength, text,
+		length, 0, text->length, -1, 0, NULL);
 }
 
 void bmx_hb_buffer_calc_glyphs_info_destroy(MaxGlyphInfo * glyphInfo) {
     free(glyphInfo);
+}
+
+/* Optional cluster-edge carets. Existing glyph ABI remains unchanged.
+ * Positions are in shaping units, like x_advance; the caller scales them.
+ * Only horizontal runs with monotone source clusters are supported.
+ */
+int bmx_hb_buffer_run_carets(hb_font_t *font, hb_buffer_t *buffer,
+		hb_feature_t *features, int featuresLength, BBString *text,
+		float *output, unsigned char *valid, int first, int runLength, int requestedRTL, int script, BBString *language) {
+	bmx_hb_prepare_run(font, buffer, features, featuresLength, text,
+		first, runLength, requestedRTL, script, language);
+	hb_direction_t direction = hb_buffer_get_direction(buffer);
+	if (!HB_DIRECTION_IS_HORIZONTAL(direction)) return 0;
+	unsigned int count = hb_buffer_get_length(buffer);
+	hb_glyph_info_t *infos = hb_buffer_get_glyph_infos(buffer, NULL);
+	hb_glyph_position_t *positions = hb_buffer_get_glyph_positions(buffer, NULL);
+	int rtl = direction == HB_DIRECTION_RTL;
+	float pen = 0;
+	unsigned int previous = rtl ? runLength : 0;
+	for (unsigned int i = 0; i < count;) {
+		unsigned int cluster = infos[i].cluster - first;
+		if (cluster >= (unsigned int)runLength ||
+			(rtl ? cluster > previous : cluster < previous)) return 0;
+		float start = pen;
+		do {
+			pen += positions[i].x_advance;
+			++i;
+		} while (i < count && infos[i].cluster == cluster + first);
+		output[cluster] = rtl ? pen : start;
+		valid[cluster] = 1;
+		previous = cluster;
+	}
+	output[runLength] = rtl ? 0 : pen;
+	valid[runLength] = 1;
+	if (!count) { output[0] = 0; valid[0] = 1; }
+	return 1;
+}
+
+int bmx_hb_buffer_caret_positions(hb_font_t *font, hb_buffer_t *buffer,
+		hb_feature_t *features, int featuresLength, BBString *text, float *output, unsigned char *valid) {
+	return bmx_hb_buffer_run_carets(font, buffer, features, featuresLength, text,
+		output, valid, 0, text->length, -1, 0, NULL);
+}
+
+/* Read cluster metadata from the most recently shaped buffer without reshaping. */
+int bmx_hb_buffer_glyph_cluster(hb_buffer_t *buffer, int index) {
+	unsigned int count;
+	hb_glyph_info_t *info = hb_buffer_get_glyph_infos(buffer, &count);
+	return index >= 0 && (unsigned int)index < count ? (int)info[index].cluster : -1;
+}
+
+int bmx_hb_buffer_is_rtl(hb_buffer_t *buffer) {
+	return hb_buffer_get_direction(buffer) == HB_DIRECTION_RTL;
 }
