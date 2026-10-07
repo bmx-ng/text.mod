@@ -114,7 +114,6 @@ Type TxmlNode Extends TxmlBase
 	End Method
 
 	Rem
-	Rem
 	bbdoc: Adds a new node @node as the next sibling.
 	End Rem
 	Method addNextSibling(node:TxmlNode)
