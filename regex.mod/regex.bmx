@@ -801,10 +801,10 @@ Type TRegExOptions
 	bbdoc: Allow patterns to match empty strings.
 	End Rem
 	Field matchEmpty:Int = True
-	'Rem
-	'bbdoc: Indicates whether all occurances of matches will be replaced.
-	'about: Only applicable during a Replace.
-	'End Rem
+	Rem
+	bbdoc: Indicates whether all occurances of matches will be replaced.
+	about: Only applicable during a Replace.
+	End Rem
 	Field replaceAllMatches:Int = False
 	Rem
 	bbdoc: Count the beginning of a string as the beginning of a line.
